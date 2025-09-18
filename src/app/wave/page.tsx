@@ -39,7 +39,6 @@ export default function WaveTempPage () {
         //console.log(points);
 
         ctxRef.current.beginPath();
-        //ctxRef.current.moveTo(points[0], centerY);
         for(let i = 0; i < points.length - 1; i+=2) {
             const yPos1 = i % 4 == 1 ? 0
                         : i % 4 == 3 ? height
@@ -48,12 +47,10 @@ export default function WaveTempPage () {
                         : (i+1) % 4 == 3 ? height
                         : centerY;
             
-            if(i+1 < points.length)
+            if(i+1 < points.length)  
                 ctxRef.current.arcTo(points[i], yPos1, points[i+1], yPos2, height);
             else
                 ctxRef.current.lineTo(points[i], yPos1);
-            //ctxRef.current.lineTo(points[i], yPos1);
-            //if(i+1 < points.length) ctxRef.current.lineTo(points[i+1], yPos2);
             console.log(points[i], yPos1, points[i+1], yPos2);
         }
 

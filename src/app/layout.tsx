@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
-import { Inter, Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { DM_Sans, Inter, Geist_Mono } from "next/font/google";
 import Header from "@/ui/Header";
 import Footer from "@/ui/Footer";
 import "./globals.css";
 import "@/styles/header.css";
+import "@/styles/layout.css";
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"]
+});
 
 const interSans = Inter({
   variable: "--font-inter-sans",
   subsets: ["latin"]
-});
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
@@ -32,7 +33,7 @@ export const viewport: Viewport = {
   themeColor: "#0ea5e9",
   width: "device-width",
   initialScale: 1,
-}
+};
 
 export default function RootLayout({
   children,
@@ -42,9 +43,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${interSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${dmSans.variable} ${interSans.variable} ${geistMono.variable} antialiased relative tracking-tight`}
       >
-        <Header />
+        <Header/>
         {children}
         <Footer />
       </body>

@@ -1,7 +1,9 @@
-export default async function () {
+import SubVisual from "@/ui/SubVisual";
+
+export default async function LoginPage () {
   return (
-    <div>
-        로그인 페이지
+    <div id="contents" className="bg-custom-gradient min-h-svh h-full">
+      <SubVisual />
     </div>
   );
 }

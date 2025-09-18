@@ -1,14 +1,49 @@
 @charset "UTF-8";
 
+/* ========================================================== */
+/* == 헤더 스타일 */
+/* ========================================================== */
 header {
-    position:absolute;
+    position:fixed;
     display: flex;
-    width: 1920px;
+    width: 100%;
     height: 118px;
-    padding: 0 210px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+    color: #222222;
+    z-index: 1;
+}
+
+.inner-header {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+/* == 헤더 기본 스타일 1: 메인 */
+header.hstyle-1 {
     background-image: linear-gradient(180deg, #00000066, #00000000);
+    color: #ffffff;
+}
+
+/* == 헤더 기본 스타일 2: 서브 페이지 */
+header.hstyle-2 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* == 스크롤 헤더 */
+header.scroll-down {
+    transform: translateY(-100%);
+}
+
+header.scroll-up {
+    transform: translateY(0);
+}
+
+header.hstyle-3 {
+    background-color: #ffffff;
 }
