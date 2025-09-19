@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 export default function Header () {
     const pathname: string = usePathname();
 
-    const getHeaderStyle = (pathname: string) => { // 밖으로 뺄까?
+    const getHeaderStyle = (pathname: string) => {
         const config: headerType = new headerType();
         if(pathname == "/") {
             config.className = "hstyle-1";
@@ -31,7 +31,7 @@ export default function Header () {
         <header className={headerStyle.className}>
             <div className="inner-header">
                 <Link href={"/"}>
-                    <p className="font-medium text-3xl tracking-tighter">MulAlim Lab</p>
+                    <h1 className="font-medium text-3xl tracking-tighter">MulAlim Lab</h1>
                 </Link>
                 <Nav />
                 <Link href={"/login"} 

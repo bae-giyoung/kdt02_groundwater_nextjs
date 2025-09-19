@@ -1,44 +1,54 @@
-// 일단 물결 애니메이션 코드 러프하게 개발하고 나서 클래스로 만들어보자
+/* =========== TODO =========== */
+/* 
+* 중심점(y), 곡의 강도, 시작점(y)... 조절할 수 있게 할지 => 객체 인자로 묶자
+*/
 import Point from "./Point";
 export default class Wave {
 
-    constructor(public canvas: HTMLCanvasElement, public cols: number, public points: Point[] = []) {
+    constructor(
+        public canvas: HTMLCanvasElement, public cols: number, // cols 변수명 맘에 안드는데 half파장으로 변경하면.... 파장을 하면 코드 다시 짜고..
+        public amp: number,
+        private colWidth: number = 0, private points: Point[] = []
+    ) {
         const width = canvas.getBoundingClientRect().width;
-        const height = canvas.getBoundingClientRect().height;
-        const colWidth = Math.ceil(width / cols);
+        this.colWidth = Math.ceil(width / cols); // 기억: 반응형에서 갱신해야할 속성임
 
-        //this.points = [];
-        for(let i = 0; i < cols; i++) {
-            const xPos = i != cols - 1 ? colWidth * i : width;
-            const yPos = i % 4 == 1 ? 0 : i % 4 == 3 ? height : height / 2;
+        for(let i = 0; i <= cols; i++) { // 점은 cols + 1
+            const xPos = i != cols ? this.colWidth * i : width;
+            const yPos = i % 4 == 1 ? 0 : i % 4 == 3 ? 2*amp : amp;
             this.points.push(new Point(xPos, yPos));
+            console.log(xPos, yPos, this.colWidth);
         }
     }
 
-    // 캔버스에 wave 그리기
-    draw(points: Point[]) {
+    draw() {
         if(!this.canvas) return;
         const ctx = this.canvas.getContext("2d");
         
         if(!ctx) return;
         ctx.beginPath();
 
-        ctx.moveTo(0,0);
-        for(let i = 0; i < points.length; i++) {
-            if (i == 0)
-                ctx.moveTo(points[i].x, points[i].y);
+        const points = this.points;
+        if(!points) return;
+
+        ctx.moveTo(points[0].x, points[0].y);
+        for(let i = 1; i < points.length; i++) { // 일단 다 만들고 식 정리!!!!! 캐싱할거 , 그리고 곡의 강도도 조절할 수 있게?       
+            if(i % 2 == 0)
+                ctx.bezierCurveTo(points[i-1].x + (this.colWidth/2), points[i-1].y, points[i].x, points[i].y, points[i].x, points[i].y);
             else
-                ctx.lineTo(points[i].x, points[i].y);
+                ctx.bezierCurveTo(points[i-1].x, points[i-1].y, points[i].x - (this.colWidth/2), points[i].y, points[i].x, points[i].y);
         }
 
-        // 곡선으로 변환
-
-
-        return ctx;
+        ctx.stroke();
     }
 
     // 움직이기
     animate() {
+
+    }
+
+    // 반응형: 캔버스의 크기가 변할때만 trigger하자
+    resize() {
 
     }
 

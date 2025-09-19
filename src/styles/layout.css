@@ -1,9 +1,18 @@
+@charset "UTF-8";
+
 :root {
     --footer-height: 250px;
 }
 
 html, body {
   font-family: var(--font-dm-sans, --font-inter-sans, --default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+}
+
+#subvis {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 #contents {
@@ -15,8 +24,6 @@ html, body {
 #contents.bg-custom-gradient {
     min-height: 100vh;
     min-height: 100svh;
-    /* background-color: #B6C9CF; */
-    /* background-image: radial-gradient(); */
 }
 
 footer {
@@ -39,6 +46,10 @@ footer {
     .inner-header {
         max-width:1500px;
         padding: 0;
+    }
+
+    #subvis {
+        min-height: 500px;
     }
     
     #contents {
@@ -63,6 +74,10 @@ footer {
         max-width: none;
         padding: 0 50px;
     }
+
+    #subvis {
+        min-height: 400px;
+    }
     
     .section {
         max-width: none;
@@ -80,6 +95,10 @@ footer {
         --footer-height: 200px;
     }
 
+    #subvis {
+        min-height: 300px;
+    }
+
     #contents {
         padding-bottom: 200px;
         padding-bottom: var(--footer-height);
@@ -92,8 +111,9 @@ footer {
 
 /* == animation */
 #contents.bg-custom-gradient {
-	background: linear-gradient(-45deg, #F45F0055, #FA981999, #B6C9CF99, #DEEEFE99, #FA981999, #F45F0055, #B6C9CF99, #DEEEFE99);
-	background-size: 800% 800%;
+	/* background: linear-gradient(-45deg, #F45F0055, #FA981999, #B6C9CF99, #DEEEFE99, #FA981999, #F45F0055, #B6C9CF99, #DEEEFE99); */
+	background: linear-gradient(-45deg, #B6C9CF99, #DEEEFE99, #B6C9CF99, #DEEEFE99);
+	background-size: 400% 400%;
 	animation: gradient 45s ease infinite;
 }
 
