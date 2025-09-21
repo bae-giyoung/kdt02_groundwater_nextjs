@@ -1,4 +1,4 @@
-import SubVisual from "@/ui/SubVisual";
+import SubVisual from "@/components/ui/SubVisual";
 
 export default async function LoginPage () {
   return (

@@ -12,7 +12,14 @@ header {
     align-items: center;
     flex-shrink: 0;
     color: #222222;
-    z-index: 1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+    transform: translateY(0);
+    transition-property: transform, background-color, color;
+    transition-duration: 300ms;
+    transition-timing-function: ease;
+    will-change: transform, background-color, color;
+    --header-color: #222222;
+    z-index: 10;
 }
 
 .inner-header {
@@ -23,27 +30,153 @@ header {
     align-items: center;
 }
 
+header .user-btn {
+    border-color: #222222;
+    transition-property: border-color;
+    transition-duration: 300ms;
+    transition-timing-function: ease;
+    will-change: border-color;
+}
+
+header .user-btn .arr {
+    display: block;
+    background-image: url("/assets/arrow_link_bk.png");
+    background-position: center;
+    background-size: contain;
+}
 
 /* == 헤더 기본 스타일 1: 메인 */
 header.hstyle-1 {
     background-image: linear-gradient(180deg, #00000066, #00000000);
     color: #ffffff;
+    --header-color: #ffffff;
+    border: none;
 }
 
-/* == 헤더 기본 스타일 2: 서브 페이지 */
-header.hstyle-2 {
+header.hstyle-1 .user-btn {
+    border-color: #ffffff;
+}
+
+header.hstyle-1 .user-btn .arr {
+    background-image: url("/assets/arrow_link_wh.png");
+}
+
+#header.hstyle-3 {
+    background-image: none;
+    background-color: #FFFFFFB2;
+    backdrop-filter: blur(35px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.10);
+    color: #222222;
+    --header-color: #222222;
 }
 
-/* == 스크롤 헤더 */
-header.scroll-down {
-    transform: translateY(-100%);
+header.hstyle-3 .user-btn {
+    border-color: #222222;
 }
 
-header.scroll-up {
-    transform: translateY(0);
+header.hstyle-3 .user-btn .arr {
+    background-image: url("/assets/arrow_link_bk.png");
 }
 
-header.hstyle-3 {
-    background-color: #ffffff;
+/* 헤더- 메뉴버튼 */
+header .mobile-menu-btn{
+    position: relative;
+    padding:10px; cursor: pointer;
+}
+
+header .mobile-menu-btn::before,
+header .mobile-menu-btn::after,
+header .mobile-menu-btn span{
+    content: ""; display: block;
+    height: var(--menu-line-height);
+    background-color: #222;
+    background-color: var(--header-color);
+    transition: opacity var(--menu-ani-timing),
+    transform var(--menu-ani-timing), width var(--menu-ani-timing),
+    margin var(--menu-ani-timing);
+    transform-origin: left center;
+}
+
+header .mobile-menu-btn span{
+    width: var(--menu-line-width);
+    margin-top: var(--menu-line-gap); margin-bottom: var(--menu-line-gap);
+}
+
+header .mobile-menu-btn::before{
+    width: calc(var(--menu-line-width) / 2);
+}
+
+header .mobile-menu-btn::after{
+    width: calc(var(--menu-line-width) / 2);
+    margin-left: calc(var(--menu-line-width) / 2);
+}
+
+header.is-closed .mobile-menu-btn span{
+    opacity: 0; width: 0;
+}
+
+header.is-closed .mobile-menu-btn::before{
+    transform: rotate(45deg) translateY(calc(var(--menu-line-height) / -1.4142135));
+    width: var(--x-btn-width);
+}
+
+header.is-closed .mobile-menu-btn::after{
+    transform: rotate(-45deg) translateY(calc(var(--menu-line-height) / 1.4142135));
+    width: var(--x-btn-width); margin-left: 0;
+}
+
+header.is-closed .user-btn {
+    position: absolute;
+    display: flex;
+    right:110px;
+}
+
+/* ========================================================== */
+/* == 반응형 */
+/* ========================================================== */
+
+@media all and (min-width:1601px) {
+    .inner-header {
+        max-width:1500px;
+        padding: 0;
+    }
+}
+
+@media all and (max-width: 1600px) {
+    .inner-header {
+        max-width: none;
+        padding: 0 50px;
+    }
+}
+
+@media all and (max-width: 1280px) {
+    header {
+        height:90px;
+    }
+
+    .inner-header {
+        padding: 0 30px;
+    }
+}
+
+@media all and (max-width: 500px) {
+    .inner-header {
+        padding: 0 20px;
+    }
+
+    header .mobile-menu-btn {
+        padding: 0;
+    }
+
+    header.is-closed .user-btn {
+        right:70px;
+    }
+}
+
+
+/* ========================================================== */
+/* == 접근성 */
+/* ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+    header {transform: translateY(0) !important;}
 }

@@ -43,10 +43,6 @@ footer {
 }
 
 @media all and (min-width:1601px) {
-    .inner-header {
-        max-width:1500px;
-        padding: 0;
-    }
 
     #subvis {
         min-height: 500px;
@@ -70,11 +66,6 @@ footer {
 }
 
 @media all and (max-width: 1600px) {
-    .inner-header {
-        max-width: none;
-        padding: 0 50px;
-    }
-
     #subvis {
         min-height: 400px;
     }

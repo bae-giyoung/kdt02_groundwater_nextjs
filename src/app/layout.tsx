@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Inter, Geist_Mono } from "next/font/google";
-import Header from "@/ui/Header";
-import Footer from "@/ui/Footer";
+import Header from "@/components/ui/Header";
+import Footer from "@/components/ui/Footer";
 import "./globals.css";
 import "@/styles/header.css";
 import "@/styles/layout.css";
@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dmSans.variable} ${interSans.variable} ${geistMono.variable} antialiased relative tracking-tight`}
+        className={`${dmSans.variable} ${interSans.variable} ${geistMono.variable} antialiased relative tracking-tight break-keep`}
       >
         <Header/>
         {children}
