@@ -3,6 +3,7 @@ import { DM_Sans, Inter, Geist_Mono } from "next/font/google";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import "./globals.css";
+import "@/styles/cmm.style.css";
 import "@/styles/header.css";
 import "@/styles/layout.css";
 

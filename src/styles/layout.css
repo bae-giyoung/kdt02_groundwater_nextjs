@@ -13,6 +13,12 @@ html, body {
     width: 100%;
     flex-direction: column;
     justify-content: flex-end;
+    align-items: center;
+    font-weight: bold;
+}
+
+#subvis.absolute #inner-subvis > * {
+    max-width: 45%;
 }
 
 #contents {
@@ -24,6 +30,10 @@ html, body {
 #contents.bg-custom-gradient {
     min-height: 100vh;
     min-height: 100svh;
+}
+
+#contents.bg-custom-gradient::before {
+
 }
 
 footer {
@@ -38,14 +48,21 @@ footer {
     border-radius: 50px 50px 0 0;
 }
 
-.footer-inner {
+.inner-footer {
     height: 100%;
+    margin: 0 auto
 }
 
 @media all and (min-width:1601px) {
 
     #subvis {
-        min-height: 500px;
+        height: 500px;
+    }
+
+    #inner-subvis {
+        width: 100%;
+        max-width: 1500px;
+        padding: 0 0 56px;
     }
     
     #contents {
@@ -61,13 +78,19 @@ footer {
 
     .inner-footer {
         max-width:1500px;
-        padding: 40px 0 20px;
+        padding: 50px 0 20px;
     }
 }
 
 @media all and (max-width: 1600px) {
     #subvis {
-        min-height: 400px;
+        height: 450px;
+    }
+
+    #inner-subvis {
+        width: 100%;
+        max-width: none;
+        padding: 0 50px 40px;
     }
     
     .section {
@@ -79,15 +102,41 @@ footer {
         max-width: none;
         padding: 40px 50px 20px;
     }
+
+    #subvis .c-tit01 {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
 }
 
-@media all and (max-width: 768px) {
+@media all and (max-width: 1280px) {
+    #inner-subvis {
+        padding: 0 30px 40px;
+    }
+
+    .section {
+        padding: 50px 30px;
+    }
+
+    .inner-footer {
+        padding: 40px 30px 20px;
+    }
+}
+
+@media all and (max-width: 769px) {
     :root {
         --footer-height: 200px;
     }
 
     #subvis {
-        min-height: 300px;
+        position: relative !important;
+        height: initial;
+        padding-top:130px;
+    }
+
+    #subvis .c-tit01 {
+        font-size: 26px;
+        padding-top: 20px;
     }
 
     #contents {

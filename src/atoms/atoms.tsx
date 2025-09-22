@@ -1,2 +1,10 @@
-/* 'use client';
-import { atom } from 'jotai'; */
+'use client';
+import { UserType } from '@/types/uiTypes';
+import { atom } from 'jotai';
+
+// 현재 페이지
+export const pathnameAtom = atom<string>("/");
+
+// 사용자
+export const isLoginAtom = atom<boolean>(true);
+export const userAtom = atom<UserType>();

@@ -1,6 +1,8 @@
-export class headerType {
-    constructor(
-        public className: string = "",
-        public arrowSrc: any = "",
-    ) {}
+export interface UserType {
+    "user": {
+    "userId": string,
+    "username": string,
+    "roles": string,
+  },
+  "sessionExpiresIn": number
 }

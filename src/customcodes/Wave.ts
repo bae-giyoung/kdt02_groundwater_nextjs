@@ -7,9 +7,13 @@ export default class Wave {
 
     constructor(
         public canvas: HTMLCanvasElement, public cols: number, // cols 변수명 맘에 안드는데 half파장으로 변경하면.... 파장을 하면 코드 다시 짜고..
-        public amp: number,
+        public amp: number, public positionY: number = 0, public lineWidth: number = 1,
+        private ctx: CanvasRenderingContext2D | null = canvas?.getContext("2d"), 
         private colWidth: number = 0, private points: Point[] = []
     ) {
+        if(!this.canvas) return;
+        this.ctx = this.canvas.getContext("2d");
+
         const width = canvas.getBoundingClientRect().width;
         this.colWidth = Math.ceil(width / cols); // 기억: 반응형에서 갱신해야할 속성임
 
@@ -22,10 +26,13 @@ export default class Wave {
     }
 
     draw() {
-        if(!this.canvas) return;
-        const ctx = this.canvas.getContext("2d");
-        
+        if(!this.canvas || !this.ctx) return;
+        const ctx = this.ctx;
+
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         if(!ctx) return;
+        ctx.translate(0, this.lineWidth);
         ctx.beginPath();
 
         const points = this.points;
@@ -39,12 +46,18 @@ export default class Wave {
                 ctx.bezierCurveTo(points[i-1].x, points[i-1].y, points[i].x - (this.colWidth/2), points[i].y, points[i].x, points[i].y);
         }
 
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
 
     // 움직이기
     animate() {
-
+        const points = this.points;
+        for(let i = 1; i < points.length; i+=2) {
+            points[i].y = (points[i].y + 1) % (this.amp * 2);
+            console.log(points[i].y);
+        }
+        const id = requestAnimationFrame(this.draw.bind(this));
     }
 
     // 반응형: 캔버스의 크기가 변할때만 trigger하자

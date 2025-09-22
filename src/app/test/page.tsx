@@ -7,7 +7,8 @@ export default function () {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
     const drawWave = (canvas: HTMLCanvasElement) => {
-        const wave = new Wave(canvas, 10, canvas.getBoundingClientRect().height*0.1);
+        const canvasHeight = canvas.getBoundingClientRect().height;
+        const wave = new Wave(canvas, 10, canvasHeight*0.1, canvasHeight*0.5 );
         wave.draw();
     };
 

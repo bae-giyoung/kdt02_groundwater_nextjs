@@ -23,20 +23,18 @@ export default function ControlScrollingHeader({
 
         const apply = (dir: "init" | "up" | "down") => {
             if(dir == "init") {
-                header.classList.remove("hstyle-3");
+                document.body.classList.remove("has-hstyle-2");
                 return;
             }
 
             if(dir === "down") {
                 header.style.transform = "translateY(-100%)";
-                document.documentElement.setAttribute("data-scroll-dir", "down");
                 return;
             }
 
             if(dir === "up") {
                 header.style.transform = "translateY(0)";
-                header.classList.add("hstyle-3");
-                document.documentElement.setAttribute("data-scroll-dir", "up");
+                document.body.classList.add("has-hstyle-2");
                 return;
             }
         }
