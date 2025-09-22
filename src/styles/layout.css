@@ -151,20 +151,41 @@ footer {
 
 /* == animation */
 #contents.bg-custom-gradient {
-	/* background: linear-gradient(-45deg, #F45F0055, #FA981999, #B6C9CF99, #DEEEFE99, #FA981999, #F45F0055, #B6C9CF99, #DEEEFE99); */
-	background: linear-gradient(-45deg, #B6C9CF99, #DEEEFE99, #B6C9CF99, #DEEEFE99);
-	background-size: 400% 400%;
-	animation: gradient 45s ease infinite;
+	position: relative;
+    background: linear-gradient(-45deg, #B6C9CF88, #DEEEFE88, #B6C9CF88, #DEEEFE88);
+	background-size: 100% 100%;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
-@keyframes gradient {
+#contents.bg-custom-gradient::before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    border-radius: 50%;
+    background-image: radial-gradient(#F45F0066 , #FA981966, #DEEEFE11, #B6C9CF11);
+    filter: blur(120px);
+    right:-80%;
+    bottom:-80%;
+    animation: movingBall 15s infinite;
+}
+
+@keyframes movingBall {
 	0% {
-		background-position: 0% 50%;
+		width: 200%;
+        right:-80%;
+        bottom:-80%;
 	}
 	50% {
-		background-position: 100% 50%;
+		width: 150%;
+        right:-70%;
+        bottom:-90%;
 	}
 	100% {
-		background-position: 0% 50%;
+		width: 200%;
+        right:-80%;
+        bottom:-80%;
 	}
 }

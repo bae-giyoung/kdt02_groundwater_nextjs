@@ -10,8 +10,8 @@ type Options = {
 
 export default function ControlScrollingHeader({
     selector= "#header",
-    hideOffset= 8,
-    showOffset= 8,
+    hideOffset= 10,
+    showOffset= 10,
     minDelta= 8
 }: Options) {
 
