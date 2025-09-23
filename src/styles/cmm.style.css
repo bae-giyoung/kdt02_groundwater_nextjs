@@ -22,3 +22,108 @@
 #subvis .c-tit01 {
     margin-bottom: 40px;
 }
+
+.black-t1 {
+  color: #222222;
+}
+
+.black-t2 {
+  color: #444444;
+}
+
+.black-t3 {
+  color: #555555;
+}
+
+.gray-6a {
+  color: #6A6A6A;
+}
+
+.gray-92 {
+  color: #929292;
+}
+
+.gray-a1 {
+  color: #A1A1A1;
+}
+
+.border-style-1 {
+  border: 1px solid #E2E2E2;
+}
+
+.border-radius-15 {
+  border-radius: 15px;
+}
+
+.shadow-1 {
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
+}
+
+
+/* == Button Style */
+.btn-style-1 {
+  font-size: 22px;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 700;
+  border-radius: 15px;
+  padding: 19px 28px;
+  background-image: linear-gradient(to right, #B3D5F0, #468FAF, #014F86, #014F86, #468FAF, #B3D5F0);
+  background-size: 200% auto;
+  background-position: left center;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: background-position;
+  transition-duration: .3s;
+}
+
+.btn-style-1:hover {
+  background-position: right center;
+}
+
+.btn-style-2 {
+  font-size: 22px;
+  color: #222222;
+  font-weight: 700;
+  text-align: center;
+  padding: 19px 28px;
+  border: 1px solid #E2E2E2;
+  border-radius: 15px;
+  background-image: linear-gradient(to right, #ffffff 55%, #DEEEFE88, #B6C9CF88, #FA981966, #F45F0066);
+  background-size: 200% auto;
+  background-position: left center;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: background-position;
+  transition-duration: .3s;
+}
+
+.btn-style-2:hover {
+  background-position: right center;
+}
+
+
+/* == Accordian Style */
+.accordian {
+
+}
+
+.accordian-head {
+  cursor: pointer;
+}
+
+.accordian-content {
+  height: 0;
+  background-color: #f5f5f5;
+  transition: height .3s ease;
+  overflow-y: scroll;
+  box-sizing: border-box;
+}
+
+.is-open > .accordian-head {
+
+}
+
+.is-open > .accordian-content {
+  height: 200px;
+}

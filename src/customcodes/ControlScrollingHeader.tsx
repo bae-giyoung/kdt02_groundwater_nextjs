@@ -11,7 +11,7 @@ type Options = {
 export default function ControlScrollingHeader({
     selector= "#header",
     hideOffset= 10,
-    showOffset= 10,
+    showOffset= 8,
     minDelta= 8
 }: Options) {
 
@@ -31,7 +31,7 @@ export default function ControlScrollingHeader({
                 header.style.transform = "translateY(-100%)";
                 return;
             }
-
+            
             if(dir === "up") {
                 header.style.transform = "translateY(0)";
                 document.body.classList.add("has-hstyle-2");
@@ -58,7 +58,7 @@ export default function ControlScrollingHeader({
 
         window.addEventListener("scroll", onScroll, {passive: true});
 
-        apply("init");
+        apply("up");
 
         return () => {
             window.removeEventListener("scroll", onScroll);

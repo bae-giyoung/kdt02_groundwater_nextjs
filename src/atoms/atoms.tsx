@@ -6,5 +6,4 @@ import { atom } from 'jotai';
 export const pathnameAtom = atom<string>("/");
 
 // 사용자
-export const isLoginAtom = atom<boolean>(true);
-export const userAtom = atom<UserType>();
+export const isLoginAtom = atom<boolean>(false);

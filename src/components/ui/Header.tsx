@@ -19,7 +19,7 @@ export default async function Header () {
                     <MenuButton />
                 </div>
             </header>
-            <ControlScrollingHeader selector="#header" hideOffset={90} showOffset={8} minDelta={8} />
+            <ControlScrollingHeader selector="#header" hideOffset={10} showOffset={8} minDelta={8} />
         </>
     );
 }

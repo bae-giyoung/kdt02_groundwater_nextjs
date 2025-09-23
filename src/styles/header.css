@@ -14,16 +14,16 @@ header {
     color: #222222;
     border-bottom: 1px solid rgba(0, 0, 0, 0.10);
     transform: translateY(0);
-    transition-property: transform, background-color, color;
-    transition-duration: 300ms;
+    transition-property: transform, background-color, color, opacity;
+    transition-duration: .3s;
     transition-timing-function: ease;
-    will-change: transform, background-color, color;
+    will-change: transform, background-color, color, opacity;
     --header-color: #222222;
     z-index: 10;
 }
 
 html:has(main) header {
-    animation: initialAnimation 1.5s;
+    animation: initialAnimation 1.2s;
 }
 
 @keyframes initialAnimation {

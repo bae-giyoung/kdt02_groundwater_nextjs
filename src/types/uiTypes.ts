@@ -6,3 +6,8 @@ export interface UserType {
   },
   "sessionExpiresIn": number
 }
+
+export interface LoginErrorType {
+  "code": string,
+  "message": string
+}
