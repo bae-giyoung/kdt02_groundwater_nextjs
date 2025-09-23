@@ -1,5 +1,6 @@
 'use client';
-import { useRef } from "react";
+import { FormEvent, useRef } from "react";
+import { useRouter } from "next/navigation";
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "./CustomInput";
 import CustomAccordian from "./CustomAccordian";
@@ -8,8 +9,14 @@ export default function RegisterForm() {
     const usernameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const handleRegister = () => {
-        
+    const router = useRouter();
+
+    const handleRegister = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        // 성공하면 toast창 띄우고 로그인 페이지로
+        alert("회원 가입 되셨습니다. 로그인을 진행해 주세요.")
+        router.push("/login");
     }
 
     return (

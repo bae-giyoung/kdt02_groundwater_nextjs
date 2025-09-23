@@ -24,7 +24,7 @@ html, body {
 }
 
 #contents {
-    min-height: 300px;
+    min-height: 1500px;
     padding-bottom: 250px;
     padding-bottom: var(--footer-height);
 }
@@ -64,7 +64,6 @@ footer {
     }
     
     #contents {
-        min-height: 300px;
         padding-bottom: 250px;
         padding-bottom: var(--footer-height);
     }
@@ -158,11 +157,15 @@ footer {
 
 #login-form {}
 
+body:has(.bg-custom-gradient) {
+    background-color: #B6C9CF88;
+}
+
 #contents.bg-custom-gradient {
 	position: relative;
     min-height: 100vh;
     min-height: 100svh;
-    background: linear-gradient(-45deg, #B6C9CF88, #DEEEFE88, #B6C9CF88, #DEEEFE88);
+    background: linear-gradient(-45deg, #B6C9CF00, #DEEEFE88, #B6C9CF88, #DEEEFE88);
 	background-size: 100% 100%;
     overflow: hidden;
     box-sizing: border-box;

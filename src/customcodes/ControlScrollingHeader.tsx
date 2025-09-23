@@ -58,7 +58,7 @@ export default function ControlScrollingHeader({
 
         window.addEventListener("scroll", onScroll, {passive: true});
 
-        apply("up");
+        apply("init");
 
         return () => {
             window.removeEventListener("scroll", onScroll);
