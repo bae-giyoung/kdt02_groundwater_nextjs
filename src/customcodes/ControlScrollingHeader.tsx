@@ -24,6 +24,7 @@ export default function ControlScrollingHeader({
         const apply = (dir: "init" | "up" | "down") => {
             if(dir == "init") {
                 document.body.classList.remove("has-hstyle-2");
+                header.style.transform = "translateY(0)";
                 return;
             }
 
