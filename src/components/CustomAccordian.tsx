@@ -1,5 +1,4 @@
 'use client';
-
 import { useRef } from "react";
 
 export default function CustomAccordian (
@@ -20,7 +19,7 @@ export default function CustomAccordian (
 
     return (
       <div ref={accordianRef} className="accordian w-full border-style-1 h-auto font-medium border-radius-15 shadow-1 bg-white overflow-hidden">
-        <div onClick={handleAccordian} className="accordian-head flex items-center min-h-14 px-5">{head}</div>
+        <div onClick={handleAccordian} className="accordian-head flex items-center min-h-14 px-5">{head}<i className="accordian-arrow"></i></div>
         <div className="accordian-content">
           <p className="p-5">{content}</p>
         </div>

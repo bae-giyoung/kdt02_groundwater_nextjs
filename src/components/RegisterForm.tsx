@@ -9,6 +9,9 @@ export default function RegisterForm() {
     const usernameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
+    const privacyPolicyRef = useRef<HTMLInputElement>(null);
+    const termsOfUseRef = useRef<HTMLInputElement>(null);
+    const agreeAllRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
     const handleRegister = (e: FormEvent<HTMLFormElement>) => {
@@ -17,6 +20,18 @@ export default function RegisterForm() {
         // 성공하면 toast창 띄우고 로그인 페이지로
         alert("회원 가입 되셨습니다. 로그인을 진행해 주세요.")
         router.push("/login");
+    }
+
+    const handleAgreeAll = () => {
+        if(!privacyPolicyRef.current || !termsOfUseRef.current) return;
+
+        if(agreeAllRef.current?.checked) {
+            privacyPolicyRef.current.checked = true;
+            termsOfUseRef.current.checked = true;
+        } else {
+            privacyPolicyRef.current.checked = false;
+            termsOfUseRef.current.checked = false;
+        }
     }
 
     return (
@@ -55,14 +70,25 @@ export default function RegisterForm() {
                 </div>
                 <div className="mb-3 md:mb-5 lg:mb-10">
                     <div className="mb-5 md:mb-8 lg:mb-12">
-                        <CustomAccordian head="개인정보 처리 방침" content="텍스트 매우 크므로 import?" />
+                        <CustomAccordian head="개인정보 처리 방침" content="텍스트 크므로 import?" />
+                        <div className="checkbox-group">
+                            <input ref={privacyPolicyRef} id="privacyPolicy" name="privacyPolicy" type="checkbox" required />
+                            <label htmlFor="privacyPolicy" className="select-none">[개인정보 처리방침]에 동의합니다.</label>
+                        </div>
                     </div>
                     <div className="mb-5 md:mb-8 lg:mb-12">
-                        <CustomAccordian head="이용 약관" content="텍스트 매우 크므로 import?" />
+                        <CustomAccordian head="이용 약관" content="텍스트 크므로 import?" />
+                        <div className="checkbox-group">
+                            <input ref={termsOfUseRef} id="termsOfUse" name="termsOfUse" type="checkbox" required />
+                            <label htmlFor="termsOfUse" className="select-none">[이용 약관]에 동의합니다.</label>
+                        </div>
                     </div>
                 </div>
                 <div>
-                    
+                    <div className="checkbox-group">
+                        <input ref={agreeAllRef} id="agreeAll" name="agreeAll" type="checkbox" onClick={handleAgreeAll} />
+                        <label htmlFor="agreeAll" className="select-none">개인정보 처리방침 및 이용약관에 모두 동의합니다.</label>
+                    </div>
                 </div>
             </div>
         </form>
