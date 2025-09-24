@@ -6,16 +6,29 @@ import CustomInput from "./CustomInput";
 import CustomAccordian from "./CustomAccordian";
 
 export default function RegisterForm() {
-    const usernameRef = useRef<HTMLInputElement>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
-    const privacyPolicyRef = useRef<HTMLInputElement>(null);
-    const termsOfUseRef = useRef<HTMLInputElement>(null);
-    const agreeAllRef = useRef<HTMLInputElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
 
     const handleRegister = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if(formRef.current?.username.value == "") {
+            alert("아이디를 입력하세요");
+            formRef.current?.username.focus();
+            return;
+        }
+
+        if(formRef.current?.email.value == "") {
+            alert("이메일을 입력하세요");
+            formRef.current?.email.focus();
+            return;
+        }
+
+        if(formRef.current?.password.value == "") {
+            alert("비밀번호를 입력하세요");
+            formRef.current?.password.focus();
+            return;
+        }
 
         // 성공하면 toast창 띄우고 로그인 페이지로
         alert("회원 가입 되셨습니다. 로그인을 진행해 주세요.")
@@ -23,22 +36,22 @@ export default function RegisterForm() {
     }
 
     const handleAgreeAll = () => {
-        if(!privacyPolicyRef.current || !termsOfUseRef.current) return;
+        if(!formRef.current?.privacyPolicy || !formRef.current?.termsOfUse) return;
 
-        if(agreeAllRef.current?.checked) {
-            privacyPolicyRef.current.checked = true;
-            termsOfUseRef.current.checked = true;
+        if(formRef.current.agreeAll.checked) {
+            formRef.current.privacyPolicy.checked = true;
+            formRef.current.termsOfUse.checked = true;
         } else {
-            privacyPolicyRef.current.checked = false;
-            termsOfUseRef.current.checked = false;
+            formRef.current.privacyPolicy.checked = false;
+            formRef.current.termsOfUse.checked = false;
         }
     }
 
     return (
-        <form onSubmit={handleRegister} id="register-form" className="relative flex flex-col gap-12 xl:flex-row xl:gap-0 w-full">
+        <form ref={formRef} onSubmit={handleRegister} id="register-form" className="relative flex flex-col gap-12 xl:flex-row xl:gap-0 w-full">
             <div className="flex-1 w-full xl:border-r-2 pr-0 xl:pr-[8%]">
                 <div className="mb-5 md:mb-7 lg:mb-14">
-                    <p className="flex gap-2.5 items-end mb-3 md:mb-8 font-bold">
+                    <p className="flex gap-2.5 items-end mb-3 md:mb-5 font-bold">
                         <span className="text-3xl black-t1">회원가입</span>
                         <span className="text-2xl gray-a1 align-baseline">Sign Up</span>
                     </p>
@@ -47,48 +60,48 @@ export default function RegisterForm() {
                 <div className="mb-3 md:mb-5 lg:mb-10">
                     <div className="mb-5 md:mb-8 lg:mb-12">
                         <label htmlFor="username" className="block mb-2 gray-6a text-2xl font-bold">Username</label>
-                        <CustomInput ipRef={usernameRef} ipType="text" ipName="username" caption="아이디를 입력하세요" />
+                        <CustomInput ipType="text" ipName="username" caption="아이디를 입력하세요" />
                     </div>
                     <div className="mb-5 md:mb-8 lg:mb-12">
                         <label htmlFor="email" className="block mb-2 gray-6a text-2xl font-bold">Email</label>
-                        <CustomInput ipRef={emailRef} ipType="email" ipName="email" caption="이메일을 입력하세요" />
+                        <CustomInput ipType="email" ipName="email" caption="이메일을 입력하세요" />
                     </div>
                     <div>
                         <label htmlFor="password" className="block mb-2 gray-6a text-2xl font-bold">Password</label>
-                        <CustomInput ipRef={passwordRef} ipType="password" ipName="password" caption="비밀번호를 입력하세요" />
+                        <CustomInput ipType="password" ipName="password" caption="비밀번호를 입력하세요" />
                     </div>
                 </div>
                 <CustomButton caption="회원가입하기" bType="submit" bStyle="btn-style-1 w-full" />
             </div>
-            <div className="flex-1 w-full pl-0 xl:pl-[8%]">
-                <div className="mb-5 md:mb-7 lg:mb-14">
-                    <p className="flex gap-2.5 items-end mb-3 md:mb-8 font-bold">
-                        <span className="text-3xl black-t1">약관 동의</span>
-                        <span className="text-2xl gray-a1 align-baseline">Policy Agreement</span>
-                    </p>
-                    <p className="gray-92 font-medium text-lg">아래에서 약관 상세 내용을 확인하실 수 있습니다.</p>
-                </div>
-                <div className="mb-3 md:mb-5 lg:mb-10">
-                    <div className="mb-5 md:mb-8 lg:mb-12">
-                        <CustomAccordian head="개인정보 처리 방침" content="텍스트 크므로 import?" />
-                        <div className="checkbox-group">
-                            <input ref={privacyPolicyRef} id="privacyPolicy" name="privacyPolicy" type="checkbox" required />
-                            <label htmlFor="privacyPolicy" className="select-none">[개인정보 처리방침]에 동의합니다.</label>
-                        </div>
-                    </div>
-                    <div className="mb-5 md:mb-8 lg:mb-12">
-                        <CustomAccordian head="이용 약관" content="텍스트 크므로 import?" />
-                        <div className="checkbox-group">
-                            <input ref={termsOfUseRef} id="termsOfUse" name="termsOfUse" type="checkbox" required />
-                            <label htmlFor="termsOfUse" className="select-none">[이용 약관]에 동의합니다.</label>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex-1 flex flex-col w-full pl-0 xl:pl-[8%] justify-between">
                 <div>
-                    <div className="checkbox-group">
-                        <input ref={agreeAllRef} id="agreeAll" name="agreeAll" type="checkbox" onClick={handleAgreeAll} />
-                        <label htmlFor="agreeAll" className="select-none">개인정보 처리방침 및 이용약관에 모두 동의합니다.</label>
+                    <div className="mb-5 md:mb-7 lg:mb-14">
+                        <p className="flex gap-2.5 items-end mb-3 md:mb-5 font-bold">
+                            <span className="text-3xl black-t1">약관 동의</span>
+                            <span className="text-2xl gray-a1 align-baseline">Policy Agreement</span>
+                        </p>
+                        <p className="gray-92 font-medium text-lg">아래에서 약관 상세 내용을 확인하실 수 있습니다.</p>
                     </div>
+                    <div className="mb-3 md:mb-5 lg:mb-10">
+                        <div className="mb-5 md:mb-8 lg:mb-12">
+                            <CustomAccordian head="개인정보 처리 방침" content="텍스트 크므로 import?" />
+                            <div className="checkbox-group">
+                                <input id="privacyPolicy" name="privacyPolicy" type="checkbox" required />
+                                <label htmlFor="privacyPolicy" className="select-none mt-2 md:mt-3">[개인정보 처리방침]에 동의합니다.</label>
+                            </div>
+                        </div>
+                        <div className="mb-5 md:mb-8 lg:mb-12">
+                            <CustomAccordian head="이용 약관" content="텍스트 크므로 import?" />
+                            <div className="checkbox-group">
+                                <input id="termsOfUse" name="termsOfUse" type="checkbox" required />
+                                <label htmlFor="termsOfUse" className="select-none mt-2 md:mt-3">[이용 약관]에 동의합니다.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="checkbox-group black font-bold pt-5 pb-2.5 border-t-style-1">
+                    <input id="agreeAll" name="agreeAll" type="checkbox" onClick={handleAgreeAll} />
+                    <label htmlFor="agreeAll" className="select-none">개인정보 처리방침 및 이용약관에 모두 동의합니다.</label>
                 </div>
             </div>
         </form>

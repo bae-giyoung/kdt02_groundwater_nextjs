@@ -2,7 +2,7 @@
 
 interface CustomInputProps {
   caption: string, ipType: "text" | "password" | "email" | "number" | undefined,
-  ipRef: React.RefObject<HTMLInputElement | null>,
+  ipRef?: React.RefObject<HTMLInputElement | null>,
   ipName: string,
 }
 

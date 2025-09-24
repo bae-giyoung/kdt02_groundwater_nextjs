@@ -1,5 +1,7 @@
 @charset "UTF-8";
 
+/** ===== Title Style ===== */
+/** -- 타이틀1  */
 .c-tit01 {
     position: relative;
     display: inline-block;
@@ -23,6 +25,24 @@
     margin-bottom: 40px;
 }
 
+
+/** -- 타이틀2  */
+.c-tit02 {font-weight:600;line-height:1;transition:all .3s ease}
+.c-tit02 {position:relative;padding-left:28px;margin-bottom:25px;color:#222;font-size:1.888em;letter-spacing:-.094em;line-height:1.294}
+.c-tit02:before {content:"";display:block;position:absolute;left:0;top:0;background:url(/homepage/kor/_Img/Common/deco_ctit01.svg) no-repeat;width:15px;height:15px;z-index:-1;transition:all .3s ease}
+
+@media all and (max-width:999px) {
+	.c-tit02 {margin-bottom:15px;padding-left:24px}
+	.c-tit02:before {width:13px;height:13px;background-size:auto 13px}
+}
+
+@media all and (max-width:768px) {
+	.c-tit02 {padding-left:20px;margin-bottom:10px;font-size:1.54em}
+	.c-tit02:before {width:10px;height:10px;background-size:auto 10px}
+}
+
+
+/** -- 컬러  */
 .black-t1 {
   color: #222222;
 }
@@ -51,6 +71,14 @@
   border: 1px solid #E2E2E2;
 }
 
+.border-t-style-1 {
+  border-top: 1px solid #E2E2E2;
+}
+
+.border-b-style-1 {
+  border-bottom: 1px solid #E2E2E2;
+}
+
 .border-radius-15 {
   border-radius: 15px;
 }
@@ -59,8 +87,7 @@
   box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
 }
 
-
-/* == Button Style */
+/** ===== Button Style ===== */
 .btn-style-1 {
   font-size: 22px;
   color: #ffffff;
@@ -103,7 +130,7 @@
 }
 
 
-/* == Accordian Style */
+/** ===== Accordian Style ===== */
 .accordian-head {
   display: flex;
   justify-content: space-between;
@@ -148,4 +175,30 @@
 
 .accordian.is-open .accordian-arrow::before {
   transform: rotate(315deg);
+}
+
+
+/** ===== Form Style ===== */
+input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #00000022;}
+
+/** -- checkbox */
+.checkbox-group {position:relative;line-height:1}
+.checkbox-group input[type="checkbox"] {position:absolute;border:0;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+.checkbox-group input[type="checkbox"] + label {display:inline-block;position:relative;padding:5px 0 5px 25px;margin-right:5px;color:#666;line-height:1.2;letter-spacing:0;text-align:left;vertical-align:middle;cursor:pointer;user-select:none;transition:all .3s ease}
+.checkbox-group input[type="checkbox"] + label:before,
+.checkbox-group input[type="checkbox"] + label:after {content:"";position:absolute;transition:all .3s ease;box-sizing:border-box}
+.checkbox-group input[type="checkbox"] + label:before {left:0;top:5px;background:#ebebeb;border:1px solid #c6c6c6;border-radius:5px;width:20px;height:20px}
+.checkbox-group input[type="checkbox"] + label:after {left:6px;top:11px;border:solid;border-width:0 0 2px 2px;border-color:transparent transparent #999 #999;width:8px;height:5px;transform:rotate(-45deg)}
+.checkbox-group input[type="checkbox"] + label:hover {color:#222222}
+.checkbox-group input[type="checkbox"] + label:hover:before {border-color:#222222}
+.checkbox-group input[type="checkbox"]:checked + label {color:#222222;font-weight:700}
+.checkbox-group input[type="checkbox"]:checked + label:before {border-color:#222222;background:#222222}
+.checkbox-group input[type="checkbox"]:checked + label:after {border-color:transparent transparent #fff #fff}
+
+.checkbox-group.black input[type="checkbox"] + label {color:#222222}
+.checkbox-group.black input[type="checkbox"] + label:before {border-color:#222222;}
+
+@media all and (max-width:768px) {
+	.checkbox-group input[type="checkbox"] + label:before {top:5px}
+	.checkbox-group input[type="checkbox"] + label:after {top:10px}
 }

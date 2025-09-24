@@ -157,16 +157,12 @@ footer {
 
 #login-form {}
 
-body:has(.bg-custom-gradient) {
-    background-color: #B6C9CF88;
-}
-
 #contents.bg-custom-gradient {
 	position: relative;
-    min-height: 100vh;
-    min-height: 100svh;
-    background: linear-gradient(-45deg, #B6C9CF00, #DEEEFE88, #B6C9CF88, #DEEEFE88);
-	background-size: 100% 100%;
+    min-height: 100svh; /* 임시 레이아웃 나중에 지우기 */
+    background: linear-gradient(-45deg, #DEEEFE99, #B6C9CF99, #DEEEFE99);
+    /* background-image: linear-gradient(45deg, #ECF6F7 51.75%, #ECF6F7 51.76%, #DEEFF9 100.35%, rgba(236, 246, 247, 0.00) 100.36%); */
+	/* background-size: 100% 100%; */
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -178,8 +174,9 @@ body:has(.bg-custom-gradient) {
     width: 200%;
     height: 200%;
     border-radius: 50%;
-    background-image: radial-gradient(#F45F0066 , #FA981966, #DEEEFE11, #B6C9CF11);
+    background-image: radial-gradient(#F45F00 , #FA9819, #DEEEFE, #DEEEFE);
     filter: blur(120px);
+    opacity: 0.4;
     right:-80%;
     bottom:-80%;
     animation: movingBall 15s infinite;

@@ -46,7 +46,7 @@ export default function LoginForm() {
                 const data : Promise<UserType | LoginErrorType> = await resp.json();    console.log(data);
                 setLoginAtom(true);
                 sessionStorage.setItem("user", JSON.stringify(data));
-                router.back();
+                router.push("/userpage");
             } else {
                 alert("로그인 실패");
             }

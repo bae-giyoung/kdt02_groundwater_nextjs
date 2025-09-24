@@ -1,5 +1,4 @@
 'use client';
-import { UserType } from '@/types/uiTypes';
 import { atom } from 'jotai';
 
 // 현재 페이지

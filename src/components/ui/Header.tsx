@@ -1,9 +1,10 @@
 import Nav from "./Nav";
 import Link from "next/link";
-import ControlScrollingHeader from "@/customcodes/ControlScrollingHeader";
-import UserButton from "./UserButton";
-import MenuButton from "./MenuButton";
-import SetHeaderStyle from "@/customcodes/SetHeaderStyle";
+import ControlScrollingHeader from "@/components/utils/ControlScrollingHeader";
+import SetHeaderStyle from "@/components/utils/SetHeaderStyle";
+import AuthProvider from "@/components/utils/AuthProvider";
+import UserButton from "@/components/ui/UserButton";
+import MenuButton from "@/components/ui/MenuButton";
 
 export default async function Header () {
     return (
@@ -20,6 +21,7 @@ export default async function Header () {
                 </div>
             </header>
             <ControlScrollingHeader selector="#header" hideOffset={10} showOffset={8} minDelta={8} />
+            <AuthProvider />
         </>
     );
 }
