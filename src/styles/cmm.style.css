@@ -202,3 +202,35 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
 	.checkbox-group input[type="checkbox"] + label:before {top:5px}
 	.checkbox-group input[type="checkbox"] + label:after {top:10px}
 }
+
+
+/** ===== SubNav Style ===== */
+.subnav-group {
+  display: flex;
+  gap: 8px;
+}
+
+.subnav-group a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.subnav-home {
+  width: 24px;
+  height: 24px;
+  background: url("/assets/home_icon.png") center;
+}
+
+.subnav-arrow {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.subnav-arrow:last-child {
+  display: none;
+}
+
+.subnav-arrow:after {content:"";display:block;position:absolute;left:6px;top:8px;width:9px;height:9px;transform:rotate(45deg);box-sizing:border-box}
+.subnav-arrow:after {border:solid;border-width:2px 2px 0 0;border-color: #222 #222 transparent transparent;}

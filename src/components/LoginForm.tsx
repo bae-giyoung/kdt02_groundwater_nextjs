@@ -10,22 +10,22 @@ import { UserType, LoginErrorType } from "@/types/uiTypes";
 
 export default function LoginForm() {
     const router = useRouter();
+    const formRef = useRef<HTMLFormElement>(null);
     const setLoginAtom = useSetAtom(isLoginAtom);
-    const usernameRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
 
     const handleLogin = async (e : FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if(!formRef.current) return;
 
-        if(usernameRef.current?.value == "") {
+        if(formRef.current.username.value == "") {
             alert("아이디를 입력하세요");
-            usernameRef.current?.focus();
+            formRef.current.username.focus();
             return;
         }
 
-        if(passwordRef.current?.value == "") {
+        if(formRef.current.password.value == "") {
             alert("비밀번호를 입력하세요");
-            passwordRef.current?.focus();
+            formRef.current.password.focus();
             return;
         }
 
@@ -39,11 +39,13 @@ export default function LoginForm() {
                 headers: {
                     "Content-type" : "application/json",
                 },
-                body: JSON.stringify({"username": usernameRef.current?.value, "password": passwordRef.current?.value})
+                body: JSON.stringify({"username": formRef.current.username.value, "password": formRef.current.password.value})
             });
 
             if(resp.ok) {
-                const data : Promise<UserType | LoginErrorType> = await resp.json();    console.log(data);
+                const data : Promise<UserType | LoginErrorType> = await resp.json();
+                console.log(data);
+                
                 setLoginAtom(true);
                 sessionStorage.setItem("user", JSON.stringify(data));
                 router.push("/userpage");
@@ -56,7 +58,7 @@ export default function LoginForm() {
     }
 
     return (
-        <form onSubmit={handleLogin} id="login-form">
+        <form ref={formRef} onSubmit={handleLogin} id="login-form">
             <div className="mb-5 md:mb-7 lg:mb-14">
                 <p className="flex gap-2.5 items-baseline mb-3 md:mb-8 font-bold">
                     <span className="text-3xl black-t1">로그인</span>
@@ -67,11 +69,11 @@ export default function LoginForm() {
             <div className="mb-3 md:mb-5 lg:mb-10">
                 <div className="mb-5 md:mb-8 lg:mb-12">
                     <label htmlFor="username" className="block mb-2 gray-6a text-2xl font-bold">Username</label>
-                    <CustomInput ipRef={usernameRef} ipType="text" ipName="username" caption="아이디를 입력하세요" />
+                    <CustomInput ipType="text" ipName="username" caption="아이디를 입력하세요" />
                 </div>
                 <div>
                     <label htmlFor="password" className="block mb-2 gray-6a text-2xl font-bold">Password</label>
-                    <CustomInput ipRef={passwordRef} ipType="password" ipName="password" caption="비밀번호를 입력하세요" />
+                    <CustomInput ipType="password" ipName="password" caption="비밀번호를 입력하세요" />
                 </div>
             </div>
             <div className="flex flex-col gap-2.5">

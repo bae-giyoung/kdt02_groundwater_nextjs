@@ -1,4 +1,5 @@
 import SubVisual from "@/components/ui/SubVisual";
+import SubNav from "@/components/ui/SubNav";
 import WhetherAuthorized from "@/components/utils/WhetherAuthorized";
 
 export default async function UserPage() {
@@ -12,6 +13,7 @@ export default async function UserPage() {
             tit2="나의 예측 서비스 이용 내역 확인" 
             tit3="이전 서비스 이용 내역 상세보기와 원본 파일 다운로드를 제공합니다." 
             />
+            <SubNav />
         </div>
     );
 }

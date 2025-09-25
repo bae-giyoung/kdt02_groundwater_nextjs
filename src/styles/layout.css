@@ -23,6 +23,10 @@ html, body {
     height: 100%;
 }
 
+.subnav-group {
+    margin: 0 auto;
+}
+
 #contents {
     min-height: 1500px;
     padding-bottom: 250px;
@@ -62,6 +66,11 @@ footer {
         max-width: 1500px;
         padding: 0 0 56px;
     }
+
+    .subnav-group {
+        width: 100%;
+        max-width: 1500px;
+    }
     
     #contents {
         padding-bottom: 250px;
@@ -90,6 +99,12 @@ footer {
         max-width: none;
         padding: 0 50px 40px;
     }
+
+    .subnav-group {
+        width: 100%;
+        max-width: none;
+        padding: 0 50px;
+    }
     
     .section {
         max-width: none;
@@ -114,6 +129,10 @@ footer {
 
     #inner-subvis {
         padding: 0 30px 40px;
+    }
+
+    .subnav-group {
+        padding: 0 30px;
     }
 
     .section {

@@ -74,9 +74,9 @@ export default function Home() {
               <p className="max-w-[400px] md:max-w-none text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[130%] mx-auto mb-7 lg:mb-10">
                 AI 지하수위 예측 모델로 <br className="hidden md:block lg:block" />미래 수자원 관리에 기여합니다.
               </p>
-              <Link href="/predict" className="inline-flex gap-2.5 justify-center items-center border-2 rounded-4xl bg-[#ffffff22] hover:backdrop-blur-sm transition-all duration-300 
+              <Link href="/explain" className="inline-flex gap-2.5 justify-center items-center border-2 rounded-4xl bg-[#ffffff22] hover:backdrop-blur-sm transition-all duration-300 
                 px-4 py-2 lg:px-7 lg:py-4 group">
-                <span className="text-lg md:text-xl lg:text-2xl font-bold">예측 서비스 바로가기</span>
+                <span className="text-lg md:text-xl lg:text-2xl font-bold">대시 보드 바로가기</span>
                 <i className="w-5 lg:w-7 shrink-0 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform duration-300">
                   <Image src={arrowWh} alt="화살표" className="w-full h-full" />
                 </i>
