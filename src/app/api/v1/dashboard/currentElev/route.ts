@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_KEY = process.env.NEXT_PUBLIC_GROUNDWATER_API_KEY; // api key 노출 안되게 알아보기
+const API_KEY = process.env.GROUNDWATER_API_KEY;
 const BASE_URL = "https://www.gims.go.kr/api/data/observationStationService/getGroundwaterMonitoringNetwork";
 const GENNUMS = ["5724", "9879", "11746", "11777", "65056", "73515", "73538", "82031", "82049", "84020", "514307", "514310"];
 
@@ -14,7 +14,8 @@ type UnitFromOpenApiT = {
 }
 
 type ResponseDataT = {
-    table: Record<string, string | number | null>[]
+    table: Record<string, string | number | null>[],
+    geomap: Record<string, number>
 }
 
 function getSearchParams(request: NextRequest) {
@@ -68,7 +69,9 @@ function transformToTableData(oriData: Record<string, UnitFromOpenApiT[]>) {
 
 // 지도용 데이터 가공
 function transformToGeoMapData(oriData: Record<string, UnitFromOpenApiT[]>) {
-
+        const data: Record<string, number> = {};
+        Object.entries(oriData).forEach((d) => data[d[0]] = d[1].reduce((acc, unit) => Number(acc) + Number(unit.elev), Number(d[1][0].elev)));
+        return data;
 }
 
 // GET
@@ -77,11 +80,11 @@ export async function GET(
 ) {
     const { begindate, enddate } = getSearchParams(request);
     const gennumList = GENNUMS;
-    const responseData : ResponseDataT = {table: []}
+    const responseData : ResponseDataT = {table: [], geomap: {}};
 
-    try {
+    /* try { */
         // 관측소별 현황 데이터 받아오기: entries의 배열로
-        const entires = await Promise.all(
+        const entires = await Promise.all( // => allSettled로
             gennumList.map(gen => 
                 fetchFromEachStation(gen, begindate, enddate)
                 .then(unitRows => [gen, unitRows])
@@ -89,15 +92,21 @@ export async function GET(
         );
         // 데이터 가공: entries를 객체로
         const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entires);
-        console.log(dataByStation); // 관측소별 전체 데이터 묶음
+        //console.log(dataByStation); // 관측소별 전체 데이터 묶음
 
-        responseData.table = transformToTableData(dataByStation); // 일단은 table 데이터만 보냄
+        // 데이블 데이터
+        responseData.table = transformToTableData(dataByStation);
 
-        return NextResponse.json(responseData.table);
+        // 지도 데이터
+        responseData.geomap = transformToGeoMapData(dataByStation);
+        console.log("=================== 지도데이터 ================================================");
+        console.log(responseData.geomap);
 
-    } catch(error) {
-        return NextResponse.json({errorCode: 500, message: "OPEN API 오류 또는 네트워크 에러"});
-    }
+        return NextResponse.json(responseData);
+
+    /* } catch(error) {
+        return NextResponse.json({errorCode: 502, message: "OPEN API 오류 또는 네트워크 에러"});
+    } */
 }
 
 /* ========================== REST API 명세서 작성중 ============================ */
