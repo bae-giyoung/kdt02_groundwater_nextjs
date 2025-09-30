@@ -5,21 +5,15 @@ import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
 import genInfo from "@/data/gennumInfo.json";
 import { useMemo, useState } from 'react';
 
-const GenGeoInfo = Object.entries(genInfo)
-                        .map(([gen, info]) => ({
-                          code: gen,
-                          name: info["측정망명"],
-                          lat: Number(info["위도"]),
-                          lon: Number(info["경도"]),
-                          elev: 0
-                        }));
-
-export default function GeoMapCluster ({mapData}: Record<string, number>) {
-  /* const [ready, setReady] = useState(false); */
+export default function GeoMapCluster ({mapData}) { // 타입이
+  const GenGeoInfo = Object.entries(genInfo).map(([gen, info]) => ({
+                        code: gen,
+                        name: info["측정망명"],
+                        lat: Number(info["위도"]),
+                        lon: Number(info["경도"]),
+                        value: mapData.gen
+                      }));
   const [points, setPoints] = useState<any[]>(GenGeoInfo);
-  //console.log(GenGeoInfo);
-  
-  /* if(!ready) return null; */ // 로딩 에니메이션
 
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
@@ -52,6 +46,21 @@ export default function GeoMapCluster ({mapData}: Record<string, number>) {
       zoom: 7.7
     },
     colorAxis: {min: 0, max: 500},
+    colorKey: 'value',
+    plotOptions: {
+      mappoint: {
+        cluster: {
+          enabled: true,
+          allowOverlap: false, //
+          layoutAlgorithm: {type: 'grid', gridSize: 70},
+          zones: [
+            {from: 0, to: 99, marker: {radius: 12}},
+            {from: 100, to: 199, marker: {radius: 16}},
+            {from: 200, to: 500, marker: {radius: 20}},
+          ],
+        },
+      }
+    },
     series: [
       { // 베이스 지도 레이어
         type: 'map',
@@ -71,13 +80,17 @@ export default function GeoMapCluster ({mapData}: Record<string, number>) {
         },
         data: points,
         color: Highcharts.getOptions().colors?.[5],
-        marker: {lineWidth: 1, lineColor: '#fff', symbol: 'mapmarker', radius: 8},
+        marker: {lineWidth: 1, lineColor: '#fff', symbol: 'mapmarker', radius: 7},
         dataLabels: {verticalAlign: 'top'}
       } as Highcharts.SeriesMappointOptions
     ],
     tooltip: {
       headerFormat: '',
-      pointFormat: '<b>{point.name}</b><br>지하수위: {point.elev}(m), 위도: {point.lat:.2f}, 경도: {point.lon:.2f}'
+      pointFormatter: function() {
+        const p = this as any;
+        return `<b>${p.name}</b> (${p.code})<br/>위도: ${p.lat.toFixed(1)}, lon: ${p.lon.toFixed(1)}`
+              + (typeof p.value === 'number' ? `<br/>value: ${Highcharts.numberFormat(p.value,1)}` : '');
+      }
     }
   }), [points]);
 

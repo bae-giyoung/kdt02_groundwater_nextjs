@@ -70,7 +70,7 @@ function transformToTableData(oriData: Record<string, UnitFromOpenApiT[]>) {
 // 지도용 데이터 가공
 function transformToGeoMapData(oriData: Record<string, UnitFromOpenApiT[]>) {
         const data: Record<string, number> = {};
-        Object.entries(oriData).forEach((d) => data[d[0]] = d[1].reduce((acc, unit) => Number(acc) + Number(unit.elev), Number(d[1][0].elev)));
+        Object.entries(oriData).forEach((d) => data[d[0]] = d[1].reduce((acc, unit) => Number(acc) + Number(unit.elev), Number(d[1][0].elev))/d[1].length);
         return data;
 }
 
