@@ -30,13 +30,13 @@ export async function GET(
             });
             const json = await resp.json();
             allElev.push(json.response.resultData);
-            //console.log(json.response.resultData);
+            console.log(json.response.resultData);
         }
+        console.log(allElev);
 
         return NextResponse.json(allElev);
 
     } catch (error) {
         return NextResponse.json({"errorCode": 404, "message": "OPEN API의 문제로 데이터를 받아올 수 없습니다."}); // 에러 코드 찾아보기
     }
-
 }
