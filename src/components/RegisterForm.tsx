@@ -11,22 +11,23 @@ export default function RegisterForm() {
 
     const handleRegister = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if(!formRef.current) return;
 
-        if(formRef.current?.username.value == "") {
+        if(formRef.current.username.value == "") {
             alert("아이디를 입력하세요");
-            formRef.current?.username.focus();
+            formRef.current.username.focus();
             return;
         }
 
-        if(formRef.current?.email.value == "") {
+        if(formRef.current.email.value == "") {
             alert("이메일을 입력하세요");
-            formRef.current?.email.focus();
+            formRef.current.email.focus();
             return;
         }
 
-        if(formRef.current?.password.value == "") {
+        if(formRef.current.password.value == "") {
             alert("비밀번호를 입력하세요");
-            formRef.current?.password.focus();
+            formRef.current.password.focus();
             return;
         }
 
@@ -36,7 +37,8 @@ export default function RegisterForm() {
     }
 
     const handleAgreeAll = () => {
-        if(!formRef.current?.privacyPolicy || !formRef.current?.termsOfUse) return;
+        if(!formRef.current) return;
+        if(!formRef.current.privacyPolicy || !formRef.current.termsOfUse) return;
 
         if(formRef.current.agreeAll.checked) {
             formRef.current.privacyPolicy.checked = true;
