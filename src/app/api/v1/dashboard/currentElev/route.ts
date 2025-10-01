@@ -29,7 +29,8 @@ function getSearchParams(request: NextRequest) {
 async function fetchFromEachStation(gennum: string, begindate: string, enddate: string) {
     if(!API_KEY) throw new Error("Missing API KEY");
     // [TODO]
-    // 캐시되어이있으면 그대로 사용 vs client에서 저장해두고 재 클릭은 얼리 리턴, 캐싱할지 고민
+    // 캐싱되어이있으면 그대로 사용
+    // db저장, json 저장
     // 0시에 데이터 없는 경우도 생각
 
     const url = `${BASE_URL}?KEY=${API_KEY}&type=JSON&gennum=${gennum}&begindate=${begindate}&enddate=${enddate}`;
@@ -82,7 +83,7 @@ export async function GET(
     const gennumList = GENNUMS;
     const responseData : ResponseDataT = {table: [], geomap: {}};
 
-    /* try { */
+    try {
         // 관측소별 현황 데이터 받아오기: entries의 배열로
         const entires = await Promise.all( // => allSettled로
             gennumList.map(gen => 
@@ -104,9 +105,9 @@ export async function GET(
 
         return NextResponse.json(responseData);
 
-    /* } catch(error) {
+    } catch(error) {
         return NextResponse.json({errorCode: 502, message: "OPEN API 오류 또는 네트워크 에러"});
-    } */
+    }
 }
 
 /* ========================== REST API 명세서 작성중 ============================ */

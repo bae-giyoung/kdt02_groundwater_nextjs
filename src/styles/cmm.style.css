@@ -83,6 +83,15 @@
   border-radius: 15px;
 }
 
+.bg-gray-48 {
+  background-color: #686868;
+  color: #ffffff;
+}
+
+.bg-gray-ed {
+  background-color: #EDEDED;
+}
+
 .shadow-1 {
   box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
 }
@@ -203,6 +212,23 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
 	.checkbox-group input[type="checkbox"] + label:after {top:10px}
 }
 
+/** ===== Table Style ===== */
+.table-container  {
+  padding-bottom: 2px;
+  border-radius: 10px 10px 0 0;
+  border: 1px solid #E2E2E2;
+  border-width: 1px 1px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-bottom: 2px solid #222222;
+  box-sizing: border-box;
+}
 
 /** ===== SubNav Style ===== */
 .subnav-group {

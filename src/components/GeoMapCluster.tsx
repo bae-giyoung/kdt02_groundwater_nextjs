@@ -3,24 +3,40 @@ import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
 import genInfo from "@/data/gennumInfo.json";
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-export default function GeoMapCluster ({mapData}) { // 타입이
+export default function GeoMapCluster ({mapData} : {mapData: Record<string, string | number>}) {
+  const [points, setPoints] = useState<any[]>([]);
   const GenGeoInfo = Object.entries(genInfo).map(([gen, info]) => ({
-                        code: gen,
-                        name: info["측정망명"],
-                        lat: Number(info["위도"]),
-                        lon: Number(info["경도"]),
-                        value: mapData.gen
-                      }));
-  const [points, setPoints] = useState<any[]>(GenGeoInfo);
+                      code: gen,
+                      name: info["측정망명"],
+                      lat: Number(info["위도"]),
+                      lon: Number(info["경도"]),
+                      value: 0
+                    }));
 
+  useEffect(()=>{
+    const pointsWidthVal = GenGeoInfo.map(info => {
+      info.value = mapData[info.code];console.log(mapData[info.code]); return info;
+    }); // 여기 타압스크립트 에러
+    console.log(pointsWidthVal);
+    
+    setPoints(pointsWidthVal);
+  },[]);
+  
+  useEffect(()=>{
+    console.log(points);
+  },[points]);
+
+  if(!points) return null;
+
+  
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
       map: krAll as any
     },
     title: {
-      text: '지하수위 현황', align: 'left'
+      text: '관측망 지하수위 현황', align: 'left'
     },
     mapNavigation: {
       enabled: true,
@@ -34,7 +50,7 @@ export default function GeoMapCluster ({mapData}) { // 타입이
         x: -10,
         y: -10,
         theme: {
-          fill: '#fff',
+          fill: 'transparent',
           'stroke-width': 1,
           stroke: '#ccc',
           r: 6,
@@ -65,8 +81,11 @@ export default function GeoMapCluster ({mapData}) { // 타입이
       { // 베이스 지도 레이어
         type: 'map',
         name: '전국 지하수 측정망 지도',
-        borderColor: "#a0a0a0",
-        nullColor: "#E8EBEF",
+        borderColor: "#ffffff",
+        nullColor: "#50A3DDaa",
+        colors: ["#50A3DDaa","#A1D6F6"],
+        //colorByPoint: true,
+        //enableMouseTracking: true,
         showInLegend: false
       } as Highcharts.SeriesMapOptions,
       {// 포인트 마커 레이어
@@ -79,7 +98,7 @@ export default function GeoMapCluster ({mapData}) { // 타입이
           }
         },
         data: points,
-        color: Highcharts.getOptions().colors?.[5],
+        color: "#FFB67A",
         marker: {lineWidth: 1, lineColor: '#fff', symbol: 'mapmarker', radius: 7},
         dataLabels: {verticalAlign: 'top'}
       } as Highcharts.SeriesMappointOptions
@@ -96,7 +115,7 @@ export default function GeoMapCluster ({mapData}) { // 타입이
 
 
   return (
-    <div style={{width: "100%", height: 600}}>
+    <div style={{width: "100%", height: 600}} id="geo-map-cluster">
       <HighchartsReact
         highcharts={Highcharts}
         constructorType="mapChart"
