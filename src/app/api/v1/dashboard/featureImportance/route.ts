@@ -3,7 +3,13 @@ import path from "path";
 import fs from "fs/promises";
 import Papa from "papaparse";
 
-// POST
+// 타입
+type featureImportanceUnitT = {
+    feature: string,
+    importance: number
+}
+
+// POST: 나중에 지우자!
 export async function POST(
     request: NextRequest
 ) {
@@ -19,8 +25,42 @@ export async function POST(
         return NextResponse.json({stateCode: 200, message: "OK"});
     } catch(error) {
         console.error(error);
-        return NextResponse.json({stateCode: 500, message: "Internal Server Error"})
+        return NextResponse.json({stateCode: 500, message: "Internal Server Error"});
     }
+}
+
+
+// GET
+export async function GET(
+    request: NextRequest
+) {
+  try {
+    const jsonFilePath = path.join(process.cwd(), "src/data/feature_importance.json");
+    const jsonData = await fs.readFile(jsonFilePath, "utf-8");
+
+    // 데이터 가공: 파이차트용
+    const data = JSON.parse(jsonData);
+    const transforedData = data.map((d : featureImportanceUnitT) => [d.feature, Number(d.importance)]);
+    const resp = {
+      stateCode: 200,
+      message: "OK",
+      data: transforedData,
+    };
+
+    console.log("========================= 특성 중요도 확인용 ========================");
+    console.log("jsonData", jsonData, "typeof jsonData: ", typeof jsonData);
+    console.log("data", data, "typeof data: ", typeof data);
+    console.log("transforedData", transforedData, "typeof transforedData: ", typeof transforedData);
+    console.log("resp", resp, "typeof resp: ", typeof resp);
+    // jsonData : fs.readFile(경로, 인코딩)의 결과는 string
+    // data: JSON.parse(jsonData)는 Object
+
+    // 자료구조 확인용 temp
+    return NextResponse.json(resp);
+
+  } catch(error) {
+    return NextResponse.json({stateCode: 500, message: "Internal Server Error"});
+  }
 }
 
 /* ===================== 데이터 형식 참고용 */

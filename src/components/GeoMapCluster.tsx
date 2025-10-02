@@ -17,8 +17,8 @@ export default function GeoMapCluster ({mapData} : {mapData: Record<string, stri
 
   useEffect(()=>{
     const pointsWidthVal = GenGeoInfo.map(info => {
-      info.value = mapData[info.code];console.log(mapData[info.code]); return info;
-    }); // 여기 타압스크립트 에러
+      info.value = mapData[info.code]; console.log(mapData[info.code]); return info;
+    }); // 여기 타압스크립트 에러 잡기
     console.log(pointsWidthVal);
     
     setPoints(pointsWidthVal);
@@ -59,7 +59,7 @@ export default function GeoMapCluster ({mapData} : {mapData: Record<string, stri
       },
     },
     mapView: {
-      zoom: 7.7
+      zoom: 7.5
     },
     colorAxis: {min: 0, max: 500},
     colorKey: 'value',
