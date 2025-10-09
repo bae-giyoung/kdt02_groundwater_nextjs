@@ -2,9 +2,11 @@
 import { useEffect, useState, useMemo } from "react";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import PatterFillModule from 'highcharts/modules/pattern-fill';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
+
 
 // Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
@@ -12,6 +14,10 @@ if (typeof window !== 'undefined') {
 
   win.Highcharts = win.Highcharts || Highcharts;
   win._Highcharts = win._Highcharts || Highcharts;
+
+  if (!(Highcharts.Chart)) {
+    (PatterFillModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+  }
 
   if (!(Highcharts.Chart && (Highcharts.Chart.prototype as any).exportChart)) {
     (ExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
@@ -33,6 +39,28 @@ interface FeatureImportanceDataT {
 
 // 상수
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// 컬러
+const mutedPalette = [
+  '#87d4cc', '#FFE082', 'rgba(25, 118, 210, 0.5)', '#A5D6A7', '#80DEEA',
+  '#D1C4E9', '#F8BBD0', '#CFD8DC',
+  '#4CAF50', '#FFB300', '#4DD0E1',
+  '#B39DDB', '#EC6F8B', '#90A4AE',
+  '#388E3C', '#FB8C00', '#00ACC1',
+  '#7E57C2', '#D81B60', '#607D8B',
+]
+.map((color, idx) => ({
+    pattern: {
+      color,
+      path: {
+        d: idx % 2 !== 0 ? 'M 4 0 L 0 4' : '',
+        strokeWidth: 3,
+      },
+      width: 6,
+      height: 6,
+    },
+}));
+
 
 // (삭제 예정 함수)개발중 임시 코드와 엔드포인트: 테스트용 파일을 json으로 변환
 const fetchCSVToJSON = async() => {
@@ -84,7 +112,7 @@ export default function FeatureImportancePage() {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
         },
         title: {
-            text: '특성 중요도',
+            text: '주요 영향 변수 분석',
             align: 'left',
         },
         credits: {
@@ -95,6 +123,7 @@ export default function FeatureImportancePage() {
                 valueSuffix: '%'
             }
         },
+        colors: mutedPalette,
         plotOptions: {
             pie: {
                 allowPointSelect: true,
@@ -114,7 +143,7 @@ export default function FeatureImportancePage() {
         },
         exporting: {
             enabled: true,
-            filename: '기상-지하수위 상관 그래프',
+            filename: '주요 영향 변수 분석 파이 차트',
             buttons: {
                 contextButton: {
                     menuItems: [
@@ -146,7 +175,7 @@ export default function FeatureImportancePage() {
 
     return (
         <div>
-            <p className="c-tit03">특성 중요도</p>
+            <p className="c-tit03">주요 영향 변수 분석</p>
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
