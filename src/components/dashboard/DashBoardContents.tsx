@@ -65,7 +65,7 @@ export default function DashBoardContents() {
                             <div className="gen-box shrink-0">
                                 <label htmlFor="gen-select">관측소 선택</label>
                                 <select
-                                    onChange={(e) => { console.log(e.target.value); }}
+                                    onChange={(e) => { setStation(e.target.value); }}
                                     name="gen-select"
                                     id="gen-select"
                                     className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 w-full justify-between"
@@ -96,7 +96,7 @@ export default function DashBoardContents() {
                 <div className="w-full">
                     <div className="mb-12 d-group">
                         <p className="flex justify-between gap-2">
-                            <span className="c-tit03">대표 관측망 지하수위 현황</span>
+                            <span className="c-tit03">전국 대표 관측망 지하수위 현황</span>
                             <span>(평균)</span>
                         </p>
                         <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} />
@@ -104,7 +104,7 @@ export default function DashBoardContents() {
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
                             <p className="c-tit03">전국 대표 관측망 지도</p>
-                            <GeoMap mapData={currMapDatas} />
+                            <GeoMap mapData={currMapDatas} handleClick={setStation} />
                         </div>
                         <div className="w-full d-group">
                             <div>

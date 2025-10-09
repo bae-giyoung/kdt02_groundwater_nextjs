@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 // 타입 선언
 interface GeoMapProps {
     mapData: Record<string, number>, 
-    handleClick?: () => void
+    handleClick?: (stationCode: string) => void
 }
 
 interface GeoPoint extends Highcharts.Point {
@@ -58,9 +58,6 @@ export default function GeoMap (
       map: krAll as any
     },
     title: undefined,
-    /* title: {
-      text: '관측망 지하수위 현황', align: 'left'
-    }, */
     mapNavigation: {
       enabled: true,
       enableDoubleClickZoom: true,
@@ -121,7 +118,9 @@ export default function GeoMap (
                         e.preventDefault();
                         const point = this as GeoPoint;
                         console.log('clicked', point.code);
-                        //handleClick(point.code);
+                        if(handleClick) {
+                            handleClick(point.code);
+                        }
                     }
                 },
             }

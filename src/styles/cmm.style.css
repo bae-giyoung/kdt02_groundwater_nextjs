@@ -88,6 +88,10 @@ div, input, select {box-sizing: border-box;}
   color: #A1A1A1;
 }
 
+.point-c-01 {
+  color: #014F86;
+}
+
 .border-style-1 {
   border: 1px solid #E2E2E2;
 }
