@@ -2,10 +2,13 @@
 import { useEffect, useState } from "react";
 import CustomTable from "@/components/CustomTable";
 import genInfo from "@/data/gennumInfo.json";
-import GeoMapCluster from "../GeoMapCluster";
+import GeoMap from "./GeoMap";
 import StationInfoBox from "../StationInfoBox";
 import FeatureImportancePage from "./FeatureImportance";
 import LineChartZoom from "./LineChartZoom";
+import LineChartShade from "./LineChartShade";
+import logoSrc from "../../../public/assets/logo_mulalim.svg";
+import Image from "next/image";
 
 const options = Object.entries(genInfo).map(([gen, {["측정망명"]: name}]) => ({key: gen, label: name}));
 
@@ -35,7 +38,11 @@ export default function DashBoardContents() {
     <>
     <div className="section d-section flex flex-col lg:flex-row gap-8 mb-12">
         <div className="dash-navi d-group m-0 w-full lg:w-36 lg:shrink-0 flex flex-col gap-5 lg:justify-between">
-            <div className="flex flex-row lg:flex-col gap-5 justify-end">
+            <div id="dashboard-navi" className="flex flex-row lg:flex-col gap-5 justify-end">
+                <div className="w-full flex justify-center pb-12">
+                    <Image src={logoSrc} width={50} height={50} alt="로고" />
+                </div>
+
                 <div>
                     <label htmlFor="period-select">기간 선택</label>
                     <select onChange={(e) => {console.log(e.target.value)}} name="period-select" id="period-select" className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 w-[200px] justify-between">
@@ -78,12 +85,13 @@ export default function DashBoardContents() {
             </div>
             <div className="flex gap-8 mb-12">
                 <div className="w-full d-group">
-                    <GeoMapCluster mapData={currMapDatas} />
+                    <GeoMap mapData={currMapDatas} />
                 </div>
                 <div className="w-full d-group">
                     <div>
                         <StationInfoBox stationCode={station} />
-                        <div>해당 관측소의 최근 30일 지하수위 그래프</div>
+                        <div>해당 관측소의 최근 30일 지하수위 그래프 또는 최근 10년간 월별 평균 수위</div>
+                        
                     </div>
                 </div>
             </div>
@@ -94,7 +102,7 @@ export default function DashBoardContents() {
                 </div>
                 <div className="w-1/3">
                     여기 2개 정도 넣기
-                    <FeatureImportancePage />
+                    <LineChartShade />
                 </div>
             </div>
             <div className="flex gap-8">
@@ -103,8 +111,12 @@ export default function DashBoardContents() {
                     <div>여기 3개 정도 넣기</div>
                     <div>여기 3개 정도 넣기</div>
                 </div>
-                <div className="w-full d-group">여기 넣을 것</div>
-                <div className="w-full d-group">여기 넣을 것</div>
+                <div className="w-full d-group">
+                    여기 넣을 것
+                </div>
+                <div className="w-full d-group">
+                    <FeatureImportancePage />
+                </div>
             </div>
         </div>
     </div>

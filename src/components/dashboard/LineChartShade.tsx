@@ -1,7 +1,7 @@
 'use client';
+import { useEffect, useMemo, useState } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { useEffect, useMemo, useState } from 'react';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 
@@ -17,6 +17,7 @@ if (typeof window !== 'undefined') {
     (ExportDataModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
   }
 }
+
 
 // 타입
 type Yyyymm = string; // '201501'
@@ -65,22 +66,23 @@ const fetchData = async() => {
     }
 }
 
-export default function LineChartZoom() {
+export default function LineChartShade() {
     const [data, setData] = useState<LineChartSeriesData>({actual: [], predicted: []});
-    const [zoomValue, setZoomValue] = useState<number>(10);
-
-    const handleZoom = (e : React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        const target = e.target as HTMLButtonElement;
-        const value = parseInt(target.value);
-        setZoomValue(value);
-    };
+    const [minY, maxY] = useMemo(() => {
+        const all = [...data.actual, ...data.predicted].map(([_, value]) => value);
+        if (!all.length) return [undefined, undefined];
+        const min = Math.min(...all);
+        const max = Math.max(...all);
+        const padding = (max - min) * 0.05 || 1;
+        return [min - padding, max + padding];
+    }, [data]);
     
     useEffect(()=>{
+        // 차트 데이터 fetch
         fetchData().then(res => {
             if(res === null) return;
             setData(res);
-        }); 
+        });
     }, []);
 
     const options = useMemo<Highcharts.Options>(() => ({
@@ -133,7 +135,11 @@ export default function LineChartZoom() {
         yAxis: {
             title: {
                 text: '지하 수위'
-            }
+            },
+            min: minY,
+            max: maxY,
+            startOnTick: false,
+            endOnTick: false,
         },
         tooltip: {
             headerFormat: '<b>{series.name}</b><br>',
@@ -167,28 +173,40 @@ export default function LineChartZoom() {
         },
         series: [
             {
-                type: 'line',
+                type: 'areaspline',
                 name: '실제 수위',
                 data: data.actual,
-                id: 'actual'
-            }, {
-                type: 'line',
+                color: '#1976D2',
+                fillColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                    [0, 'rgba(25, 118, 210, 0.5)'],
+                    [1, 'rgba(25, 118, 210, 0)'],
+                ],
+                },
+                //threshold: null,
+                lineWidth: 2,
+            },
+            {
+                type: 'areaspline',
                 name: '예측 수위',
                 data: data.predicted,
-                color: 'orange',
-                id: 'predicted'
-            }
+                color: '#FFA726',
+                fillColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                stops: [
+                    [0, 'rgba(255, 167, 38, 0.4)'],
+                    [1, 'rgba(255, 167, 38, 0)'],
+                ],
+                },
+                lineWidth: 2,
+                dashStyle: 'ShortDash',
+            },
         ]
     }), [data]);
 
     return (
         <div className="chart-box mt-8 w-full">
-            <div className="flex justify-start gap-4">
-                <button type="button" onClick={handleZoom} value="1">1년</button>
-                <button type="button" onClick={handleZoom} value="5">5년</button>
-                <button type="button" onClick={handleZoom} value="7">7년</button>
-                <button type="button" onClick={handleZoom} value="10">10년</button>
-            </div>
             <div>
                 <HighchartsReact
                     highcharts={Highcharts}

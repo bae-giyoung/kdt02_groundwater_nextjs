@@ -227,4 +227,7 @@ footer {
 /* == Dashboard Style */
 /* #geo-map-cluster .highcharts-background {
     fill: #bfe9e7;
-} */
+} 
+    #geo-map-bubble .highcharts-background {
+    fill: #bfe9e7;
+}*/

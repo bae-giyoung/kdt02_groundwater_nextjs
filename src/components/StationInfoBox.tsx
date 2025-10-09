@@ -33,9 +33,9 @@ export default function StationInfoBox({stationCode} : {stationCode: string}) {
                         </tr>
                         <tr>
                             <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">위도</th>
-                            <td className="border px-3 py-2 bg-white">{station["위도"]}</td>
+                            <td className="border px-3 py-2 bg-white">{station["lat"]}</td>
                             <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">경도</th>
-                            <td className="border px-3 py-2 bg-white">{station["경도"]}</td>
+                            <td className="border px-3 py-2 bg-white">{station["lon"]}</td>
                         </tr>
                         <tr>
                             <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">설치년도</th>
@@ -63,8 +63,8 @@ export default function StationInfoBox({stationCode} : {stationCode: string}) {
     "종류": "국가관리측정망",
     "측정망명": "남원도통",
     "주소": "전북특별자치도 남원시 도통동 554",
-    "위도": "35.41968333",
-    "경도": "127.4004639",
+    "lat": "35.41968333",
+    "lon": "127.4004639",
     "설치년도": "19951227",
     "설치심도": "20",
     "수리전도도(cm/sec)": "0.0132",
