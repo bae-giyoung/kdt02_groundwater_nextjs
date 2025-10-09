@@ -49,6 +49,13 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 12px;
 }
 
+.c-stit01 {
+  display: block;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 15px;
+}
+
 /** -- 텍스트 포인트  */
 .c-txt-point {
   font-weight: 600;
@@ -62,6 +69,7 @@ div, input, select {box-sizing: border-box;}
   font-size: 14px;
   margin-bottom: 24px;
 }
+
 
 /** -- 컬러  */
 .black-t1 {
