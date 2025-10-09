@@ -101,9 +101,15 @@ export default function FeatureImportancePage() {
                 cursor: 'pointer',
                 depth: 35,
                 dataLabels: {
-                    enabled: true,
-                    format: '{point.name}'
-                }
+                    enabled: false,
+                    format: '{point.name}',
+                    state: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                },
+                showInLegend: true
             }
         },
         exporting: {
