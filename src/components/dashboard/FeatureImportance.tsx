@@ -1,7 +1,24 @@
 'use client';
-import Highcharts from 'highcharts/highmaps';
-import HighchartsReact from 'highcharts-react-official';
 import { useEffect, useState, useMemo } from "react";
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import ExportingModule from 'highcharts/modules/exporting';
+import ExportDataModule from 'highcharts/modules/export-data';
+import OfflineExportingModule from 'highcharts/modules/offline-exporting';
+
+// Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
+if (typeof window !== 'undefined') {
+  const win = window as typeof window & { Highcharts?: typeof Highcharts; _Highcharts?: typeof Highcharts };
+
+  win.Highcharts = win.Highcharts || Highcharts;
+  win._Highcharts = win._Highcharts || Highcharts;
+
+  if (!(Highcharts.Chart && (Highcharts.Chart.prototype as any).exportChart)) {
+    (ExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+    (ExportDataModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+    (OfflineExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+  }
+}
 
 // 타입
 type FeatureT = [
@@ -66,8 +83,10 @@ export default function FeatureImportancePage() {
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
         },
-        title: undefined,
-        subtitle: undefined,
+        title: {
+            text: '특성 중요도',
+            align: 'left',
+        },
         credits: {
             enabled: false
         },
@@ -87,6 +106,29 @@ export default function FeatureImportancePage() {
                 }
             }
         },
+        exporting: {
+            enabled: true,
+            filename: '기상-지하수위 상관 그래프',
+            buttons: {
+                contextButton: {
+                    menuItems: [
+                        'downloadPNG',
+                        'downloadJPEG',
+                        'downloadPDF',
+                        'downloadSVG',
+                    ],
+                    symbol: 'menu',
+                    align: 'right',
+                }
+            }
+        },
+        lang: {
+            downloadPNG: 'PNG 이미지로 다운로드',
+            downloadJPEG: 'JPEG 이미지로 다운로드',
+            downloadPDF: 'PDF 파일로 다운로드',
+            downloadSVG: 'SVG 이미지로 다운로드',
+            contextButtonTitle: '메뉴'
+        },
         series: [{
             type: 'pie',
             name: '특성 중요도',
@@ -102,7 +144,7 @@ export default function FeatureImportancePage() {
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
-                containerProps={{style: {width: "100%", height: 400}}}
+                containerProps={{className: 'pie-chart-container', style: {width: "100%", height: 400}}}
                 immutable
             />
         </div>

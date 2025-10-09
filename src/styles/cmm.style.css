@@ -539,6 +539,7 @@ table {
   display: none;
 }
 
-.line-chart-container text.highcharts-title {
+.line-chart-container text.highcharts-title,
+.pie-chart-container text.highcharts-title {
   display: none;
 }
