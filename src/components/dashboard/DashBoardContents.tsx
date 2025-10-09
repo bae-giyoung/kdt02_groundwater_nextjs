@@ -16,7 +16,8 @@ import PerformanceIndicators from "./PerformanceIndicators";
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
 
 export default function DashBoardContents() {
-    const [station, setStation] = useState<string>("5724"); // 검증용 기본값
+    const [station, setStation] = useState<string>("5724");
+    const [period, setPeriod] = useState<string>("1");
     const [currElevDatas, setCurrElevDatas] = useState<Record<string, string>[]>([]);
     const [currMapDatas, setCurrMapDatas] = useState<Record<string, number>>({});
     
@@ -50,7 +51,7 @@ export default function DashBoardContents() {
                             <div className="period-box lg:pt-12 shrink-0">
                                 <label htmlFor="period-select">기간 선택</label>
                                 <select
-                                    onChange={(e) => { console.log(e.target.value); }}
+                                    onChange={(e) => { setPeriod(e.target.value); }}
                                     name="period-select"
                                     id="period-select"
                                     className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 w-full justify-between"
@@ -88,8 +89,8 @@ export default function DashBoardContents() {
                         </div>
                     }
                     footer={
-                        <div className="info-bar">
-                            인포메이션 바 영역
+                        <div className="info-bar flex justify-center">
+                            <Image src="assets/icon_exclamation.svg" width={40} height={40} alt="" />
                         </div>
                     }
                 />
@@ -97,41 +98,43 @@ export default function DashBoardContents() {
                     <div className="mb-12 d-group">
                         <p className="flex justify-between gap-2">
                             <span className="c-tit03">전국 대표 관측망 지하수위 현황</span>
-                            <span>(평균)</span>
+                            <span>({period}일 평균)</span>
                         </p>
                         <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} emphasis={station} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
                             <p className="c-tit03">전국 대표 관측망 지도</p>
-                            <GeoMap mapData={currMapDatas} handleClick={setStation} />
+                            <GeoMap mapData={currMapDatas} handleClick={setStation} mappointDesc={`${period}일 평균 지하수위`} />
                         </div>
                         <div className="w-full d-group">
                             <div>
                                 <StationInfoBox stationCode={station} />
                                 {/* <div>해당 관측소의 최근 30일 지하수 그래프와 최근 10년간 월별 평균 수위</div> */}
-                                <PerformanceIndicators />
+                                <PerformanceIndicators stationCode={station} />
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-8 w-full d-group mb-12">
-                        <div className="w-2/3">
-                            <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023)</p>
-                            <LineChartZoom />
-                        </div>
-                        <div className="w-1/3">
-                            수위 2차 지표 차트
-                            <LineChartShade />
-                        </div>
+                    <div className="w-full d-group mb-12">
+                        <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023)</p>
+                        <LineChartZoom />
+                    </div>
+                    <div className="w-full d-group mb-12">
+                        <p className="c-tit03">기상-수위 상관관계 그래프 (데이터 미정)</p>
+                        <LineChartShade />
                     </div>
                     <div className="flex gap-8">
                         <div className="w-full d-group">
-                            <div>수위 3차 지표 차트</div>
-                            <div>수위 3차 지표 차트</div>
-                            <div>수위 3차 지표 차트</div>
+                            <p className="c-tit03">강수 민감 관측소 Top 5</p>
+                            <ul>
+                                <li></li>
+                            </ul>
                         </div>
                         <div className="w-full d-group">
-                            수위 자료 요약
+                            <p className="c-tit03">가뭄 안정 관측소 Top 5</p>
+                            <ul>
+                                <li></li>
+                            </ul>
                         </div>
                         <div className="w-full d-group">
                             <FeatureImportancePage />

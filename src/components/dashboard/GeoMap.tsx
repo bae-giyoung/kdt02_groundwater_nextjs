@@ -8,7 +8,8 @@ import { useMemo } from 'react';
 // 타입 선언
 interface GeoMapProps {
     mapData: Record<string, number>, 
-    handleClick?: (stationCode: string) => void
+    mappointDesc: string,
+    handleClick?: (stationCode: string) => void,
 }
 
 interface GeoPoint extends Highcharts.Point {
@@ -48,10 +49,11 @@ const getGenGeoInfo = (mapData: Record<string, number>) => {
 }
 
 export default function GeoMap (
-    {mapData, handleClick} 
+    {mapData, mappointDesc, handleClick} 
     : GeoMapProps
 ) {
   const points = useMemo(() => getGenGeoInfo(mapData), [mapData]);
+  console.log(mappointDesc);
   
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
@@ -164,10 +166,10 @@ export default function GeoMap (
       pointFormatter: function() {
         const p = this as any;
         return `<b>${p.name}</b>`
-              + (typeof p.z === 'number' ? `<br/>지하수위: ${Highcharts.numberFormat(p.z, 1)}` : '');
+              + (typeof p.z === 'number' ? `<br/>${mappointDesc}: ${Highcharts.numberFormat(p.z, 1)}` : '');
       }
     }
-  }), [points]);
+  }), [points, mappointDesc]);
 
 
   return (

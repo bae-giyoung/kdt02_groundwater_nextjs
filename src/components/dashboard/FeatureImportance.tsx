@@ -97,7 +97,7 @@ export default function FeatureImportancePage() {
 
     return (
         <div>
-            특성 중요도(필요한 데이터 가공하기)
+            <p className="c-tit03">특성 중요도</p>
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
