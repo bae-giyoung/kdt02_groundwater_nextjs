@@ -226,7 +226,7 @@ export default function DashBoardContents() {
                         </div>
                     </div>
                     <div className="w-full d-group mb-12">
-                        <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023)</p>
+                        <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023) <span>지난 10년간 월별 평균 지하수위 추이</span></p>
                         <LineChartZoom />
                     </div>
                     <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
