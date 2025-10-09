@@ -533,3 +533,12 @@ table {
     height: 130px;
   }
 }
+
+/* Chart yAxis */
+.line-chart-container .highcharts-axis.highcharts-yaxis > text {
+  display: none;
+}
+
+.line-chart-container text.highcharts-title {
+  display: none;
+}

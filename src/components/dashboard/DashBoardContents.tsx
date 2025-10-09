@@ -110,13 +110,13 @@ export default function DashBoardContents() {
                         <div className="w-full d-group">
                             <div>
                                 <StationInfoBox stationCode={station} />
-                                {/* <div>해당 관측소의 최근 30일 지하수 그래프와 최근 10년간 월별 평균 수위</div> */}
                                 <PerformanceIndicators stationCode={station} />
                             </div>
                         </div>
                     </div>
                     <div className="w-full d-group mb-12">
                         <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023)</p>
+                        <p className="c-txt-point">설명설명설명설명설명설명설명</p>
                         <LineChartZoom />
                     </div>
                     <div className="w-full d-group mb-12">

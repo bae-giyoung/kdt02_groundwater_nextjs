@@ -96,7 +96,10 @@ export default function LineChartZoom() {
             },
             panKey: 'shift'
         },
-        title: undefined,
+        title: {
+            text: '장기 추세 그래프',
+            align: 'left'
+        },
         legend: {
             enabled: true
         },

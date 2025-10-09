@@ -98,7 +98,10 @@ export default function LineChartShade() {
             },
             panKey: 'shift'
         },
-        title: undefined,
+        title:{
+            text: '기상-지하수위 상관 그래프',
+            align: 'left'
+        },
         legend: {
             enabled: true
         },
@@ -149,7 +152,7 @@ export default function LineChartShade() {
         },
         exporting: {
             enabled: true,
-            filename: '장기 추세 그래프',
+            filename: '기상-지하수위 상관 그래프',
             buttons: {
                 contextButton: {
                     menuItems: [

@@ -60,6 +60,9 @@ export default function GeoMap (
       map: krAll as any
     },
     title: undefined,
+    credits: {
+        enabled: false
+    },
     mapNavigation: {
       enabled: true,
       enableDoubleClickZoom: true,

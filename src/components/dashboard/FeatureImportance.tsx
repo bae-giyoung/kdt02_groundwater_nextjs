@@ -66,9 +66,10 @@ export default function FeatureImportancePage() {
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
         },
-        title: {
-            text: '특성 중요도',
-            align: 'left'
+        title: undefined,
+        subtitle: undefined,
+        credits: {
+            enabled: false
         },
         accessibility: {
             point: {
@@ -92,7 +93,7 @@ export default function FeatureImportancePage() {
             data: data
         }]
 
-    }), [data]); // 궁금증: 참조타입의 내부 속성이 변화되는 것도 감지하는가?
+    }), [data]);
 
 
     return (
