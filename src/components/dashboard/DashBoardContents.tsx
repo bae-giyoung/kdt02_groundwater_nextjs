@@ -99,7 +99,7 @@ export default function DashBoardContents() {
                             <span className="c-tit03">전국 대표 관측망 지하수위 현황</span>
                             <span>(평균)</span>
                         </p>
-                        <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} />
+                        <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} emphasis={station} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
@@ -116,7 +116,7 @@ export default function DashBoardContents() {
                     </div>
                     <div className="flex gap-8 w-full d-group mb-12">
                         <div className="w-2/3">
-                            <p className="c-tit03">수위 추세 그래프 (2014 ~ 2023)</p>
+                            <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023)</p>
                             <LineChartZoom />
                         </div>
                         <div className="w-1/3">
