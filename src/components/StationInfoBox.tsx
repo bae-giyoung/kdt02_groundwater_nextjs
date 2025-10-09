@@ -5,7 +5,7 @@ export default function StationInfoBox({stationCode} : {stationCode: string}) {
     const station = genInfo[stationCode]; // 타입스크립트 에러
     return (
         <div className="overflow-x-auto">
-            <p>관측망 정보</p>
+            <p className="c-tit03">관측망 정보</p>
             <div className="table-container">
                 <table className="min-w-full border-collapse border text-sm text-left">
                     <colgroup>

@@ -58,7 +58,7 @@ export default function GeoMapCluster ({mapData} : {mapData: Record<string, numb
       map: krAll as any
     },
     title: {
-      text: '관측망 지하수 현황', align: 'left'
+      text: '관측망 지하수위 현황', align: 'left'
     },
     mapNavigation: {
       enabled: true,

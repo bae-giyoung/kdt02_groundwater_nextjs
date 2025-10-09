@@ -42,6 +42,26 @@ div, input, select {box-sizing: border-box;}
 	.c-tit02:before {width:10px;height:10px;background-size:auto 10px}
 }
 
+/** -- 타이틀3  */
+.c-tit03 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/** -- 텍스트 포인트  */
+.c-txt-point {
+  font-weight: 600;
+  color: #145da0;
+  margin-bottom: 4px;
+}
+
+/** -- 텍스트1  */
+.c-txt01 {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
 
 /** -- 컬러  */
 .black-t1 {
@@ -337,4 +357,175 @@ table {
   max-width: 100%;
   padding-right: 12px;
   padding-left: 12px;
+}
+
+/* == Performance Indicators == */
+.performance-indicators {
+  margin-top: 50px;
+}
+
+.performance-indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.donut-card {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid #e6ebf0;
+  padding: 20px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+}
+
+.donut-card-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.donut-card-label {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.donut-card-info {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #eff3fa;
+  border: none;
+  color: #1f2937;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.donut-card-chart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.donut-gauge {
+  width: 148px;
+  height: 148px;
+}
+
+.donut-card-value {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.donut-card-suffix {
+  font-size: 16px;
+  color: #64748b;
+}
+
+.exclamation-icon {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.exclamation-icon img {
+  width: 26px;
+  height: 26px;
+}
+
+.donut-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.donut-modal-content {
+  position: relative;
+  width: min(360px, 90vw);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  padding: 26px 26px 22px;
+  z-index: 1;
+}
+
+.donut-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.donut-modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.donut-modal-close {
+  position: relative;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #1f2937;
+}
+
+.donut-modal-close {width:20px;height:20px;background:none;}
+.donut-modal-close:before {display:block;content:'';position:absolute;top:0;left:0;bottom:0;right:0;margin:auto;width:20px;height:3px;background:#222;transform:rotate(45deg);transition:all .3s ease;}
+.donut-modal-close:after {display:block;content:'';position:absolute;top:0;left:0;bottom:0;right:0;margin:auto;width:20px;height:3px;background:#222;transform:rotate(-45deg);transition:all .3s ease;}
+.donut-modal-close:hover:before {transform:rotate(225deg);}
+.donut-modal-close:hover:after {transform:rotate(135deg);}
+.donut-modal-close span {font-size: 0;}
+
+.donut-modal-body {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+@media all and (max-width: 640px) {
+  .performance-indicators-grid {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+
+  .donut-gauge {
+    width: 130px;
+    height: 130px;
+  }
 }

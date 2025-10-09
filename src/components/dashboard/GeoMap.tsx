@@ -57,9 +57,10 @@ export default function GeoMap (
     chart: {
       map: krAll as any
     },
-    title: {
-      text: '관측망 지하수 현황', align: 'left'
-    },
+    title: undefined,
+    /* title: {
+      text: '관측망 지하수위 현황', align: 'left'
+    }, */
     mapNavigation: {
       enabled: true,
       enableDoubleClickZoom: true,

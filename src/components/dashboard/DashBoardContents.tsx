@@ -11,6 +11,7 @@ import logoSrc from "../../../public/assets/logo_mulalim.svg";
 import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
 import CustomButton from "../CustomButton";
+import PerformanceIndicators from "./PerformanceIndicators";
 
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
 
@@ -95,19 +96,21 @@ export default function DashBoardContents() {
                 <div className="w-full">
                     <div className="mb-12 d-group">
                         <p className="flex justify-between gap-2">
-                            <span>지하수 현황</span>
+                            <span className="c-tit03">대표 관측망 지하수위 현황</span>
                             <span>(평균)</span>
                         </p>
                         <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
+                            <p className="c-tit03">전국 대표 관측망 지도</p>
                             <GeoMap mapData={currMapDatas} />
                         </div>
                         <div className="w-full d-group">
                             <div>
                                 <StationInfoBox stationCode={station} />
-                                <div>해당 관측소의 최근 30일 지하수 그래프와 최근 10년간 월별 평균 수위</div>
+                                {/* <div>해당 관측소의 최근 30일 지하수 그래프와 최근 10년간 월별 평균 수위</div> */}
+                                <PerformanceIndicators />
                             </div>
                         </div>
                     </div>
