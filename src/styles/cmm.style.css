@@ -139,6 +139,29 @@ div, input, select {box-sizing: border-box;}
   background-position: right center;
 }
 
+.btn-style-3 {
+  font-size: 14px;
+  color: #222222;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #E2E2E2;
+  border-radius: 8px;
+  background-image: linear-gradient(to right, #F2F2F2 55%, #DEEEFE88, #B6C9CF88, #FA981966, #F45F0066);
+  /* background-image: linear-gradient(to right, #E8F5E9, #C8E0C9, #C8E0C9, #D6ECEA, #D6ECEA); */
+  /* "#E8F5E9", "#DDEFE0", "#C8E0C9", "#D6ECEA" */
+  background-size: 200% auto;
+  background-position: left center;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: background-position;
+  transition-duration: .3s;
+}
+
+.btn-style-3:hover {
+  background-position: right center;
+}
+
 
 /** ===== Accordian Style ===== */
 .accordian-head {

@@ -23,12 +23,16 @@ export default function ControlScrollingHeader({
 
         const apply = (dir: "init" | "up" | "down") => {
             if(dir == "init") {
-                document.body.classList.remove("has-hstyle-2");
+                if(header.offsetTop <= hideOffset) {
+                    document.body.classList.remove("has-hstyle-2");
+                    document.body.classList.add("show-header");
+                }
                 header.style.transform = "translateY(0)";
                 return;
             }
 
             if(dir === "down") {
+                document.body.classList.remove("show-header");
                 header.style.transform = "translateY(-100%)";
                 return;
             }
@@ -36,6 +40,7 @@ export default function ControlScrollingHeader({
             if(dir === "up") {
                 header.style.transform = "translateY(0)";
                 document.body.classList.add("has-hstyle-2");
+                document.body.classList.add("show-header");
                 return;
             }
         }

@@ -225,9 +225,41 @@ footer {
 }
 
 /* == Dashboard Style */
-/* #geo-map-cluster .highcharts-background {
-    fill: #bfe9e7;
-} 
-    #geo-map-bubble .highcharts-background {
-    fill: #bfe9e7;
-}*/
+.dash-navi-container {
+    padding-top: 0;
+}
+
+@media all and (max-width: 1024px) {
+    .dash-navi-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        margin-top: 0;
+        padding-bottom: 0 !important;
+        transition-duration: 0s;
+    }
+
+    .show-header .dash-navi-container.onEnter {
+        margin-top: 89px !important;
+    }
+    
+    .dash-navi-container .info-bar {
+        display: none;
+    }
+
+    #dashboard-navi {
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 0;
+    }
+    
+    #dashboard-navi .logo-box {
+        width: auto;
+    }
+
+    #dashboard-navi select, #dashboard-navi input {
+        width: 100%;
+    }
+
+}

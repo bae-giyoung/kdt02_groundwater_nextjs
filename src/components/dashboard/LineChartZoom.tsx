@@ -4,6 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { useEffect, useMemo, useState } from 'react';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
+import OfflineExportingModule from 'highcharts/modules/offline-exporting';
 
 // Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
@@ -15,6 +16,7 @@ if (typeof window !== 'undefined') {
   if (!(Highcharts.Chart && (Highcharts.Chart.prototype as any).exportChart)) {
     (ExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
     (ExportDataModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+    (OfflineExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
   }
 }
 
