@@ -35,7 +35,8 @@ interface BackendSeriesResponse {
 }
 
 // 상수
-const BASE_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
+//const BASE_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const ZOOM_WINDOW = [1, 5, 7, 10] as const;
 
 // 함수
