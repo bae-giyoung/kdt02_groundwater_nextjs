@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { LiaExclamationCircleSolid } from "react-icons/lia";
 
 interface ExclamationInfo {
   title: string;
@@ -74,7 +74,7 @@ export default function DonutGauge({
         <span className="donut-card-label">{label}</span>
         {exclamation && (
           <button type="button" className="exclamation-icon" aria-label={`${label} 지표 설명 열기`} onClick={() => setIsOpen(true)}>
-            <Image src="assets/icon_exclamation.svg" width={26} height={26} alt="" />
+            <LiaExclamationCircleSolid color="#222" size={40} />
           </button>
         )}
       </div>

@@ -85,23 +85,27 @@ export async function GET(
 
     try {
         // 관측소별 현황 데이터 받아오기: entries의 배열로
-        const entires = await Promise.all( // => allSettled로
+        const entries = await Promise.all( // => allSettled로
             gennumList.map(gen => 
                 fetchFromEachStation(gen, begindate, enddate)
                 .then(unitRows => [gen, unitRows])
             )
         );
-        // 데이터 가공: entries를 객체로
-        const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entires);
-        //console.log(dataByStation); // 관측소별 전체 데이터 묶음
+        //console.log("=================== Fetch12번의 결과 entries의 배열로 ================================================");
+        //console.log(entries);
+
+        // 데이터 가공: 관측소별 전체 데이터 묶음 (entries를 객체로)
+        const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entries);
+        //console.log("=================== 관측소별 데이터러 바꾼것 dataByStation ================================================");
+        //console.log(dataByStation);
 
         // 데이블 데이터
         responseData.table = transformToTableData(dataByStation);
 
         // 지도 데이터
         responseData.geomap = transformToGeoMapData(dataByStation);
-        console.log("=================== 지도데이터 ================================================");
-        console.log(responseData.geomap);
+        //console.log("=================== 지도데이터 ================================================");
+        //console.log(responseData.geomap);
 
         return NextResponse.json(responseData);
 

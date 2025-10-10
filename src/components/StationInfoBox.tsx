@@ -1,8 +1,9 @@
 'use client';
 import genInfo from "@/data/gennumInfo.json"; // 중복으로 import인데 나중에 생각
+import type { GenInfoKey } from '@/types/uiTypes';
 
-export default function StationInfoBox({stationCode} : {stationCode: string}) {
-    const station = genInfo[stationCode]; // 타입스크립트 에러
+export default function StationInfoBox({stationCode} : {stationCode: GenInfoKey}) {
+    const station = genInfo[stationCode];
     return (
         <div className="overflow-x-auto">
             <p className="c-tit03"><span className="point-c-01">{station["측정망명"]}</span> 관측소 정보</p>

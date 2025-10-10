@@ -12,36 +12,39 @@ import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
 import CustomButton from "../CustomButton";
 import PerformanceIndicators from "./PerformanceIndicators";
+import { LiaExclamationCircleSolid } from "react-icons/lia";
+import type { GenInfoKey } from "@/types/uiTypes";
 
+// 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
 const CAPTURE_TARGET_NOT_FOUND = 'CAPTURE_TARGET_NOT_FOUND';
 
 const rainSensitiveTop5 = [
-    { rank: 1, name: '남원도통 관측소', metricLabel: '강수 민감도', metricValue: '0.92', note: '짧은 시간 강수에 즉시 반응' },
-    { rank: 2, name: '거창거창 관측소', metricLabel: '강수 민감도', metricValue: '0.89', note: '장마철 대응 관측 지점' },
-    { rank: 3, name: '원주문막 관측소', metricLabel: '강수 민감도', metricValue: '0.86', note: '내수 침수 위험 지역' },
-    { rank: 4, name: '곡성입면 관측소', metricLabel: '강수 민감도', metricValue: '0.82', note: '태풍 여름철 모니터링' },
-    { rank: 5, name: '순창순창 관측소', metricLabel: '강수 민감도', metricValue: '0.79', note: '난류 영향 해안 관측소' },
+    { rank: 1, name: '남원도통', metricLabel: '강수 민감도', metricValue: '0.92', note: '짧은 시간 강수에 즉시 반응' },
+    { rank: 2, name: '거창거창', metricLabel: '강수 민감도', metricValue: '0.89', note: '장마철 대응 관측 지점' },
+    { rank: 3, name: '원주문막', metricLabel: '강수 민감도', metricValue: '0.86', note: '내수 침수 위험 지역' },
+    { rank: 4, name: '곡성입면', metricLabel: '강수 민감도', metricValue: '0.82', note: '태풍 여름철 모니터링' },
+    { rank: 5, name: '순창순창', metricLabel: '강수 민감도', metricValue: '0.79', note: '난류 영향 해안 관측소' },
 ];
 
 const droughtStableTop5 = [
-    { rank: 1, name: '금산금산 관측소', metricLabel: '지하수 변동폭', metricValue: '±0.07m', note: '평년 대비 안정 유지' },
-    { rank: 2, name: '안동길안 관측소', metricLabel: '지하수 변동폭', metricValue: '±0.09m', note: '대체 수자원 확보 지점' },
-    { rank: 3, name: '순창쌍치 관측소', metricLabel: '지하수 변동폭', metricValue: '±0.11m', note: '산간 지역 기저 유량 유지' },
-    { rank: 4, name: '함양병곡 관측소', metricLabel: '지하수 변동폭', metricValue: '±0.13m', note: '생활·농업용 안정 공급' },
-    { rank: 5, name: '화성팔탄 관측소', metricLabel: '지하수 변동폭', metricValue: '±0.15m', note: '도시 가뭄 대응 관측소' },
+    { rank: 1, name: '금산금산', metricLabel: '지하수 변동폭', metricValue: '±0.07m', note: '평년 대비 안정 유지' },
+    { rank: 2, name: '안동길안', metricLabel: '지하수 변동폭', metricValue: '±0.09m', note: '대체 수자원 확보 지점' },
+    { rank: 3, name: '순창쌍치', metricLabel: '지하수 변동폭', metricValue: '±0.11m', note: '산간 지역 기저 유량 유지' },
+    { rank: 4, name: '함양병곡', metricLabel: '지하수 변동폭', metricValue: '±0.13m', note: '생활·농업용 안정 공급' },
+    { rank: 5, name: '화성팔탄', metricLabel: '지하수 변동폭', metricValue: '±0.15m', note: '도시 가뭄 대응 관측소' },
 ];
 
 const rmseTop5 = [
-    { rank: 1, name: '영암영암 관측소', metricLabel: 'RMSE', metricValue: '0.68 m' },
-    { rank: 2, name: '순창쌍치 관측소', metricLabel: 'RMSE', metricValue: '0.74 m' },
-    { rank: 3, name: '남원도통 관측소', metricLabel: 'RMSE', metricValue: '0.77 m' },
-    { rank: 4, name: '곡성입면 관측소', metricLabel: 'RMSE', metricValue: '0.81 m' },
-    { rank: 5, name: '임실오수 관측소', metricLabel: 'RMSE', metricValue: '0.84 m' },
+    { rank: 1, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.68 m' },
+    { rank: 2, name: '순창쌍치', metricLabel: 'RMSE', metricValue: '0.74 m' },
+    { rank: 3, name: '남원도통', metricLabel: 'RMSE', metricValue: '0.77 m' },
+    { rank: 4, name: '곡성입면', metricLabel: 'RMSE', metricValue: '0.81 m' },
+    { rank: 5, name: '임실오수', metricLabel: 'RMSE', metricValue: '0.84 m' },
 ];
 
 export default function DashBoardContents() {
-    const [station, setStation] = useState<string>("5724");
+    const [station, setStation] = useState<GenInfoKey>("5724");
     const [period, setPeriod] = useState<string>("1");
     const [currElevDatas, setCurrElevDatas] = useState<Record<string, string>[]>([]);
     const [currMapDatas, setCurrMapDatas] = useState<Record<string, number>>({});
@@ -150,7 +153,7 @@ export default function DashBoardContents() {
         <>
             <div ref={contentRef} className="section d-section flex flex-col lg:flex-row gap-8 mb-12">
                 <DashboardNavi
-                    className="relative dash-navi-container d-group m-0 w-full lg:w-36 lg:shrink-0 flex flex-col gap-5 lg:justify-between"
+                    className="relative dash-navi-container d-group m-0 lg:shrink-0 flex flex-col gap-5 lg:justify-between"
                     pinned={
                         <div id="dashboard-navi" className="h-auto flex flex-row lg:flex-col gap-7 justify-end pt-7 transition-transform duration-150">
                             <div className="logo-box w-full flex justify-center  shrink-0">
@@ -176,7 +179,7 @@ export default function DashBoardContents() {
                                 <div className="gen-box w-full">
                                     <label htmlFor="gen-select"><span className="c-stit01 block">관측소 선택</span></label>
                                     <select
-                                        onChange={(e) => { setStation(e.target.value); }}
+                                        onChange={(e) => { setStation(e.target.value as GenInfoKey); }}
                                         name="gen-select"
                                         id="gen-select"
                                         className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[>svg]:px-3 w-full justify-between"
@@ -201,21 +204,21 @@ export default function DashBoardContents() {
                     }
                     footer={
                         <div className="info-bar flex justify-center">
-                            <Image src="assets/icon_exclamation.svg" width={40} height={40} alt="" />
+                            <LiaExclamationCircleSolid color="#222" size={40} />
                         </div>
                     }
                 />
-                <div className="w-full">
+                <div className="dash-contents">
                     <div className="mb-12 d-group">
                         <p className="flex justify-between gap-2">
-                            <span className="c-tit03">전국 대표 관측망 지하수위 현황</span>
+                            <span className="c-tit03">전국 대표 관측소 지하수위 현황</span>
                             <span>({period}일 평균)</span>
                         </p>
                         <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} emphasis={station} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
-                            <p className="c-tit03">전국 대표 관측망 지도</p>
+                            <p className="c-tit03">전국 대표 관측망</p>
                             <GeoMap mapData={currMapDatas} handleClick={setStation} mappointDesc={`${period}일 평균 지하수위`} />
                         </div>
                         <div className="w-full d-group">

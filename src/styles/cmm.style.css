@@ -55,6 +55,15 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 15px;
 }
 
+@media all and (max-width:1024px) {
+	.c-tit03 {margin-bottom:8px;}
+	.c-stit01 {margin-bottom:8px;font-size: 0.9rem;}
+}
+
+@media all and (max-width:768px) {
+	.c-tit03 {font-size:1rem;font-size:1rem}
+}
+
 /** -- 텍스트 포인트  */
 .c-txt-point {
   font-weight: 600;
@@ -69,8 +78,7 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 24px;
 }
 
-
-/** -- 컬러  */
+/** ===== Color ===== */
 .black-t1 {
   color: #222222;
 }
@@ -128,6 +136,27 @@ div, input, select {box-sizing: border-box;}
   box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
 }
 
+/** ===== List Style ===== */
+ul.c-list01 li {
+	position: relative;				
+	font-size: 0.8em;
+	margin: 0 0 0 9px;
+	color: #605e6d;
+	line-height: 22px;
+	padding-left: 15px;
+}
+ul.c-list01 li::before {
+	content: '';
+    position: absolute;
+	background-color: #ffb873;
+	border-radius: 10px;
+    top: 9px;
+    left: 2px;
+    width: 5px;
+    height: 5px;
+    z-index: 1;
+}
+
 /** ===== Button Style ===== */
 .btn-style-1 {
   font-size: 22px;
@@ -178,7 +207,7 @@ div, input, select {box-sizing: border-box;}
   padding: 8px;
   border: 1px solid #E2E2E2;
   border-radius: 8px;
-  background-image: linear-gradient(to right, #F2F2F2 55%, #DEEEFE88, #B6C9CF88, #FA981966, #F45F0066);
+  background-image: linear-gradient(to right, #F2F2F2 40%, #cdeaf8, #6ec1e4);
   /* background-image: linear-gradient(to right, #CDEAF8, #87d4cc); */
   /* background-image: linear-gradient(to right, #E8F5E9, #C8E0C9, #C8E0C9, #D6ECEA, #D6ECEA); */
   /* "#E8F5E9", "#DDEFE0", "#C8E0C9", "#D6ECEA" */
@@ -191,6 +220,7 @@ div, input, select {box-sizing: border-box;}
 }
 
 .btn-style-3:hover {
+  color: #0b1c4a;
   background-position: right center;
 }
 
@@ -378,8 +408,9 @@ table {
 
 .performance-indicators-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
   gap: 16px;
+  overflow-x: auto;
 }
 
 .donut-card {
@@ -462,6 +493,12 @@ table {
   justify-content: center;
   padding: 0;
   cursor: pointer;
+  transition: all .2s ease;
+}
+
+.exclamation-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
 }
 
 .exclamation-icon img {
@@ -640,6 +677,18 @@ table {
   line-height: 1.4;
 }
 
+@media all and (max-width: 1500px) {
+  .performance-indicators-grid {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    overflow-x:scroll;
+  }
+
+  .donut-gauge {
+    width: 105px;
+    height: 105px;
+  }
+}
+
 @media all and (max-width: 768px) {
   .list-card {
     padding: 22px 18px;
@@ -663,17 +712,14 @@ table {
 }
 
 @media all and (max-width: 640px) {
-  .performance-indicators-grid {
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
-  }
 
   .donut-gauge {
-    width: 130px;
-    height: 130px;
+    width: 80px;
+    height: 80px;
   }
 }
 
-/* Chart yAxis */
+/* Chart yAxis 숨기가 */
 .line-chart-container .highcharts-axis.highcharts-yaxis > text {
   display: none;
 }
@@ -681,4 +727,50 @@ table {
 .line-chart-container text.highcharts-title,
 .pie-chart-container text.highcharts-title {
   display: none;
+}
+
+/** info-box  */
+.info-box {
+  width: 100%;
+  background-color: #ffffff;
+	border: 1px solid #afabd6;
+	border-radius: 10px;
+	padding: 10px;
+  font-size: 1em;
+	color: #444;
+	word-break: keep-all;
+	box-sizing: border-box;
+  box-shadow: 0 0 4px 4px #00000011;
+	margin-bottom: 30px;
+}
+.info-box a {
+	color: #444;
+}
+.info-box a:hover {
+	color: #7b72d0;
+}
+.info-box img {
+	margin: 0px 3px 4px 3px;
+}
+.info-box span {
+	float: right;
+    font-size: 0.7em;
+    color: #777;
+}
+.info-box p {
+  font-size: 0.9em;
+}
+.info-box .c-exc01 {
+  font-size: 0.8em;
+  font-weight: 600;
+  background: url("/assets/icon_exclamation.svg") 0 center no-repeat;
+  background-size: cover;
+  padding-left: 25px;
+  margin-bottom: 10px;
+  background-size: 17px;
+}
+.info-box .inner-box {
+	background-color: #f8f8f8;
+	border-radius: 10px;
+	padding: 15px;
 }

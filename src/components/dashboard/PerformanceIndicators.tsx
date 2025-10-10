@@ -3,7 +3,9 @@
 import { useMemo } from 'react';
 import DonutGauge from './DonutGauge';
 import genInfo from '@/data/gennumInfo.json';
+import type { GenInfo, GenInfoKey } from '@/types/uiTypes';
 
+// 타입 선언
 interface Indicator {
   label: string;
   value: number;
@@ -15,13 +17,15 @@ interface Indicator {
 }
 
 interface PerformanceIndicatorsProps {
-  stationCode?: string;
+  stationCode?: GenInfoKey;
   title?: string;
   description?: string;
   highlight?: string;
   metrics?: Indicator[];
 }
 
+
+// 상수 선언
 const METRIC_CONFIG = [
   {
     key: 'NSE',
@@ -41,12 +45,12 @@ const METRIC_CONFIG = [
     defaultValue: 0.76,
     description: 'Root Mean Square Error (RMSE): 예측값과 관측값의 차이를 제곱해 평균한 뒤 제곱근을 취한 값으로, 오차의 절대 크기를 나타내며 값이 작을수록 모델의 정확도가 높습니다.',
   },
-  {
+  /* {
     key: 'R2',
     label: 'R²',
     defaultValue: 0.88,
     description: '결정계수 (R²): 관측값 변동을 모델이 얼마나 설명하는지를 나타내는 지표로, 1에 가까울수록 모델이 데이터의 분산을 잘 설명하고 높은 적합도를 보입니다.',
-  },
+  }, */
 ] as const;
 
 const DEFAULT_METRICS: Indicator[] = METRIC_CONFIG.map(({ label, defaultValue, description }) => ({
@@ -55,9 +59,8 @@ const DEFAULT_METRICS: Indicator[] = METRIC_CONFIG.map(({ label, defaultValue, d
   exclamation: { title: label, description },
 }));
 
-type GenInfo = typeof genInfo;
 
-function buildMetrics(stationCode?: string): Indicator[] {
+function buildMetrics(stationCode?: GenInfoKey): Indicator[] {
   if (!stationCode) return DEFAULT_METRICS;
 
   const stationData = (genInfo as GenInfo)[stationCode];
@@ -78,8 +81,10 @@ function buildMetrics(stationCode?: string): Indicator[] {
 export default function PerformanceIndicators({
   stationCode,
   title = '데이터 성능 지표',
-  description = '아이콘을 클릭하면 각 지표별 설명을 볼 수 있습니다.',
-  highlight = '7일 예측 정확도 94%로 예상됩니다.',
+  highlight = '아이콘을 클릭하면 각 지표별 설명을 볼 수 있습니다.',
+  description = `2014~2023년 장기 관측 데이터를 바탕으로
+              각 관측소별 AI 예측 결과와 실측 수위 간의 오차를 정량적으로 분석했습니다.
+              NSE, KGE 지표는 예측 모델의 신뢰성과 적합성을 평가하는 핵심 기준입니다.`,
   metrics,
 }: PerformanceIndicatorsProps) {
   const resolvedMetrics = useMemo(

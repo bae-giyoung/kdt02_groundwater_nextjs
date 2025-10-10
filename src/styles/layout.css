@@ -226,7 +226,57 @@ footer {
 
 /* == Dashboard Style */
 .dash-navi-container {
+    position: relative;
+    width: 144px;
     padding-top: 0;
+    overflow: visible;
+    z-index: 999;
+}
+
+.dash-contents {
+    position: relative;
+    width: 85%;
+    width: calc(100% - 180px);
+}
+
+#navi-footer .info-bar svg {
+  position: relative;
+  border: 2px solid #222222;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(250, 252, 255, 0.9), #ffffff);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  z-index: 999;
+}
+
+#navi-footer .info-bar svg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
+}
+
+.dash-navi-container .desc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap:15px;
+    position: absolute;
+    left: 0;
+    bottom: -60px;
+    width: 400px;
+    padding: 15px;
+    border-radius: 10px;
+    transform: translate(100px, 0);
+    visibility: hidden;
+    opacity: 0;
+    transition: all .3s ease;
+    overflow-x: auto;
+}
+
+.dash-navi-container:has(svg:hover) .desc {
+    visibility: visible;
+    opacity: 1;
 }
 
 @media all and (max-width: 1024px) {
@@ -234,14 +284,15 @@ footer {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100px;
+        width: 100%;
+        height: 110px;
         margin-top: 0;
         padding-bottom: 0 !important;
         transition-duration: 0s;
     }
 
     .show-header .dash-navi-container.onEnter {
-        margin-top: 89px !important;
+        margin-top: 100px !important;
     }
     
     .dash-navi-container .info-bar {
@@ -252,6 +303,8 @@ footer {
         width: 100%;
         justify-content: space-between;
         padding-top: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
     }
     
     #dashboard-navi .logo-box {
@@ -262,4 +315,23 @@ footer {
         width: 100%;
     }
 
+    #navi-footer {
+        display: none;
+    }
+
+    .dash-navi-container .desc {
+        display: none;
+    }
+
+    .dash-contents {
+        width: 100%;
+    }
+
+}
+
+@media all and (max-width: 768px) {
+    .dash-navi-container .desc {
+        width:200px;
+        font-size: 0.7rem;
+    }
 }

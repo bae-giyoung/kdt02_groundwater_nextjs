@@ -47,11 +47,12 @@ export async function GET(
       data: transforedData,
     };
 
-    console.log("========================= 특성 중요도 확인용 ========================");
-    console.log("jsonData", jsonData, "typeof jsonData: ", typeof jsonData);
-    console.log("data", data, "typeof data: ", typeof data);
-    console.log("transforedData", transforedData, "typeof transforedData: ", typeof transforedData);
-    console.log("resp", resp, "typeof resp: ", typeof resp);
+    //console.log("========================= 특성 중요도 확인용 ========================");
+    //console.log("jsonData", jsonData, "typeof jsonData: ", typeof jsonData);
+    //console.log("data", data, "typeof data: ", typeof data);
+    //console.log("transforedData", transforedData, "typeof transforedData: ", typeof transforedData);
+    //console.log("resp", resp, "typeof resp: ", typeof resp);
+    
     // jsonData : fs.readFile(경로, 인코딩)의 결과는 string
     // data: JSON.parse(jsonData)는 Object
 

@@ -39,7 +39,7 @@ interface BackendSeriesResponse {
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const ZOOM_WINDOW = [1, 5, 7, 10] as const;
 
-// 함수
+// 함수: yyyymm 문자열을 UTCString으로
 const yyyymmToUTC = (yyyymm: Yyyymm) => {
     const date = new Date();
     const yyyymmNum = parseInt(yyyymm);

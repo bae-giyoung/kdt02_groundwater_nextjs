@@ -1,15 +1,16 @@
 'use client';
+import { useMemo } from 'react';
 import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
 import genInfo from "@/data/gennumInfo.json";
-import { useMemo } from 'react';
+import { GenInfoKey } from '@/types/uiTypes';
 
 // 타입 선언
 interface GeoMapProps {
     mapData: Record<string, number>, 
     mappointDesc: string,
-    handleClick?: (stationCode: string) => void,
+    handleClick?: (stationCode: GenInfoKey) => void,
 }
 
 interface GeoPoint extends Highcharts.Point {
@@ -53,7 +54,6 @@ export default function GeoMap (
     : GeoMapProps
 ) {
   const points = useMemo(() => getGenGeoInfo(mapData), [mapData]);
-  console.log(mappointDesc);
   
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
@@ -121,10 +121,9 @@ export default function GeoMap (
                 events: {
                     click: function(e){
                         e.preventDefault();
-                        const point = this as GeoPoint;
-                        console.log('clicked', point.code);
                         if(handleClick) {
-                            handleClick(point.code);
+                            const point = this as GeoPoint;
+                            handleClick(point.code as GenInfoKey);
                         }
                     }
                 },
@@ -176,12 +175,12 @@ export default function GeoMap (
 
 
   return (
-    <div style={{width: "100%", height: 800}} id="geo-map-bubble">
+    <div style={{width: "100%"}} id="geo-map-bubble">
       <HighchartsReact
         highcharts={Highcharts}
         constructorType="mapChart"
         options={options}
-        containerProps={{style: {width: "100%", height: 800}}}
+        containerProps={{style: {width: "100%", height: 700}}}
         immutable
       />
     </div>
