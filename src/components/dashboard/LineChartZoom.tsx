@@ -21,7 +21,7 @@ if (typeof window !== 'undefined') {
 }
 
 // 타입 선언
-type Yyyymm = string; // '201501'
+type Yyyymm = number; // 201501
 type SeriesTuple = [Yyyymm, number] // [날짜, 수위] /////////!!!!!!! number빼던가
 
 interface LineChartSeriesData {
@@ -35,29 +35,32 @@ interface BackendSeriesResponse {
 
 interface LineChartZoomProps {
     baseUrl: string;
+    chartTitle?: string;
     window?: 12 | 60 | 84 | 120;
     prefetchedData?: BackendSeriesResponse;
 }
 
 // 상수 선언
-const ZOOM_WINDOWS = [12, 60, 84, 120] as const;
+const ZOOM_WINDOWS = [12, 36, 60, 84, 120] as const;
 
 // 함수
-const yyyymmToUTC = (yyyymm: Yyyymm) => {
-    const date = new Date();
-    const yyyymmNum = parseInt(yyyymm);
-    date.setFullYear(Math.floor(yyyymmNum / 100));
-    date.setMonth(yyyymmNum % 100 - 1);
-    return date.toUTCString();
+const yyyymmToUTC = (yyyymm: Yyyymm) : number => {
+    const yyyymmNum = yyyymm;
+    const yyyy = Math.floor(yyyymmNum / 100);
+    const mm = (yyyymmNum % 100) - 1;
+    return Date.UTC(yyyy, mm, 1);
 }
 
 // 미완성: 나중에
-const normalizeTuples = (tuples: SeriesTuple[]) => {
-    return tuples;
+const normalizeTuples = (tuples: SeriesTuple[] | undefined) : [number, number][] => {
+    if(!tuples) return [];
+    return tuples
+        .map(([k, v]) => [yyyymmToUTC(k), v] as [number, number])
+        .sort((a, b) => a[0] - b[0]); // sort하지 말까?
 }
 
 // 최근 N개월
-function lastN<T extends [string, number]>(arr: T[], count: number): T[] { // [number, number] 로??????
+function lastN<T extends [number, number]>(arr: T[], count: number): T[] { // [number, number] 로??????
     if(!count) return [];
     const start = Math.max(0, arr.length - count);
     return arr.slice(start);
@@ -73,11 +76,10 @@ const fetchData = async(url: string, signal: AbortSignal) => {
 
     if(resp.ok){
         const data: BackendSeriesResponse = await resp.json();
-        console.log(data);
-        data.data.series.actual.forEach(d => d[0] = yyyymmToUTC(d[0])); // normalizeTuple로
-        data.data.series.predicted.forEach(d => d[0] = yyyymmToUTC(d[0])); // normalizeTuple로
-        
-        return data.data.series;
+        const actual = normalizeTuples(data.data.series.actual);
+        const predicted = normalizeTuples(data.data.series.predicted);
+        return {actual, predicted};
+
     } else {
         console.log('${resp.status}');
         return null;
@@ -86,6 +88,7 @@ const fetchData = async(url: string, signal: AbortSignal) => {
 
 export default function LineChartZoom({
     baseUrl,
+    chartTitle = '차트 제목',
     window = 120,
     prefetchedData,
 } : LineChartZoomProps
@@ -98,6 +101,7 @@ export default function LineChartZoom({
     const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(window);
 
     useEffect(() => {
+        console.log("baseUrl: ", baseUrl);
         if(prefetchedData) {
             setSeriesRaw({
                 actual: normalizeTuples(prefetchedData.data?.series?.actual),
@@ -147,7 +151,7 @@ export default function LineChartZoom({
         chart: {
             type: 'line',
             zoomType: undefined,
-            spacint: [16, 16, 8, 8],
+            spacing: [16, 16, 8, 8],
             followTouchMove: true,
             panning: {
                 enabled: true,
@@ -156,7 +160,7 @@ export default function LineChartZoom({
             panKey: 'shift'
         },
         title: {
-            text: '장기 추세 그래프',
+            text: chartTitle,
             align: 'left'
         },
         legend: {
@@ -210,7 +214,7 @@ export default function LineChartZoom({
         },
         exporting: {
             enabled: true,
-            filename: '지하수위 장기추세(2014-2023)',
+            filename: chartTitle,
             buttons: {
                 contextButton: {
                     theme: {
@@ -262,9 +266,7 @@ export default function LineChartZoom({
 
     const changeZoomWindow = (window: typeof ZOOM_WINDOWS[number]) => {
         setZoomWindow(window);
-        console.log(window);
-        // 소프트 스크롤 추가 고려!
-        // chartRef.current?.chart?.reflow();
+        chartRef.current?.chart?.reflow(); // 레이아웃용
     }
 
     return (
@@ -272,9 +274,7 @@ export default function LineChartZoom({
             <div className="flex justify-start gap-4">
                 {
                     ZOOM_WINDOWS.map(w => (
-                        <button key={w} onClick={() => changeZoomWindow(w)}
-                            aria-pressed={zoomWindow === w}
-                        >
+                        <button key={w} type='button' onClick={() => changeZoomWindow(w)} aria-pressed={zoomWindow === w}>
                             {`${w / 12}년`}
                         </button>
                     ))
@@ -287,6 +287,7 @@ export default function LineChartZoom({
                 <HighchartsReact
                     highcharts={Highcharts}
                     options={options}
+                    ref={chartRef}
                     containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
                 />
             </div>

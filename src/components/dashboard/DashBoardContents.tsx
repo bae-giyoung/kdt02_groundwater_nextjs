@@ -1,24 +1,49 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CustomTable from "@/components/CustomTable";
 import genInfo from "@/data/gennumInfo.json";
 import GeoMap from "./GeoMap";
 import StationInfoBox from "../StationInfoBox";
 import FeatureImportancePage from "./FeatureImportance";
-import LineChartZoom from "./LineChartZoom";
 import LineChartShade from "./LineChartShade";
 import logoSrc from "../../../public/assets/logo_mulalim.svg";
 import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
 import CustomButton from "../CustomButton";
 import PerformanceIndicators from "./PerformanceIndicators";
+import TrendPositionCard from "./TrendPositionCard";
 import { LiaExclamationCircleSolid } from "react-icons/lia";
 import type { GenInfoKey } from "@/types/uiTypes";
+import BarChart from "./BarChart";
 
 // 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
+const GEN_CODES = Object.keys(genInfo);
+const GEN_NAMES = Object.values(genInfo).map(({ ["측정망명"]: name }) => name);
 const CAPTURE_TARGET_NOT_FOUND = 'CAPTURE_TARGET_NOT_FOUND';
+const TABLE_WINDOW_DAYS = 30;
+//const BASE_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// 타입 선언
+type TrendMetricT = {
+    position: number | null;
+    latestElev: number | null;
+    latestYmd: string | null;
+    minElev: number | null;
+    maxElev: number | null;
+};
+
+type DashboardTableRow = Record<string, string | number | null>;
+
+type DashboardApiResponse = {
+    table?: DashboardTableRow[];
+    geomap?: Record<string, Record<string, number | null>>;
+    trend?: Record<string, TrendMetricT>;
+};
+
+
+// 임시: 하드코딩용 데이터 모음
 const rainSensitiveTop5 = [
     { rank: 1, name: '남원도통', metricLabel: '강수 민감도', metricValue: '0.92', note: '짧은 시간 강수에 즉시 반응' },
     { rank: 2, name: '거창거창', metricLabel: '강수 민감도', metricValue: '0.89', note: '장마철 대응 관측 지점' },
@@ -46,10 +71,52 @@ const rmseTop5 = [
 export default function DashBoardContents() {
     const [station, setStation] = useState<GenInfoKey>("5724");
     const [period, setPeriod] = useState<string>("1");
-    const [currElevDatas, setCurrElevDatas] = useState<Record<string, string>[]>([]);
-    const [currMapDatas, setCurrMapDatas] = useState<Record<string, number>>({});
+    const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
+    const [currMapDatas, setCurrMapDatas] = useState<Record<string, Record<string, number | null>>>({});
+    const [trendMetrics, setTrendMetrics] = useState<Record<string, TrendMetricT>>({});
     const contentRef = useRef<HTMLDivElement | null>(null);
+    
+    // 현재 관측소명, 현재 관측소의 경향성 지표
+    const stationName = genInfo[station]?.["측정망명"];
+    const stationTrend = trendMetrics[station];
+    
+    // 현황 바 차트
+    const displayedBarChartData = useMemo(() => {
+        return options.map(({ key, label }) => {
+            return { name: label, y: currMapDatas[key]?.["elevMean" + period] ?? null }
+        });
+    }, [currMapDatas, period]);
 
+    // 현황 테이블
+    const tableColumns = useMemo(() => [{ key: "ymd", label: "기준일" }, ...options], []);
+
+    const displayedTable = useMemo(() => {
+        const limit = Number(period);
+        const rows = (() => {
+            if (!Number.isFinite(limit) || limit <= 0) {
+                return currElevDatas;
+            }
+            if (currElevDatas.length <= limit) {
+                return currElevDatas;
+            }
+            return currElevDatas.slice(-limit);
+        })();
+
+        return rows.map((row) => {
+            const ymd = row.ymd;
+            if (typeof ymd === "string" && ymd.length === 8) {
+                const formatted = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+                return { ...row, ymd: formatted };
+            }
+            return row;
+        });
+    }, [currElevDatas, period]);
+    
+    // 장기 추세
+    //const longTermUrl = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    
+    // 이미지 캡쳐 함수
     const captureContentImage = useCallback(async () => {
         const target = contentRef.current;
 
@@ -79,6 +146,7 @@ export default function DashBoardContents() {
         return { dataUrl, width, height };
     }, []);
 
+    // 대시보드 이미지로 저장 함수
     const handleSavePng = useCallback(async () => {
         if (typeof window === 'undefined') {
             return;
@@ -102,6 +170,7 @@ export default function DashBoardContents() {
         }
     }, [captureContentImage]);
 
+    // 대시보드 PDF로 저장 함수
     const handleSavePdf = useCallback(async () => {
         if (typeof window === 'undefined') {
             return;
@@ -133,21 +202,33 @@ export default function DashBoardContents() {
         }
     }, [captureContentImage]);
     
-    const getCurrFetchDatas = async () => {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev`, {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-type": "application/json" },
-        });
-        const json = await resp.json();
-        setCurrElevDatas(json.table);
-        setCurrMapDatas(json.geomap);
-    };
+    // OPEN API: 일별 지하수위 데이터
+    const getCurrFetchDatas = useCallback(async () => {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+        try {
+            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev?days=${TABLE_WINDOW_DAYS}`, {
+                method: "GET",
+                mode: "cors",
+                headers: { "Content-type": "application/json" },
+            });
+            if (!resp.ok) {
+                throw new Error(`failed to fetch current data: ${resp.status}`);
+            }
+            const json: DashboardApiResponse = await resp.json();
+            setCurrElevDatas(Array.isArray(json.table) ? json.table : []);
+            setCurrMapDatas(json.geomap ?? {});
+            setTrendMetrics(json.trend ?? {});
+        } catch (error) {
+            console.error("failed to fetch current data", error);
+            setCurrElevDatas([]);
+            setCurrMapDatas({});
+            setTrendMetrics({});
+        }
+    }, []);
 
     useEffect(() => {
         getCurrFetchDatas();
-    }, []);
+    }, [getCurrFetchDatas]);
 
     return (
         <>
@@ -197,8 +278,8 @@ export default function DashBoardContents() {
 
                             <div className="btn-box max-w-1/4 lg:max-w-none shrink-0 flex items-center lg:items-start flex-col md:flex-row lg:flex-col">
                                 <p className="c-stit01 hidden lg:block">다운로드</p>
-                                <CustomButton caption="PNG로 저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePng} />
-                                <CustomButton caption="PDF로 저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePdf} />
+                                <CustomButton caption="PNG저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePng} />
+                                <CustomButton caption="PDF저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePdf} />
                             </div>
                         </div>
                     }
@@ -209,33 +290,61 @@ export default function DashBoardContents() {
                     }
                 />
                 <div className="dash-contents">
-                    <div className="mb-12 d-group">
-                        <p className="flex justify-between gap-2">
-                            <span className="c-tit03">전국 대표 관측소 지하수위 현황</span>
-                            <span>({period}일 평균)</span>
+                    <div className="dash-cont-top mb-12 d-group">
+                        <p className="c-tit03">전국 관측소 지하수위 현황</p>
+                        <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <span className="c-stit02">
+                                <b className="text-sky-500">{period == "1" ? "금일" : `${period}일`}</b> 평균 지하수위
+                            </span>
+                            <span className="gray-92">일평균 수위(m)</span>
                         </p>
-                        <CustomTable data={currElevDatas} columns={options.map(header => ({ "key": header.key, "label": header.label }))} emphasis={station} />
+                        <div className="rounded-xl border-style-2 mb-6">
+                            <BarChart data={displayedBarChartData} categories={GEN_NAMES} title={period == "1" ? "금일 평균 지하수위" : `최근 ${period}일 평균 지하수위`} xLabel="지하수위(m)" yLabel="관측소명" />
+                        </div>
+                        <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <span className="c-stit02">일별 지하수위 현황</span>
+                            <span className="gray-92">일평균 수위(m), 전일 대비 증감율 (%)</span>
+                        </p>
+                        <CustomTable data={displayedTable} columns={tableColumns} emphasis={station} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
-                            <p className="c-tit03">전국 대표 관측망</p>
-                            <GeoMap mapData={currMapDatas} handleClick={setStation} mappointDesc={`${period}일 평균 지하수위`} />
+                            <p className="c-tit03">전국 관측망</p>
+                            <p className="c-txt01">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
+                            <GeoMap mapData={currMapDatas} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
+                            <ul className="c-list01 mt-12">
+                                <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
+                                <li>데이터 출처 및 집계 기준에 따라 분석결과의 차이가 존재할 수 있으므로 참고용 분석 결과로만 활용 하시기 바랍니다.</li>
+                            </ul>
                         </div>
-                        <div className="w-full d-group">
-                            <div>
-                                <StationInfoBox stationCode={station} />
-                                <PerformanceIndicators stationCode={station} />
+                        <div className="w-full flex flex-col gap-8">
+                            <div className="w-full d-group">
+                                <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
+                            </div>
+                            <div className="w-full d-group">
+                                <div>
+                                    <StationInfoBox stationCode={station} />
+                                    <PerformanceIndicators stationCode={station} />
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className="w-full d-group mb-12">
-                        <p className="c-tit03">장기 추세 그래프 (2014 ~ 2023) <span>지난 10년간 월별 평균 지하수위 추이</span></p>
-                        <LineChartZoom />
+                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <p className="c-tit03">
+                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 장기 추세 그래프 (2014 ~ 2023)
+                            </p>
+                            <span className="gray-92">지난 10년간 월별 평균 지하수위 추이</span>
+                        </div>
+                        <div className="rounded-xl border-style-2 mb-6">
+                            <LineChartShade baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
+                        </div>
                     </div>
                     <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
                         <div className="lg:w-2/3 d-group">
-                            <p className="c-tit03">기상-수위 상관관계 그래프 (3년, 데이터 미정)</p>
-                            <LineChartShade />
+                            <p className="c-tit03">
+                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-수위 상관관계 (3년, 데이터 미정)
+                            </p>
                         </div>
                         <div className="lg:w-1/3 d-group">
                             <FeatureImportancePage />

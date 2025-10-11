@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef, use } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import ExportingModule from 'highcharts/modules/exporting';
@@ -20,10 +20,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-
-// 타입
-type Yyyymm = string; // '201501'
-type SeriesTuple = [Yyyymm, number] // [날짜, 수위]
+// 타입 선언
+type Yyyymm = number; // 201501
+type SeriesTuple = [Yyyymm, number] // [날짜, 수위] /////////!!!!!!! number빼던가
 
 interface LineChartSeriesData {
     actual: SeriesTuple[]; // [[날짜, 수위],[날짜, 수위],[날짜, 수위], ...]
@@ -34,64 +33,132 @@ interface BackendSeriesResponse {
     data: { series: LineChartSeriesData }
 }
 
-// 상수
-//const BASE_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const ZOOM_WINDOW = [1, 5, 7, 10] as const;
-
-// 함수: yyyymm 문자열을 UTCString으로
-const yyyymmToUTC = (yyyymm: Yyyymm) => {
-    const date = new Date();
-    const yyyymmNum = parseInt(yyyymm);
-    date.setFullYear(Math.floor(yyyymmNum / 100));
-    date.setMonth(yyyymmNum % 100 - 1);
-    return date.toUTCString();
+interface LineChartZoomProps {
+    baseUrl: string;
+    chartTitle?: string;
+    window?: 12 | 60 | 84 | 120;
+    prefetchedData?: BackendSeriesResponse;
 }
 
-const fetchData = async() => {
-    //const resp = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=1&timestep=monthly&horizons=120`, {
-    const resp = await fetch(`${BASE_URL}/api/v1/mockdata/longterm?station=1&timestep=monthly&horizons=120`, {
+// 상수 선언
+const ZOOM_WINDOWS = [12, 36, 60, 84, 120] as const;
+
+// 함수
+const yyyymmToUTC = (yyyymm: Yyyymm) : number => {
+    const yyyymmNum = yyyymm;
+    const yyyy = Math.floor(yyyymmNum / 100);
+    const mm = (yyyymmNum % 100) - 1;
+    return Date.UTC(yyyy, mm, 1);
+}
+
+// 미완성: 나중에
+const normalizeTuples = (tuples: SeriesTuple[] | undefined) : [number, number][] => {
+    if(!tuples) return [];
+    return tuples
+        .map(([k, v]) => [yyyymmToUTC(k), v] as [number, number])
+        .sort((a, b) => a[0] - b[0]); // sort하지 말까?
+}
+
+// 최근 N개월
+function lastN<T extends [number, number]>(arr: T[], count: number): T[] { // [number, number] 로??????
+    if(!count) return [];
+    const start = Math.max(0, arr.length - count);
+    return arr.slice(start);
+}
+
+const fetchData = async(url: string, signal: AbortSignal) => {
+    const resp = await fetch(url, {
         headers: { "Content-type" : "application/json" },
         method: "GET",
-        mode: "cors"
-    }); 
+        mode: "cors",
+        signal
+    });
 
     if(resp.ok){
         const data: BackendSeriesResponse = await resp.json();
-        console.log(data);
-        data.data.series.actual.forEach(d => d[0] = yyyymmToUTC(d[0]));
-        data.data.series.predicted.forEach(d => d[0] = yyyymmToUTC(d[0]));
-        
-        return data.data.series;
+        const actual = normalizeTuples(data.data.series.actual);
+        const predicted = normalizeTuples(data.data.series.predicted);
+        return {actual, predicted};
+
     } else {
-        console.log("실패, 실패 사유: ");
+        console.log('${resp.status}');
         return null;
     }
 }
 
-export default function LineChartShade() {
-    const [data, setData] = useState<LineChartSeriesData>({actual: [], predicted: []});
+export default function LineChartZoom({
+    baseUrl,
+    chartTitle = '차트 제목',
+    window = 120,
+    prefetchedData,
+} : LineChartZoomProps
+) {
+
+    const chartRef = useRef<HighchartsReact.RefObject | null>(null);
+    const [loading, setLoading] = useState(!prefetchedData);
+    const [error, setError] = useState<string | null>(null);
+    const [seriesRaw, setSeriesRaw] = useState<LineChartSeriesData>({actual: [], predicted: []});
+    const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(window);
+
+    useEffect(() => {
+        console.log("baseUrl: ", baseUrl);
+        if(prefetchedData) {
+            setSeriesRaw({
+                actual: normalizeTuples(prefetchedData.data?.series?.actual),
+                predicted: normalizeTuples(prefetchedData.data?.series?.predicted),
+            });
+            setLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        try {
+            setLoading(true);
+            fetchData(baseUrl, signal).then(res => {
+                if(res === null) {
+                    throw new Error('Fetch 실패');
+                } else {
+                    setSeriesRaw(res);
+                    setError(null);
+                }
+            });
+
+        } catch(error: any) {
+            if(error?.name !== 'AbortError') {
+                setError(error.message || "Fetch 실패");
+            }
+        } finally {
+            setLoading(false);
+        }
+
+        return () => controller.abort();
+
+    }, [baseUrl, prefetchedData]);
+
+    const slicedSeries = useMemo(() => {
+        console.log("실측 수위의 길이: ", seriesRaw.actual.length);
+        return {
+            actual: lastN(seriesRaw.actual, zoomWindow),
+            predicted: lastN(seriesRaw.predicted, zoomWindow),
+        }
+    }, [seriesRaw, zoomWindow]);
+
     const [minY, maxY] = useMemo(() => {
-        const all = [...data.actual, ...data.predicted].map(([_, value]) => value);
+        const all = [...seriesRaw.actual, ...seriesRaw.predicted].map(([_, value]) => value);
         if (!all.length) return [undefined, undefined];
         const min = Math.min(...all);
         const max = Math.max(...all);
         const padding = (max - min) * 0.05 || 1;
         return [min - padding, max + padding];
-    }, [data]);
-    
-    useEffect(()=>{
-        // 차트 데이터 fetch
-        fetchData().then(res => {
-            if(res === null) return;
-            setData(res);
-        });
-    }, []);
+    }, [seriesRaw]);
 
     const options = useMemo<Highcharts.Options>(() => ({
         chart: {
             type: 'line',
-            zoomType: 'x',
+            zoomType: undefined,
+            spacing: [0, 20, 20, 20],
             followTouchMove: true,
             panning: {
                 enabled: true,
@@ -100,7 +167,7 @@ export default function LineChartShade() {
             panKey: 'shift'
         },
         title:{
-            text: '기상-지하수위 상관 그래프',
+            text: chartTitle,
             align: 'left'
         },
         legend: {
@@ -115,20 +182,17 @@ export default function LineChartShade() {
             title: {
                 text: '날짜'
             },
-            labels: {
-                rotation: -45,
-            },
             crosshair: true,
-            plotBands: data.predicted.length > 0 ? [
+            plotBands: slicedSeries.predicted.length > 0 ? [
                 {
-                    from: data.predicted[0][0],
-                    to: data.predicted[data.predicted.length - 1][0],
+                    from: slicedSeries.predicted[0][0],
+                    to: slicedSeries.predicted[slicedSeries.predicted.length - 1][0],
                     color: 'rgba(255, 255, 0, 0.1)'
                 },
             ] : undefined,
-            plotLines: data.predicted.length > 0 ? [
+            plotLines: slicedSeries.predicted.length > 0 ? [
                 {
-                    value: data?.predicted[0][0],
+                    value: slicedSeries?.predicted[0][0],
                     width: 2,
                     color: 'orange',
                     dashStyle: 'ShortDash',
@@ -151,9 +215,14 @@ export default function LineChartShade() {
         credits: {
             enabled: false
         },
+        plotOptions: {
+            series: {
+                turboThreshold: 0,
+            }
+        },
         exporting: {
             enabled: true,
-            filename: '기상-지하수위 상관 그래프',
+            filename: chartTitle,
             buttons: {
                 contextButton: {
                     theme: {
@@ -173,6 +242,8 @@ export default function LineChartShade() {
                     ],
                     symbol: 'menu',
                     align: 'right',
+                    x: 0,
+                    y: 0,
                 }
             }
         },
@@ -191,7 +262,7 @@ export default function LineChartShade() {
             {
                 type: 'areaspline',
                 name: '실제 수위',
-                data: data.actual,
+                data: slicedSeries.actual,
                 color: '#1976D2',
                 fillColor: {
                 linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
@@ -206,7 +277,7 @@ export default function LineChartShade() {
             {
                 type: 'areaspline',
                 name: '예측 수위',
-                data: data.predicted,
+                data: slicedSeries.predicted,
                 color: '#FFA726',
                 fillColor: {
                 linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
@@ -219,14 +290,33 @@ export default function LineChartShade() {
                 dashStyle: 'ShortDash',
             },
         ]
-    }), [data]);
+    }), [slicedSeries]);
+
+
+    const changeZoomWindow = (window: typeof ZOOM_WINDOWS[number]) => {
+        setZoomWindow(window);
+        chartRef.current?.chart?.reflow(); // 레이아웃용
+    }
 
     return (
         <div className="chart-box mt-8 w-full">
+            <div className="flex justify-start gap-4">
+                {
+                    ZOOM_WINDOWS.map(w => (
+                        <button key={w} type='button' onClick={() => changeZoomWindow(w)} aria-pressed={zoomWindow === w}>
+                            {`${w / 12}년`}
+                        </button>
+                    ))
+                }
+            </div>
             <div>
+                <p className=''>
+                    { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
+                </p>
                 <HighchartsReact
                     highcharts={Highcharts}
                     options={options}
+                    ref={chartRef}
                     containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
                 />
             </div>

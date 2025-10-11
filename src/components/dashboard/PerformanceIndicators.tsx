@@ -97,7 +97,7 @@ export default function PerformanceIndicators({
       <div className="performance-indicators-header">
         <p  className="c-tit03">{title}</p>
         <p className="c-txt-point">{highlight}</p>
-        <p className="c-txt01">{description}</p>
+        <p className="c-txt02">{description}</p>
       </div>
       <div className="performance-indicators-grid">
         {resolvedMetrics.map((metric) => (
