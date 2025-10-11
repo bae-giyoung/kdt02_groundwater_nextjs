@@ -6,9 +6,9 @@ export default function StationInfoBox({stationCode} : {stationCode: GenInfoKey}
     const station = genInfo[stationCode];
     return (
         <div className="overflow-x-auto">
-            <p className="c-tit03"><span className="point-c-01">{station["측정망명"]}</span> 관측소 정보</p>
-            <div className="table-container">
-                <table className="min-w-full border-collapse border text-sm text-left">
+            <p className="c-tit03">관측소 정보</p>
+            <div className="table-style02 table-container">
+                <table className="min-w-full text-sm text-left">
                     <colgroup>
                         <col width={"15%"} />
                         <col width={"30%"} />
@@ -17,38 +17,28 @@ export default function StationInfoBox({stationCode} : {stationCode: GenInfoKey}
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">측정망명</th>
-                            <td className="border px-3 py-2 bg-white">{station["측정망명"]}</td>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">종류</th>
-                            <td className="border px-3 py-2 bg-white">{station["종류"]}</td>
+                            <th scope="row">측정망명</th>
+                            <td>{station["측정망명"]}</td>
+                            <th scope="row">종류</th>
+                            <td>{station["종류"]}</td>
                         </tr>
                         <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">대권역</th>
-                            <td className="border px-3 py-2 bg-white">{station["대권역"]}</td>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">중권역</th>
-                            <td className="border px-3 py-2 bg-white">{station["중권역"]}</td>
+                            <th scope="row">대권역</th>
+                            <td>{station["대권역"]}</td>
+                            <th scope="row">중권역</th>
+                            <td>{station["중권역"]}</td>
                         </tr>
                         <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">주소</th>
-                            <td colSpan={3} className="border px-3 py-2">{station["주소"]}</td>
+                            <th scope="row">설치년도</th>
+                            <td>{station["설치년도"]}</td>
+                            <th scope="row">설치심도</th>
+                            <td>{station["설치심도"]}</td>
                         </tr>
                         <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">위도</th>
-                            <td className="border px-3 py-2 bg-white">{station["lat"]}</td>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">경도</th>
-                            <td className="border px-3 py-2 bg-white">{station["lon"]}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">설치년도</th>
-                            <td className="border px-3 py-2 bg-white">{station["설치년도"]}</td>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">설치심도</th>
-                            <td className="border px-3 py-2 bg-white">{station["설치심도"]}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">수리전도도(cm/sec)</th>
-                            <td className="border px-3 py-2 bg-white">{station["수리전도도(cm/sec)"]}</td>
-                            <th scope="row" className="bg-gray-ed border px-3 py-2 font-medium">표고(EL.m)</th>
-                            <td className="border px-3 py-2 bg-white">{station["표고(EL.m)"]}</td>
+                            <th scope="row">수리전도도(cm/sec)</th>
+                            <td>{station["수리전도도(cm/sec)"]}</td>
+                            <th scope="row">표고(EL.m)</th>
+                            <td>{station["표고(EL.m)"]}</td>
                         </tr>
                     </tbody>
                 </table>

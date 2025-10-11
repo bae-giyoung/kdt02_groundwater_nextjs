@@ -42,7 +42,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // 컬러
 const mutedPalette = [
-  '#87d4cc', '#FFE082', 'rgba(25, 118, 210, 0.5)', '#A5D6A7', '#80DEEA',
+  '#87d4cc', '#FFE082', '#1976D2', '#A5D6A7', '#80DEEA',
   '#D1C4E9', '#F8BBD0', '#CFD8DC',
   '#4CAF50', '#FFB300', '#4DD0E1',
   '#B39DDB', '#EC6F8B', '#90A4AE',
@@ -143,14 +143,23 @@ export default function FeatureImportancePage() {
         },
         exporting: {
             enabled: true,
-            filename: '주요 영향 변수 분석 파이 차트',
+            filename: '주요 영향 변수 분석',
             buttons: {
                 contextButton: {
+                    theme: {
+                        stroke: "#ccc",
+                        "stroke-width": 1.5,
+                        fill: "#ffffff",
+                    },
                     menuItems: [
+                        'viewFullscreen',
+                        'printChart',
                         'downloadPNG',
                         'downloadJPEG',
                         'downloadPDF',
                         'downloadSVG',
+                        'downloadCSV',
+                        'downloadXLS',
                     ],
                     symbol: 'menu',
                     align: 'right',
@@ -158,10 +167,14 @@ export default function FeatureImportancePage() {
             }
         },
         lang: {
+            viewFullscreen: '크게 보기',
+            printChart: '차트 인쇄',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',
             downloadSVG: 'SVG 이미지로 다운로드',
+            downloadCSV: 'CSV 파일로 다운로드',
+            downloadXLS: 'XLS 파일로 다운로드',
             contextButtonTitle: '메뉴'
         },
         series: [{

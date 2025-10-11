@@ -239,6 +239,11 @@ footer {
     width: calc(100% - 180px);
 }
 
+.dash-cont-top .table-container {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
 #navi-footer .info-bar svg {
   position: relative;
   border: 2px solid #222222;

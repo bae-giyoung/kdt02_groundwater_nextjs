@@ -4,11 +4,12 @@ import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
 import genInfo from "@/data/gennumInfo.json";
-import { GenInfoKey } from '@/types/uiTypes';
+import type { GenInfoKey } from '@/types/uiTypes';
 
 // 타입 선언
 interface GeoMapProps {
-    mapData: Record<string, number>, 
+    mapData: Record<string, Record<string, number | null>>, 
+    period: string,
     mappointDesc: string,
     handleClick?: (stationCode: GenInfoKey) => void,
 }
@@ -24,10 +25,6 @@ interface GeoPoint extends Highcharts.Point {
 // 지도 색상
 const geoFeatures = Highcharts.geojson(krAll, 'map') as Highcharts.GeoJSONFeature[];
 const geoColorPallete = ["#E8F5E9", "#DDEFE0", "#C8E0C9", "#D6ECEA"];
-// ["#F4E3C2", "#E3D4B9", "#D6C4A0", "#C5B59C", "#B3A58B", "#9F9982"]
-// ["#E1F5FE", "#B3E5FC", "#A5D6F9", "#81C6EA", "#6BAEDB"]
-// ["#E8F5E9", "#C8E6C9", "#A5D6A7", "#B2DFDB", "#80CBC4"]
-// ["#F2F8F3", "#DDEFE0", "#C8E0C9", "#D6ECEA", "#A9D5D1"]
 
 const pickColor = (idx: number) => {
     return geoColorPallete[idx % geoColorPallete.length];
@@ -39,21 +36,22 @@ const mapRegions = geoFeatures.map((feature, idx) => ({
 }));
 
 // mappoint 정보, 측정소별
-const getGenGeoInfo = (mapData: Record<string, number>) => {
+const getGenGeoInfo = (mapData: Record<string, Record<string, number | null>>, period: string) => {
+    const targetZName = "elevMean" + period;
     return Object.entries(genInfo).map(([gen, info]) => ({
         code: gen,
         name: info["측정망명"],
         lat: Number(info["lat"]),
         lon: Number(info["lon"]),
-        z: mapData[gen] ?? 0
+        z: mapData[gen]?.[targetZName] ?? null
     }));
 }
 
 export default function GeoMap (
-    {mapData, mappointDesc, handleClick} 
+    {mapData, period, mappointDesc, handleClick} 
     : GeoMapProps
 ) {
-  const points = useMemo(() => getGenGeoInfo(mapData), [mapData]);
+  const points = useMemo(() => getGenGeoInfo(mapData, period ?? "1"), [mapData, period]);
   
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
@@ -144,6 +142,7 @@ export default function GeoMap (
         name: '측정망',
         data: points,
         colorKey: 'z',
+        nullColor: 'transparent',
         enableMouseTracking: false,
         zIndex: 1
       } as Highcharts.SeriesMapbubbleOptions,
@@ -168,7 +167,7 @@ export default function GeoMap (
       pointFormatter: function() {
         const p = this as any;
         return `<b>${p.name}</b>`
-              + (typeof p.z === 'number' ? `<br/>${mappointDesc}: ${Highcharts.numberFormat(p.z, 1)}` : '');
+              + (typeof p.z === 'number' ? `<br/>${mappointDesc}: ${Highcharts.numberFormat(p.z, 3)}` : '');
       }
     }
   }), [points, mappointDesc]);

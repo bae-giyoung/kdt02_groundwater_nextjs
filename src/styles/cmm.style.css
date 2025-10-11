@@ -49,10 +49,19 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 12px;
 }
 
+/** -- 소제목 */
 .c-stit01 {
   font-weight: 600;
   color: #222;
   margin-bottom: 15px;
+}
+
+.c-stit02 {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #37474F;
+  margin-bottom: 10px;
 }
 
 @media all and (max-width:1024px) {
@@ -71,10 +80,16 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 4px;
 }
 
-/** -- 텍스트1  */
+/** -- 텍스트  */
 .c-txt01 {
+  color: #444;
+  font-size: 1em;
+  margin-bottom: 24px;
+}
+
+.c-txt02 {
   color: #64748b;
-  font-size: 14px;
+  font-size: 0.9em;
   margin-bottom: 24px;
 }
 
@@ -121,6 +136,18 @@ div, input, select {box-sizing: border-box;}
 
 .border-radius-15 {
   border-radius: 15px;
+}
+
+.border-style-2 {
+  border: 1px solid #37474F55;
+}
+
+.border-t-style-2 {
+  border-top: 1px solid #E2E2E2;
+}
+
+.border-b-style-2 {
+  border-bottom: 1px solid #E2E2E2;
 }
 
 .bg-gray-48 {
@@ -299,7 +326,7 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
 }
 
 /** ===== Table Style ===== */
-.table-container  {
+.table-style01, .table-style02  {
   padding-bottom: 2px;
   border-radius: 10px 10px 0 0;
   border: 1px solid #E2E2E2;
@@ -309,13 +336,37 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
   box-sizing: border-box;
 }
 
-table {
+.table-style01 table, .table-style02 table {
   min-height: 76px;
   border-collapse: collapse;
   border-spacing: 0;
   border-bottom: 2px solid #222222;
   box-sizing: border-box;
 }
+
+.table-style01 thead {
+  background-color: #ECEFF1;
+  color: #37474F;
+}
+
+.table-style01 table tr:nth-child(even) {
+  background-color: #F3F6F8;
+}
+
+.table-style02 th {
+  background-color: #ECEFF1;
+  color: #37474F;
+}
+
+table tr:hover {
+  background-color: #E3F2FD;
+}
+
+table td, table th {
+  border-bottom: 1px solid #E0E0E0;
+  padding: 8px 8px;
+}
+
 
 /** ===== SubNav Style ===== */
 .subnav-group {
@@ -724,6 +775,7 @@ table {
   display: none;
 }
 
+.bar-chart-container text.highcharts-title,
 .line-chart-container text.highcharts-title,
 .pie-chart-container text.highcharts-title {
   display: none;

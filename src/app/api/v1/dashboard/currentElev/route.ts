@@ -30,7 +30,7 @@ type TrendMetricT = {
 
 type ResponseDataT = {
     table: Record<string, string | number | null>[],
-    geomap: Record<string, number | null>,
+    geomap: Record<string, Record<string, number | null>>,
     trend: Record<string, TrendMetricT>
 }
 
@@ -121,23 +121,43 @@ function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
     return tableData;
 }
 
+// 최근 N일 평균 지하수위
+function averageLatest(units: number[], windowSize: number): number | null {
+    if(units.length === 0) return null;
+    
+    const count = Math.min(windowSize, units.length);
+    let sum = 0;
+
+    // units는 과거 -> 최신 순서
+    for(let i = units.length - count; i < units.length; i+= 1) {
+        sum += units[i];
+    }
+
+    return Number((sum / count).toFixed(3));
+}
 
 // 지도용 데이터 가공
 function transformToGeoMapData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    const geoMapData: Record<string, number | null> = {};
+    const geoMapData: Record<string, Record<string, number | null>> = {};
 
     for (const [gen, units] of Object.entries(rawData)) {
         const allElevs = units.map(unit => Number(unit.elev)).filter(value => Number.isFinite(value));
         if (allElevs.length === 0) {
-            geoMapData[gen] = null;
+            geoMapData[gen] = {elevMean1: null, elevMean7: null, elevMean14: null, elevMean30: null};
             continue;
         }
-        const elevMean = allElevs.reduce((acc, cur) => acc + cur, 0) / allElevs.length;
-        geoMapData[gen] = elevMean;
+
+        geoMapData[gen] = {
+            elevMean1: averageLatest(allElevs, 1),
+            elevMean7: averageLatest(allElevs, 7),
+            elevMean14: averageLatest(allElevs, 14),
+            elevMean30: averageLatest(allElevs, 30),
+        };
     }
 
     return geoMapData;
 }
+
 
 // 추세용 데이터 가공
 function transformToTrendData(rawData: Record<string, UnitFromOpenApiT[]>) {
@@ -215,8 +235,8 @@ export async function GET(
 
         // 지도 데이터
         responseData.geomap = transformToGeoMapData(dataByStation);
-        //console.log("=================== 지도데이터 ================================================");
-        //console.log(responseData.geomap);
+        console.log("=================== 지도데이터 ================================================");
+        console.log(responseData.geomap);
 
         // 추세 데이터
         responseData.trend = transformToTrendData(dataByStation);

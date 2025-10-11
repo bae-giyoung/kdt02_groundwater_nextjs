@@ -156,11 +156,20 @@ export default function LineChartShade() {
             filename: '기상-지하수위 상관 그래프',
             buttons: {
                 contextButton: {
+                    theme: {
+                        stroke: "#ccc",
+                        "stroke-width": 1.5,
+                        fill: "#ffffff",
+                    },
                     menuItems: [
+                        'viewFullscreen',
+                        'printChart',
                         'downloadPNG',
                         'downloadJPEG',
                         'downloadPDF',
                         'downloadSVG',
+                        'downloadCSV',
+                        'downloadXLS',
                     ],
                     symbol: 'menu',
                     align: 'right',
@@ -168,10 +177,14 @@ export default function LineChartShade() {
             }
         },
         lang: {
+            viewFullscreen: '크게 보기',
+            printChart: '차트 인쇄',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',
             downloadSVG: 'SVG 이미지로 다운로드',
+            downloadCSV: 'CSV 파일로 다운로드',
+            downloadXLS: 'XLS 파일로 다운로드',
             contextButtonTitle: '메뉴'
         },
         series: [
