@@ -1,7 +1,7 @@
 'use client';
+import { useEffect, useMemo, useState, useRef, use } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { useEffect, useMemo, useState } from 'react';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
@@ -20,9 +20,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// 타입
+// 타입 선언
 type Yyyymm = string; // '201501'
-type SeriesTuple = [Yyyymm, number] // [날짜, 수위]
+type SeriesTuple = [Yyyymm, number] // [날짜, 수위] /////////!!!!!!! number빼던가
 
 interface LineChartSeriesData {
     actual: SeriesTuple[]; // [[날짜, 수위],[날짜, 수위],[날짜, 수위], ...]
@@ -33,10 +33,14 @@ interface BackendSeriesResponse {
     data: { series: LineChartSeriesData }
 }
 
-// 상수
-//const BASE_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const ZOOM_WINDOW = [1, 5, 7, 10] as const;
+interface LineChartZoomProps {
+    baseUrl: string;
+    window?: 12 | 60 | 84 | 120;
+    prefetchedData?: BackendSeriesResponse;
+}
+
+// 상수 선언
+const ZOOM_WINDOWS = [12, 60, 84, 120] as const;
 
 // 함수
 const yyyymmToUTC = (yyyymm: Yyyymm) => {
@@ -47,49 +51,103 @@ const yyyymmToUTC = (yyyymm: Yyyymm) => {
     return date.toUTCString();
 }
 
-const fetchData = async() => {
-    //const resp = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=1&timestep=monthly&horizons=120`, {
-    const resp = await fetch(`${BASE_URL}/api/v1/mockdata/longterm?station=1&timestep=monthly&horizons=120`, {
+// 미완성: 나중에
+const normalizeTuples = (tuples: SeriesTuple[]) => {
+    return tuples;
+}
+
+// 최근 N개월
+function lastN<T extends [string, number]>(arr: T[], count: number): T[] { // [number, number] 로??????
+    if(!count) return [];
+    const start = Math.max(0, arr.length - count);
+    return arr.slice(start);
+}
+
+const fetchData = async(url: string, signal: AbortSignal) => {
+    const resp = await fetch(url, {
         headers: { "Content-type" : "application/json" },
         method: "GET",
-        mode: "cors"
-    }); 
+        mode: "cors",
+        signal
+    });
 
     if(resp.ok){
         const data: BackendSeriesResponse = await resp.json();
         console.log(data);
-        data.data.series.actual.forEach(d => d[0] = yyyymmToUTC(d[0]));
-        data.data.series.predicted.forEach(d => d[0] = yyyymmToUTC(d[0]));
+        data.data.series.actual.forEach(d => d[0] = yyyymmToUTC(d[0])); // normalizeTuple로
+        data.data.series.predicted.forEach(d => d[0] = yyyymmToUTC(d[0])); // normalizeTuple로
         
         return data.data.series;
     } else {
-        console.log("실패, 실패 사유: ");
+        console.log('${resp.status}');
         return null;
     }
 }
 
-export default function LineChartZoom() {
-    const [data, setData] = useState<LineChartSeriesData>({actual: [], predicted: []});
-    const [zoomValue, setZoomValue] = useState<number>(10);
+export default function LineChartZoom({
+    baseUrl,
+    window = 120,
+    prefetchedData,
+} : LineChartZoomProps
+) {
 
-    const handleZoom = (e : React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        const target = e.target as HTMLButtonElement;
-        const value = parseInt(target.value);
-        setZoomValue(value);
-    };
+    const chartRef = useRef<HighchartsReact.RefObject | null>(null);
+    const [loading, setLoading] = useState(!prefetchedData);
+    const [error, setError] = useState<string | null>(null);
+    const [seriesRaw, setSeriesRaw] = useState<LineChartSeriesData>({actual: [], predicted: []});
+    const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(window);
+
+    useEffect(() => {
+        if(prefetchedData) {
+            setSeriesRaw({
+                actual: normalizeTuples(prefetchedData.data?.series?.actual),
+                predicted: normalizeTuples(prefetchedData.data?.series?.predicted),
+            });
+            setLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        try {
+            setLoading(true);
+            fetchData(baseUrl, signal).then(res => {
+                if(res === null) {
+                    throw new Error('Fetch 실패');
+                } else {
+                    setSeriesRaw(res);
+                    setError(null);
+                }
+            });
+
+        } catch(error: any) {
+            if(error?.name !== 'AbortError') {
+                setError(error.message || "Fetch 실패");
+            }
+        } finally {
+            setLoading(false);
+        }
+
+        return () => controller.abort();
+
+    }, [baseUrl, prefetchedData]);
+
+    const slicedSeries = useMemo(() => {
+        console.log("실측 수위의 길이: ", seriesRaw.actual.length);
+        return {
+            actual: lastN(seriesRaw.actual, zoomWindow),
+            predicted: lastN(seriesRaw.predicted, zoomWindow),
+        }
+    }, [seriesRaw, zoomWindow]);
+
     
-    useEffect(()=>{
-        fetchData().then(res => {
-            if(res === null) return;
-            setData(res);
-        }); 
-    }, []);
 
     const options = useMemo<Highcharts.Options>(() => ({
         chart: {
             type: 'line',
-            zoomType: 'x',
+            zoomType: undefined,
+            spacint: [16, 16, 8, 8],
             followTouchMove: true,
             panning: {
                 enabled: true,
@@ -117,16 +175,16 @@ export default function LineChartZoom() {
                 rotation: -45,
             },
             crosshair: true,
-            plotBands: data.predicted.length > 0 ? [
+            plotBands: slicedSeries.predicted.length > 0 ? [
                 {
-                    from: data.predicted[0][0],
-                    to: data.predicted[data.predicted.length - 1][0],
+                    from: slicedSeries.predicted[0][0],
+                    to: slicedSeries.predicted[slicedSeries.predicted.length - 1][0],
                     color: 'rgba(255, 255, 0, 0.1)'
                 },
             ] : undefined,
-            plotLines: data.predicted.length > 0 ? [
+            plotLines: slicedSeries.predicted.length > 0 ? [
                 {
-                    value: data?.predicted[0][0],
+                    value: slicedSeries?.predicted[0][0],
                     width: 2,
                     color: 'orange',
                     dashStyle: 'ShortDash',
@@ -144,6 +202,11 @@ export default function LineChartZoom() {
         },
         credits: {
             enabled: false
+        },
+        plotOptions: {
+            series: {
+                turboThreshold: 0,
+            }
         },
         exporting: {
             enabled: true,
@@ -184,28 +247,43 @@ export default function LineChartZoom() {
         series: [
             {
                 type: 'line',
-                name: '실제 수위',
-                data: data.actual,
+                name: '실측 수위',
+                data: slicedSeries.actual,
                 id: 'actual'
             }, {
                 type: 'line',
                 name: '예측 수위',
-                data: data.predicted,
+                data: slicedSeries.predicted,
                 color: 'orange',
                 id: 'predicted'
             }
         ]
-    }), [data]);
+    }), [slicedSeries]);
+
+    const changeZoomWindow = (window: typeof ZOOM_WINDOWS[number]) => {
+        setZoomWindow(window);
+        console.log(window);
+        // 소프트 스크롤 추가 고려!
+        // chartRef.current?.chart?.reflow();
+    }
 
     return (
         <div className="chart-box mt-8 w-full">
             <div className="flex justify-start gap-4">
-                <button type="button" onClick={handleZoom} value="1">1년</button>
-                <button type="button" onClick={handleZoom} value="5">5년</button>
-                <button type="button" onClick={handleZoom} value="7">7년</button>
-                <button type="button" onClick={handleZoom} value="10">10년</button>
+                {
+                    ZOOM_WINDOWS.map(w => (
+                        <button key={w} onClick={() => changeZoomWindow(w)}
+                            aria-pressed={zoomWindow === w}
+                        >
+                            {`${w / 12}년`}
+                        </button>
+                    ))
+                }
             </div>
             <div>
+                <p className=''>
+                    { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
+                </p>
                 <HighchartsReact
                     highcharts={Highcharts}
                     options={options}
