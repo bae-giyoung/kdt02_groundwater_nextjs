@@ -6,6 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 const API_KEY = process.env.GROUNDWATER_API_KEY;
 const BASE_URL = "https://www.gims.go.kr/api/data/observationStationService/getGroundwaterMonitoringNetwork";
 const GENNUMS = ["5724", "9879", "11746", "11777", "65056", "73515", "73538", "82031", "82049", "84020", "514307", "514310"];
+const DEFAULT_DAYS = 30;
+const MIN_DAYS = 1;
+const MAX_DAYS = 365;
 
 // 타입 선언
 type UnitFromOpenApiT = {
@@ -31,11 +34,23 @@ type ResponseDataT = {
     trend: Record<string, TrendMetricT>
 }
 
+// 기본 30일, 최소 1일, 최대 365일 제한. 현재 30일만 사용하지만 확장성 고려.
 function parseDaysParam(daysParam: string | null) {
-    const parsed = parseInt(daysParam || "1");
+    if(!daysParam) return DEFAULT_DAYS;
+    const parsed = Number(daysParam);
 
-    if(!Number.isFinite(parsed)) return 30;
-    if(!Number.isInteger(parsed) || parsed < 1) return 1;
+    if(!Number.isFinite(parsed) || !Number.isInteger(parsed)) {
+        return DEFAULT_DAYS;
+    }
+
+    if(parsed < MIN_DAYS) {
+        return MIN_DAYS;
+    }
+
+    if(parsed > MAX_DAYS) {
+        return MAX_DAYS;
+    }
+
     return parsed;
 }
 
@@ -157,6 +172,8 @@ function transformToTrendData(rawData: Record<string, UnitFromOpenApiT[]>) {
         if(sortedUnits.length >= 2 && maxElev !== minElev) {
             const positionRatio = (latestUnit.elevNum - minElev) / (maxElev - minElev);
             position = Math.max(0, Math.min(1, positionRatio));
+        } else {
+            position = 0.5;
         }
 
         trendData[gen] = {
@@ -173,7 +190,6 @@ function transformToTrendData(rawData: Record<string, UnitFromOpenApiT[]>) {
 export async function GET(
     request: NextRequest
 ) {
-    console.log("requset.url", request.url);
     const {begindate, enddate} = getApiParams(request);
     const gennumList = GENNUMS;
     const responseData: ResponseDataT = {table: [], geomap: {}, trend: {}};
