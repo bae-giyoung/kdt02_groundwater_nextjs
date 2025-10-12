@@ -254,7 +254,7 @@ export default function WeatherGroundwaterTrendChart({
                 type: 'column',
                 name: '예측 수위',
                 data: seriesRaw.predicted,
-                color: '#1976D2',
+                color: '#039BE5', // '#B3E5FC', '#81D4FA', '#4FC3F7', '#29B6F6', '#039BE5', '#0288D1',
                 //threshold: null,
                 lineWidth: 2,
             },
