@@ -73,7 +73,7 @@ export default function GeoMap (
         x: -10,
         y: -10,
         theme: {
-          fill: 'transparent',
+          fill: '#ffffff',
           'stroke-width': 1,
           stroke: '#ccc',
           r: 6,

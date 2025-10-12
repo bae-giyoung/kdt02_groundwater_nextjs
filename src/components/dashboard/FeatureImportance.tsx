@@ -31,11 +31,6 @@ type FeatureT = [
     feature: string,
     importance: number
 ]
-interface FeatureImportanceDataT {
-    stateCode: number, // HTTP Status Code 타입은 없나
-    message: string,
-    data: FeatureT[]
-}
 
 // 상수
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -89,7 +84,9 @@ const fetchData = async() => {
     } else return resp.body; // 정확한 구조 확인
 }
 
-export default function FeatureImportancePage() {
+export default function FeatureImportancePage({
+    chartTitle = '주요 영향 변수 분석',
+}) {
     const [data, setData] = useState<FeatureT[]>([]);
 
     useEffect(() => {
@@ -112,7 +109,7 @@ export default function FeatureImportancePage() {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
         },
         title: {
-            text: '주요 영향 변수 분석',
+            text: chartTitle,
             align: 'left',
         },
         credits: {
@@ -143,7 +140,7 @@ export default function FeatureImportancePage() {
         },
         exporting: {
             enabled: true,
-            filename: '주요 영향 변수 분석',
+            filename: chartTitle.replace(/\s+/g, '_'),
             buttons: {
                 contextButton: {
                     theme: {
@@ -153,7 +150,6 @@ export default function FeatureImportancePage() {
                     },
                     menuItems: [
                         'viewFullscreen',
-                        'printChart',
                         'downloadPNG',
                         'downloadJPEG',
                         'downloadPDF',
@@ -168,7 +164,6 @@ export default function FeatureImportancePage() {
         },
         lang: {
             viewFullscreen: '크게 보기',
-            printChart: '차트 인쇄',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',

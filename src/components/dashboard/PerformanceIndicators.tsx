@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import DonutGauge from './DonutGauge';
 import genInfo from '@/data/gennumInfo.json';
 import type { GenInfo, GenInfoKey } from '@/types/uiTypes';
+import PerformanceBadge from './PerformanceBadge';
 
 // 타입 선언
 interface Indicator {
@@ -45,12 +46,6 @@ const METRIC_CONFIG = [
     defaultValue: 0.76,
     description: 'Root Mean Square Error (RMSE): 예측값과 관측값의 차이를 제곱해 평균한 뒤 제곱근을 취한 값으로, 오차의 절대 크기를 나타내며 값이 작을수록 모델의 정확도가 높습니다.',
   },
-  /* {
-    key: 'R2',
-    label: 'R²',
-    defaultValue: 0.88,
-    description: '결정계수 (R²): 관측값 변동을 모델이 얼마나 설명하는지를 나타내는 지표로, 1에 가까울수록 모델이 데이터의 분산을 잘 설명하고 높은 적합도를 보입니다.',
-  }, */
 ] as const;
 
 const DEFAULT_METRICS: Indicator[] = METRIC_CONFIG.map(({ label, defaultValue, description }) => ({
@@ -95,7 +90,16 @@ export default function PerformanceIndicators({
   return (
     <section className="performance-indicators">
       <div className="performance-indicators-header">
-        <p  className="c-tit03">{title}</p>
+        <div  className="flex justify-between items-center">
+          <p  className="c-tit03">{title}</p>
+          <div className="flex gap-2">
+            {
+              resolvedMetrics.map((metric) => (
+                <PerformanceBadge key={metric.label} label={metric.label} value={metric.value} />
+              ))
+            }
+          </div>
+        </div>
         <p className="c-txt-point">{highlight}</p>
         <p className="c-txt02">{description}</p>
       </div>

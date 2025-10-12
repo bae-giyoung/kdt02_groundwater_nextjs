@@ -103,7 +103,7 @@ function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
     for(const unitRows of Object.values(rawData)) { // unitRows: UnitFromOpenApiT[];
         unitRows.forEach(unit => dateSet.add(unit.ymd));
     }
-    const dates = Array.from(dateSet).sort((a, b) => b.localeCompare(a)); // 역순으로
+    const dates = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
 
     // 테이블 데이터
     const tableData = dates.map(date => {
@@ -227,16 +227,18 @@ export async function GET(
 
         // 데이터 가공: 관측소별 전체 데이터 묶음 (entries를 객체로)
         const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entries);
-        //console.log("=================== 관측소별 데이터러 바꾼것 dataByStation ================================================");
+        //console.log("=================== 관측소별 데이터로 바꾼것 dataByStation ================================================");
         //console.log(dataByStation);
 
         // 데이블 데이터
         responseData.table = transformToTableData(dataByStation);
+        console.log("=================== 테이블데이터 ================================================");
+        console.log(responseData.table);
 
         // 지도 데이터
         responseData.geomap = transformToGeoMapData(dataByStation);
-        console.log("=================== 지도데이터 ================================================");
-        console.log(responseData.geomap);
+        //console.log("=================== 지도데이터 ================================================");
+        //console.log(responseData.geomap);
 
         // 추세 데이터
         responseData.trend = transformToTrendData(dataByStation);

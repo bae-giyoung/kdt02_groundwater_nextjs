@@ -105,7 +105,7 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
         <div>
             <p className="c-tit03 mb-2">
                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 지하수위 현황 
-                <span className="c-txt02"> (최근 {windowDays}일 내 상대 위치)</span>
+                <span className="text-lg text-slate-600"> (최근 {windowDays}일 내 상대 위치)</span>
             </p>
             <div className="flex items-baseline gap-3">
                 <span className={`text-4xl font-bold ${summary.valueClass}`}>{summary.valueText}</span>
@@ -113,14 +113,14 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
                     {summary.arrow} {summary.label}
                 </span>
             </div>
-            <p className="c-txt02 mt-2 text-slate-600">{summary.message}</p>
+            <p className="c-txt02 mt-2 text-slate-600 border-b-2 border-slate-200 pb-4">{summary.message}</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-700">
                 <div>
-                    <dt className="font-medium text-slate-500">최신값</dt>
+                    <dt className="font-bold text-slate-500">최신값</dt>
                     <dd>{summary.latestDisplay}</dd>
                 </div>
                 <div>
-                    <dt className="font-medium text-slate-500">범위</dt>
+                    <dt className="font-bold text-slate-500">관측 구간</dt>
                     <dd>{summary.rangeDisplay}</dd>
                 </div>
             </dl>

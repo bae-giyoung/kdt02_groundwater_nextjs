@@ -77,7 +77,7 @@ export default function BarChart({
         },
         exporting: {
             enabled: true,
-            filename: '전국 지하수위 현황',
+            filename: '전국_지하수위_현황',
             buttons: {
                 contextButton: {
                     theme: {
@@ -87,7 +87,6 @@ export default function BarChart({
                     },
                     menuItems: [
                         'viewFullscreen',
-                        'printChart',
                         'downloadPNG',
                         'downloadJPEG',
                         'downloadPDF',
@@ -103,7 +102,6 @@ export default function BarChart({
         },
         lang: {
             viewFullscreen: '크게 보기',
-            printChart: '차트 인쇄',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',

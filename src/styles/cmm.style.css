@@ -2,6 +2,15 @@
 div, input, select {box-sizing: border-box;}
 
 /** ===== Title Style ===== */
+[class^=c-tit].inline-block {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+[class^=c-tit].mb-0 {
+  margin-bottom: 0;
+}
+
 /** -- 타이틀1  */
 .c-tit01 {
     position: relative;
@@ -72,6 +81,7 @@ div, input, select {box-sizing: border-box;}
 @media all and (max-width:768px) {
 	.c-tit03 {font-size:1rem;font-size:1rem}
 }
+
 
 /** -- 텍스트 포인트  */
 .c-txt-point {
@@ -185,6 +195,10 @@ ul.c-list01 li::before {
 }
 
 /** ===== Button Style ===== */
+button[class^="btn-style-"] {
+  cursor:pointer
+}
+
 .btn-style-1 {
   font-size: 22px;
   color: #ffffff;
@@ -234,21 +248,58 @@ ul.c-list01 li::before {
   padding: 8px;
   border: 1px solid #E2E2E2;
   border-radius: 8px;
-  background-image: linear-gradient(to right, #F2F2F2 40%, #cdeaf8, #6ec1e4);
-  /* background-image: linear-gradient(to right, #CDEAF8, #87d4cc); */
-  /* background-image: linear-gradient(to right, #E8F5E9, #C8E0C9, #C8E0C9, #D6ECEA, #D6ECEA); */
-  /* "#E8F5E9", "#DDEFE0", "#C8E0C9", "#D6ECEA" */
-  background-size: 300% auto;
-  background-position: left center;
+  background-color: #F2F2F2;
   overflow: hidden;
   box-sizing: border-box;
-  transition-property: background-position;
+  transition-property: color, background-color, border-color;
   transition-duration: .3s;
 }
 
 .btn-style-3:hover {
+  background-color: #cdeaf8;
+  border: 1px solid #E2E2E2;
   color: #0b1c4a;
-  background-position: right center;
+}
+
+.btn-style-4 {
+  font-size: 14px;
+  color: #222222;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px;
+  border: 1px solid #cdeaf8;
+  border-radius: 8px;
+  background-color: #cdeaf8;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: color, background-color, border-color;
+  transition-duration: .3s;
+}
+
+.btn-style-4:hover {
+  background-color: #F2F2F2;
+  border: 1px solid #E2E2E2;
+  color: #0b1c4a;
+}
+
+.btn-style-5 {
+  font-size: 12px;
+  color: #222222;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 8px;
+  border: 1px solid #c7c7c7;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: color, background-color;
+  transition-duration: .3s;
+}
+
+.btn-style-5:hover {
+  background-color: #cdeaf8;
+  color: #0b1c4a;
 }
 
 
@@ -446,6 +497,19 @@ table td, table th {
     border-radius: 0 0 15px 15px;
 }
 
+.d-sgroup {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 15px 10px;
+    border-radius: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 0 4px 4px #00000011;
+    overflow: hidden;
+    z-index: 0;
+    box-sizing: border-box;
+}
+
 .dash-navi select {
   max-width: 100%;
   padding-right: 12px;
@@ -583,6 +647,13 @@ table td, table th {
   z-index: 1;
 }
 
+.curr-modal .donut-modal-content {
+  width: 90vw;
+  height: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
 .donut-modal-header {
   display: flex;
   align-items: center;
@@ -615,8 +686,10 @@ table td, table th {
 
 .donut-modal-body {
   font-size: 15px;
+  max-height: calc(100% - 100px);
   color: #475569;
   line-height: 1.6;
+  overflow: auto;
 }
 
 /* == Ranking Lists == */
@@ -678,10 +751,6 @@ table td, table th {
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35); */
   font-weight: 700;
   font-size: 18px;
-}
-
-.ranking-rank-top {
-  /*  */
 }
 
 .ranking-content {
@@ -770,7 +839,7 @@ table td, table th {
   }
 }
 
-/* Chart yAxis 숨기가 */
+/* Chart yAxis 숨기기 */
 .line-chart-container .highcharts-axis.highcharts-yaxis > text {
   display: none;
 }
@@ -779,6 +848,38 @@ table td, table th {
 .line-chart-container text.highcharts-title,
 .pie-chart-container text.highcharts-title {
   display: none;
+}
+
+/* BadghColor */
+.badge-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 46px;
+  border-radius: 50px;
+  color: #0b1c4a;
+  background: linear-gradient(135deg, #CDEAF8, #6EC1E4);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.badge-rank.marine {
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #04befe);
+}
+
+.badge-rank.green {
+  color: rgb(6, 42, 70);
+  background: linear-gradient(135deg, #c9f4e6, #4ec9bf);
+  box-shadow: rgba(76, 175, 160, 0.35) 0px 8px 18px;
+}
+
+.badge-rank.yellow {
+  color: rgb(65, 34, 0);
+  background: linear-gradient(135deg, #ffe1b8, #ffaf5f);
+  box-shadow: rgba(255, 140, 0, 0.35) 0px 8px 18px;
 }
 
 /** info-box  */

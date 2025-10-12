@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CustomTable from "@/components/CustomTable";
 import genInfo from "@/data/gennumInfo.json";
 import GeoMap from "./GeoMap";
@@ -74,6 +74,8 @@ export default function DashBoardContents() {
     const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
     const [currMapDatas, setCurrMapDatas] = useState<Record<string, Record<string, number | null>>>({});
     const [trendMetrics, setTrendMetrics] = useState<Record<string, TrendMetricT>>({});
+    const [isAsc, setIsAsc] = useState<boolean>(true);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const contentRef = useRef<HTMLDivElement | null>(null);
     
     // 현재 관측소명, 현재 관측소의 경향성 지표
@@ -89,6 +91,7 @@ export default function DashBoardContents() {
 
     // 현황 테이블
     const tableColumns = useMemo(() => [{ key: "ymd", label: "기준일" }, ...options], []);
+    console.log("tableColumns", tableColumns);
 
     const displayedTable = useMemo(() => {
         const limit = Number(period);
@@ -111,6 +114,47 @@ export default function DashBoardContents() {
             return row;
         });
     }, [currElevDatas, period]);
+
+    const sortedTable = useMemo(() => {
+        const copied = [...displayedTable];
+        copied.sort((a, b) => {
+            const aYmd = typeof a.ymd === "string" ? a.ymd : "";
+            const bYmd = typeof b.ymd === "string" ? b.ymd : "";
+            if (isAsc) {
+                return aYmd.localeCompare(bYmd);
+            }
+            return bYmd.localeCompare(aYmd);
+        });
+        return copied;
+    }, [displayedTable, isAsc]);
+
+    // 현황 테이블 csv로 다운로드
+    const handleDownloadCSV = () => {
+        const headers = [...tableColumns].map(({ key, label}) => label);
+        const rows = [...displayedTable].map((row) => {
+            return [
+                row.ymd,
+                ...options.map(({ key }) => row[key])
+            ]
+        });
+
+        const tableRows = [
+            headers,
+            ...rows
+        ];
+
+        const BOM = '\uFEFF';
+        const csv = BOM + tableRows.map((row) => row.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        const today = new Date().toISOString().slice(0, 10);
+        link.download = '일평균_지하수위_현황_'+today+'.csv';
+        link.click();
+        URL.revokeObjectURL(url); // 반드시 참조 해제!!
+    };
     
     // 장기 추세
     //const longTermUrl = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
@@ -159,6 +203,7 @@ export default function DashBoardContents() {
             link.href = dataUrl;
             link.download = `dashboard-${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
             link.click();
+            link.remove();
         } catch (error) {
             if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
                 window.alert('저장할 대상을 찾을 수 없습니다.');
@@ -291,7 +336,10 @@ export default function DashBoardContents() {
                 />
                 <div className="dash-contents">
                     <div className="dash-cont-top mb-12 d-group">
-                        <p className="c-tit03">전국 관측소 지하수위 현황</p>
+                        <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <span className="c-tit03">전국 관측소 지하수위 현황</span>
+                            <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
+                        </p>
                         <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <span className="c-stit02">
                                 <b className="text-sky-500">{period == "1" ? "금일" : `${period}일`}</b> 평균 지하수위
@@ -301,20 +349,30 @@ export default function DashBoardContents() {
                         <div className="rounded-xl border-style-2 mb-6">
                             <BarChart data={displayedBarChartData} categories={GEN_NAMES} title={period == "1" ? "금일 평균 지하수위" : `최근 ${period}일 평균 지하수위`} xLabel="지하수위(m)" yLabel="관측소명" />
                         </div>
-                        <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
-                            <span className="c-stit02">일별 지하수위 현황</span>
-                            <span className="gray-92">일평균 수위(m), 전일 대비 증감율 (%)</span>
-                        </p>
-                        <CustomTable data={displayedTable} columns={tableColumns} emphasis={station} />
+                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <p className="flex items-start gap-4">
+                                <span className="c-stit02">일별 지하수위 현황</span>
+                                <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-5 -mt-0.5" />
+                                <CustomButton handler={() => setIsModalOpen(true)} caption="일별 수위 크게 보기" bType="button" bStyle="btn-style-5 -mt-0.5" />
+                            </p>
+                            <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감율 (%)</p>
+                        </div>
+                        <CustomTable data={sortedTable} columns={tableColumns} emphasis={[stationName, station]} />
                     </div>
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
                             <p className="c-tit03">전국 관측망</p>
-                            <p className="c-txt01">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
+                            {/* <p className="c-txt01">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p> */}
                             <GeoMap mapData={currMapDatas} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                             <ul className="c-list01 mt-12">
                                 <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
-                                <li>데이터 출처 및 집계 기준에 따라 분석결과의 차이가 존재할 수 있으므로 참고용 분석 결과로만 활용 하시기 바랍니다.</li>
+                                <li style={{color: "#000000"}}>
+                                    <b>관측소별 지하수위 ‘경고/위험/정상’ 구분 기준</b>은  
+                                    각 관측소의 <b>최근 10년간 월평균 수위 분포를 기반으로</b> 설정됩니다.  
+                                    - 상위/하위 <b>10% 구간은 ‘위험’</b>,  
+                                    - <b>10~25% 구간은 ‘경고’</b>,  
+                                    - <b>25~75% 구간은 ‘정상 범위’</b>로 분류됩니다.
+                                </li>
                             </ul>
                         </div>
                         <div className="w-full flex flex-col gap-8">
@@ -339,6 +397,19 @@ export default function DashBoardContents() {
                         <div className="rounded-xl border-style-2 mb-6">
                             <LineChartShade baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
                         </div>
+                        <div className="flex gap-8">
+                            <div className="w-2/3">
+                                <p className="flex items-start gap-4">
+                                    <span className="c-stit02">예측 요약</span>
+                                    <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-5 -mt-0.5" />
+                                </p>
+                                <CustomTable data={[]} columns={tableColumns} />
+                            </div>
+                            <div className="w-1/3">
+                                <p className="c-stit02">예측 평가지표</p>
+                                <CustomTable data={[]} columns={tableColumns} />
+                            </div>
+                        </div>
                     </div>
                     <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
                         <div className="lg:w-2/3 d-group">
@@ -347,7 +418,7 @@ export default function DashBoardContents() {
                             </p>
                         </div>
                         <div className="lg:w-1/3 d-group">
-                            <FeatureImportancePage />
+                            <FeatureImportancePage chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
                         </div>
                     </div>
                     <div className="flex flex-col lg:flex-row gap-8">
@@ -413,6 +484,27 @@ export default function DashBoardContents() {
                     </div>
                 </div>
             </div>
+            {
+                isModalOpen && (
+                    <div className="donut-modal curr-modal" role="dialog" aria-modal="true">
+                        <div className="donut-modal-backdrop" onClick={() => setIsModalOpen(false)} />
+                        <div className="donut-modal-content">
+                        <div className="donut-modal-header">
+                            <p className="flex items-center gap-4">
+                                <span className="c-tit03 inline-block">일별 지하수위 현황</span>
+                                <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-4" />
+                                <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
+                            </p>
+                            <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
+                        </div>
+                        <p className="donut-modal-body">
+                            <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감율 (%)</p>
+                            <CustomTable data={sortedTable} columns={tableColumns} />
+                        </p>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 }

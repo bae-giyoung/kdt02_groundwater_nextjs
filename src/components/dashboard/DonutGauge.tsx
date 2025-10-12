@@ -3,7 +3,36 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { LiaExclamationCircleSolid } from "react-icons/lia";
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import HighchartsMore from 'highcharts/highcharts-more';
+import SolidQuageModule from 'highcharts/modules/solid-gauge';
 
+// Highcharts 모듈 임포트: 클라이언트에서 한번만 실행
+if (typeof window !== 'undefined') {
+  const win = window as typeof window & { 
+    Highcharts?: typeof Highcharts; 
+    _Highcharts?: typeof Highcharts; 
+    _solidGaugeLoaded?: boolean;
+  };
+
+  win.Highcharts = win.Highcharts || Highcharts;
+  win._Highcharts = win._Highcharts || Highcharts;
+
+  if(!win._solidGaugeLoaded) {
+    if (!(Highcharts as any).seriesTypes.gauge) {
+      (HighchartsMore as unknown as (H: typeof Highcharts) => void)(Highcharts);
+    }
+
+    if (!(Highcharts as any).seriesTypes.solidgauge) {
+      (SolidQuageModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
+    }
+    win._solidGaugeLoaded = true;
+  }
+}
+
+// 타입 선언
+type GaugeGrade = 'excellent' | 'good' | 'warning';
 interface ExclamationInfo {
   title: string;
   description: string;
@@ -12,46 +41,50 @@ interface ExclamationInfo {
 interface DonutGaugeProps {
   label: string;
   value: number;
-  exclamation?: ExclamationInfo;
+  max?: number;
   suffix?: string;
-  gradient?: {
-    from: string;
-    to: string;
-  };
+  exclamation?: ExclamationInfo;
 }
 
-const RADIUS = 56;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-const GAP_ANGLE = 60;
-const GAP_LENGTH = (CIRCUMFERENCE * GAP_ANGLE) / 360;
-const AVAILABLE_LENGTH = CIRCUMFERENCE - GAP_LENGTH;
-const DASH_OFFSET = GAP_LENGTH / 2;
+// 컬러
+const BADGE_THEME: Record<GaugeGrade, Array<number | string>[]> = {
+    excellent: [[0, '#1e88e5'], [1, '#B3E5FC55']],
+    good: [[0, '#80CBC4'], [1, '#80CBC455']],
+    warning: [[0, '#FFB74D'], [1, '#ffcc8074']], //#fb8c00
+}
 
+function getGaugeGrade(value: number): GaugeGrade {
+    if (value >= 0.9)  return 'excellent';
+    if (value >= 0.8) return 'good';
+    return 'warning';
+}
+
+// 렌더링
 export default function DonutGauge({
   label,
   value,
-  exclamation,
+  max = 1,
   suffix = '',
-  gradient = { from: '#CDEAF8', to: '#6EC1E4' },
+  exclamation,
 }: DonutGaugeProps) {
-  const clamped = useMemo(() => Math.max(0, Math.min(1, value)), [value]);
-  const fillLength = AVAILABLE_LENGTH * clamped;
-  const gradientId = useId();
+  const modalId = useId();
   const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const guageGrade = getGaugeGrade(value);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // 모달창
   const modalPortal =
     isMounted && exclamation && isOpen
       ? createPortal(
-          <div className="donut-modal" role="dialog" aria-modal="true" aria-labelledby={`modal-${gradientId}`}>
+          <div className="donut-modal" role="dialog" aria-modal="true" aria-labelledby={`modal-${modalId}`}>
             <div className="donut-modal-backdrop" onClick={() => setIsOpen(false)} />
             <div className="donut-modal-content">
               <div className="donut-modal-header">
-                <h3 id={`modal-${gradientId}`}>{exclamation.title}</h3>
+                <h3 id={modalId}>{exclamation.title}</h3>
                 <button
                   type="button"
                   className="donut-modal-close"
@@ -68,6 +101,88 @@ export default function DonutGauge({
         )
       : null;
 
+
+  // 차트 옵션
+  const options = useMemo(() => {
+    return {
+      chart: {
+        type: 'solidgauge', 
+        backgroundColor: 'transparent',
+        height: 140,
+      },
+      title: {
+        text: undefined,
+      },
+      tooltip: {
+        enabled: true,
+      },
+      credits: {
+        enabled: false,
+      },
+      pane: {
+        startAngle: -135,
+        endAngle: 135,
+        background: {
+          outerRadius: '120%',
+          innerRadius: '90%',
+          shape: 'arc',
+          borderWidth: 0,
+          borderColor: '#efefef',
+          backgroundColor: '#efefef', // 트랙
+        },
+      },
+      yAxis: {
+        min: 0,
+        max,
+        lineWidth: 0,
+        tickPositions: [],
+      },
+      plotOptions: {
+        solidgauge: {
+          dataLabels: {
+            enabled: false,
+            useHTML: true,
+            borderWidth: 0,
+            y: -15,
+            align: 'center',
+          },
+          linecap: 'round',
+          stickyTracking: false,
+          rounded: true,
+        },
+      },
+      exporting: {
+        enabled: false,
+      },
+      series: [
+        {
+          type: 'solidgauge',
+          name: label,
+          data: [
+            {
+              y: value,
+              radius: '120%',
+              innerRadius: '90%',
+              color: {
+                linearGradient: {
+                  x1: 0,
+                  y1: 0,
+                  x2: 0,
+                  y2: 1,
+                },
+                stops: BADGE_THEME[guageGrade],
+              },
+            }
+          ],
+          tooltip: {
+            enabled: true,
+            valueSuffix: suffix,
+          },
+        },
+      ],
+    }
+  }, [label, value, exclamation, max, suffix]);
+
   return (
     <div className="donut-card">
       <div className="donut-card-header">
@@ -79,41 +194,15 @@ export default function DonutGauge({
         )}
       </div>
       <div className="donut-card-chart">
-        <svg className="donut-gauge" viewBox="0 0 140 140" role="img" aria-label={`${label} ${clamped.toFixed(2)}`}>
-          <defs>
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={gradient.from} />
-              <stop offset="100%" stopColor={gradient.to} />
-            </linearGradient>
-          </defs>
-
-          <g transform="translate(70 70)">
-            <circle
-              className="donut-gauge-track"
-              r={RADIUS}
-              fill="none"
-              stroke="#E6EBF0"
-              strokeWidth="14"
-              strokeDasharray={`${AVAILABLE_LENGTH} ${GAP_LENGTH}`}
-              strokeDashoffset={DASH_OFFSET}
-              strokeLinecap="round"
-            />
-            <circle
-              className="donut-gauge-fill"
-              r={RADIUS}
-              fill="none"
-              stroke={`url(#${gradientId})`}
-              strokeWidth="14"
-              strokeDasharray={`${fillLength} ${CIRCUMFERENCE - fillLength}`}
-              strokeDashoffset={DASH_OFFSET}
-              strokeLinecap="round"
-            />
-          </g>
-        </svg>
         <div className="donut-card-value">
-          <span>{clamped.toFixed(2)}</span>
+          <span>{value.toFixed(2)}</span>
           {suffix && <span className="donut-card-suffix">{suffix}</span>}
         </div>
+        <HighchartsReact 
+          highcharts={Highcharts} 
+          options={options} 
+          containerProps={{ style: { width: '100%', height: '100%' } }}
+        />
       </div>
       {modalPortal}
     </div>

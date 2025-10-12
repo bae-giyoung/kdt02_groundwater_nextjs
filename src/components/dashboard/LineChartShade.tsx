@@ -1,14 +1,17 @@
 'use client';
-import { useEffect, useMemo, useState, useRef, use } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
 
-// Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
+// Highcharts Exporting, Stock 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
-  const win = window as typeof window & { Highcharts?: typeof Highcharts; _Highcharts?: typeof Highcharts };
+  const win = window as typeof window & { 
+        Highcharts?: typeof Highcharts; 
+        _Highcharts?: typeof Highcharts
+    };
 
   win.Highcharts = win.Highcharts || Highcharts;
   win._Highcharts = win._Highcharts || Highcharts;
@@ -22,7 +25,7 @@ if (typeof window !== 'undefined') {
 
 // 타입 선언
 type Yyyymm = number; // 201501
-type SeriesTuple = [Yyyymm, number] // [날짜, 수위] /////////!!!!!!! number빼던가
+type SeriesTuple = [Yyyymm, number] // [날짜, 수위]
 
 interface LineChartSeriesData {
     actual: SeriesTuple[]; // [[날짜, 수위],[날짜, 수위],[날짜, 수위], ...]
@@ -36,7 +39,7 @@ interface BackendSeriesResponse {
 interface LineChartZoomProps {
     baseUrl: string;
     chartTitle?: string;
-    window?: 12 | 60 | 84 | 120;
+    defaultWindow?: 12 | 60 | 84 | 120;
     prefetchedData?: BackendSeriesResponse;
 }
 
@@ -86,10 +89,10 @@ const fetchData = async(url: string, signal: AbortSignal) => {
     }
 }
 
-export default function LineChartZoom({
+export default function LineChartShade({
     baseUrl,
     chartTitle = '차트 제목',
-    window = 120,
+    defaultWindow = 120,
     prefetchedData,
 } : LineChartZoomProps
 ) {
@@ -98,7 +101,7 @@ export default function LineChartZoom({
     const [loading, setLoading] = useState(!prefetchedData);
     const [error, setError] = useState<string | null>(null);
     const [seriesRaw, setSeriesRaw] = useState<LineChartSeriesData>({actual: [], predicted: []});
-    const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(window);
+    const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(defaultWindow);
 
     useEffect(() => {
         console.log("baseUrl: ", baseUrl);
@@ -114,24 +117,26 @@ export default function LineChartZoom({
         const controller = new AbortController();
         const signal = controller.signal;
 
-        try {
-            setLoading(true);
-            fetchData(baseUrl, signal).then(res => {
-                if(res === null) {
-                    throw new Error('Fetch 실패');
-                } else {
-                    setSeriesRaw(res);
-                    setError(null);
+        const runFetchData = async() => {
+            try {
+                setLoading(true);
+                const resp = await fetchData(baseUrl, signal);
+                if(resp === null) {
+                    setError('Fetch 실패');
+                    return;
                 }
-            });
+                setSeriesRaw(resp);
+                setError(null);
 
-        } catch(error: any) {
-            if(error?.name !== 'AbortError') {
-                setError(error.message || "Fetch 실패");
+            } catch(error: any) {
+                if(error?.name !== 'AbortError') {
+                    setError(error.message || "Fetch 실패");
+                }
+            } finally {
+                setLoading(false);
             }
-        } finally {
-            setLoading(false);
         }
+        runFetchData();
 
         return () => controller.abort();
 
@@ -156,9 +161,10 @@ export default function LineChartZoom({
 
     const options = useMemo<Highcharts.Options>(() => ({
         chart: {
-            type: 'line',
+            type: 'areaspline',
             zoomType: undefined,
             spacing: [0, 20, 20, 20],
+            borderRadius: 15,
             followTouchMove: true,
             panning: {
                 enabled: true,
@@ -179,15 +185,22 @@ export default function LineChartZoom({
                 month: '%Y년 %m월',
                 year: '%Y년'
             },
+            minPadding: 0,
+            maxPadding: 0,
+            startOnTick: true,
+            endOnTick: true,
             title: {
-                text: '날짜'
+                text: '날짜',
+                style: {
+                    opacity: 0
+                }
             },
             crosshair: true,
             plotBands: slicedSeries.predicted.length > 0 ? [
                 {
                     from: slicedSeries.predicted[0][0],
                     to: slicedSeries.predicted[slicedSeries.predicted.length - 1][0],
-                    color: 'rgba(255, 255, 0, 0.1)'
+                    color: zoomWindow >= 60 ? 'rgba(255, 255, 0, 0.1)' : 'transparent',
                 },
             ] : undefined,
             plotLines: slicedSeries.predicted.length > 0 ? [
@@ -216,13 +229,34 @@ export default function LineChartZoom({
             enabled: false
         },
         plotOptions: {
+            areaspline: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{y:.2f}',
+                    filter: {
+                        property: 'y',
+                        operator: '>',
+                        value: zoomWindow >= 60 ? 105.80 : 0,
+                    }
+                },
+                marker: {
+                    enabled: false,
+                    symbol: 'circle',
+                    radius: 3,
+                    states: {
+                        hover: {
+                            enabled: true,
+                        }
+                    }
+                },
+            },
             series: {
                 turboThreshold: 0,
             }
         },
         exporting: {
             enabled: true,
-            filename: chartTitle,
+            filename: chartTitle.replace(/\s+/g, '_'),
             buttons: {
                 contextButton: {
                     theme: {
@@ -232,7 +266,6 @@ export default function LineChartZoom({
                     },
                     menuItems: [
                         'viewFullscreen',
-                        'printChart',
                         'downloadPNG',
                         'downloadJPEG',
                         'downloadPDF',
@@ -249,14 +282,13 @@ export default function LineChartZoom({
         },
         lang: {
             viewFullscreen: '크게 보기',
-            printChart: '차트 인쇄',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',
             downloadSVG: 'SVG 이미지로 다운로드',
             downloadCSV: 'CSV 파일로 다운로드',
             downloadXLS: 'XLS 파일로 다운로드',
-            contextButtonTitle: '메뉴'
+            contextButtonTitle: '메뉴',
         },
         series: [
             {
@@ -282,7 +314,7 @@ export default function LineChartZoom({
                 fillColor: {
                 linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
                 stops: [
-                    [0, 'rgba(255, 167, 38, 0.4)'],
+                    [0, 'rgba(255, 167, 38, 0.2)'],
                     [1, 'rgba(255, 167, 38, 0)'],
                 ],
                 },
@@ -309,8 +341,8 @@ export default function LineChartZoom({
                     ))
                 }
             </div>
-            <div>
-                <p className=''>
+            <div className='relative'>
+                <p className='absolute'>
                     { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
                 </p>
                 <HighchartsReact
