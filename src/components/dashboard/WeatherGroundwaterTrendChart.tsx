@@ -91,9 +91,210 @@ export default function WeatherGroundwaterTrendChart({
     prefetchedData,
 } : WeatherGroundwaterTrendChartProps
 ) {
-  return (
-    <div>
-      
-    </div>
-  );
+    const chartRef = useRef<HighchartsReact.RefObject | null>(null);
+    const [loading, setLoading] = useState(!prefetchedData);
+    const [error, setError] = useState<string | null>(null);
+    const [seriesRaw, setSeriesRaw] = useState<LineChartSeriesData>({
+        predicted: [],
+        rain_mm: [],
+        temp_c: [],
+        humidity_pct: [],
+    });
+
+    useEffect(() => {
+        console.log("baseUrl: ", baseUrl);
+        if(prefetchedData) {
+            setSeriesRaw({
+                predicted: normalizeTuples(prefetchedData.data?.series_raw?.predicted),
+                rain_mm: normalizeTuples(prefetchedData.data?.series_raw?.rain_mm),
+                temp_c: normalizeTuples(prefetchedData.data?.series_raw?.temp_c),
+                humidity_pct: normalizeTuples(prefetchedData.data?.series_raw?.humidity_pct),
+            });
+            setLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        const runFetchData = async() => {
+            try {
+                setLoading(true);
+                const resp = await fetchData(baseUrl, signal);
+                if(resp === null) {
+                    setError('Fetch 실패');
+                    return;
+                }
+                setSeriesRaw(resp);
+                setError(null);
+
+            } catch(error: any) {
+                if(error?.name !== 'AbortError') {
+                    setError(error.message || "Fetch 실패");
+                }
+            } finally {
+                setLoading(false);
+            }
+        }
+        runFetchData();
+
+        return () => controller.abort();
+
+    }, [baseUrl, prefetchedData]);
+
+    const options = useMemo<Highcharts.Options>(() => ({
+        chart: {
+            type: 'line',
+            zoomType: undefined,
+            spacing: [0, 20, 20, 20],
+            borderRadius: 15,
+            followTouchMove: true,
+            panning: {
+                enabled: true,
+                type: 'x'
+            },
+            panKey: 'shift'
+        },
+        title:{
+            text: chartTitle,
+            align: 'left'
+        },
+        legend: {
+            enabled: true
+        },
+        xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: {
+                month: '%Y년 %m월',
+                year: '%Y년'
+            },
+            minPadding: 0,
+            maxPadding: 0,
+            startOnTick: true,
+            endOnTick: true,
+            title: {
+                text: '날짜',
+                style: {
+                    opacity: 0
+                }
+            },
+            crosshair: true,
+        },
+        yAxis: {
+            title: {
+                text: '지하 수위'
+            },
+            startOnTick: true,
+            endOnTick: true,
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:%Y-%m-%d}: {point.y:.2f}',
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true,
+                    format: '{y:.2f}',
+                },
+                marker: {
+                    enabled: true,
+                    symbol: 'circle',
+                    radius: 3,
+                    states: {
+                        hover: {
+                            enabled: true,
+                        }
+                    }
+                },
+            },
+            series: {
+                turboThreshold: 0,
+            }
+        },
+        exporting: {
+            enabled: true,
+            filename: chartTitle.replace(/\s+/g, '_'),
+            buttons: {
+                contextButton: {
+                    theme: {
+                        stroke: "#ccc",
+                        "stroke-width": 1.5,
+                        fill: "#ffffff",
+                    },
+                    menuItems: [
+                        'viewFullscreen',
+                        'downloadPNG',
+                        'downloadJPEG',
+                        'downloadPDF',
+                        'downloadSVG',
+                        'downloadCSV',
+                        'downloadXLS',
+                    ],
+                    symbol: 'menu',
+                    align: 'right',
+                }
+            }
+        },
+        lang: {
+            viewFullscreen: '크게 보기',
+            downloadPNG: 'PNG 이미지로 다운로드',
+            downloadJPEG: 'JPEG 이미지로 다운로드',
+            downloadPDF: 'PDF 파일로 다운로드',
+            downloadSVG: 'SVG 이미지로 다운로드',
+            downloadCSV: 'CSV 파일로 다운로드',
+            downloadXLS: 'XLS 파일로 다운로드',
+            contextButtonTitle: '메뉴',
+        },
+        series: [
+            {
+                type: 'column',
+                name: '예측 수위',
+                data: seriesRaw.predicted,
+                color: '#1976D2',
+                //threshold: null,
+                lineWidth: 2,
+            },
+            {
+                type: 'line',
+                name: '강수량',
+                data: seriesRaw.rain_mm,
+                //color: '#FFA726',
+                lineWidth: 2,
+                //dashStyle: 'ShortDash',
+            },
+            {
+                type: 'line',
+                name: '기온',
+                data: seriesRaw.temp_c,
+                lineWidth: 2,
+            },
+            {
+                type: 'line',
+                name: '습도',
+                data: seriesRaw.humidity_pct,
+                lineWidth: 2,
+            },
+        ]
+    }), [seriesRaw]);
+
+    return (
+        <div className="chart-box mt-8 w-full">
+            <div className='relative'>
+                <p className='absolute'>
+                    { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
+                </p>
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={options}
+                    ref={chartRef}
+                    containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
+                />
+            </div>
+        
+        </div>
+    );
 }

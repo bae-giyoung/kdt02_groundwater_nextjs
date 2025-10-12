@@ -15,6 +15,7 @@ import TrendPositionCard from "./TrendPositionCard";
 import { LiaExclamationCircleSolid } from "react-icons/lia";
 import type { GenInfoKey } from "@/types/uiTypes";
 import BarChart from "./BarChart";
+import WeatherGroundwaterTrendChart from "./WeatherGroundwaterTrendChart";
 
 // 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
@@ -81,6 +82,12 @@ export default function DashBoardContents() {
     // 현재 관측소명, 현재 관측소의 경향성 지표
     const stationName = genInfo[station]?.["측정망명"];
     const stationTrend = trendMetrics[station];
+
+    // URLS
+    // 장기 추세
+    //const longTermUrl = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -155,10 +162,6 @@ export default function DashBoardContents() {
         link.click();
         URL.revokeObjectURL(url); // 반드시 참조 해제!!
     };
-    
-    // 장기 추세
-    //const longTermUrl = await fetch(`${BASE_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
     
     // 이미지 캡쳐 함수
     const captureContentImage = useCallback(async () => {
@@ -416,6 +419,7 @@ export default function DashBoardContents() {
                             <p className="c-tit03">
                                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-수위 상관관계 (3년, 데이터 미정)
                             </p>
+                            <WeatherGroundwaterTrendChart baseUrl={weatherUrl} />
                         </div>
                         <div className="lg:w-1/3 d-group">
                             <FeatureImportancePage chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
