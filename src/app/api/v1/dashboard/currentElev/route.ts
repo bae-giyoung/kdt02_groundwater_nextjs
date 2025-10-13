@@ -107,44 +107,32 @@ function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
     const dates = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
 
     // 현황 데이터 O(n*n*nlogn) => 나중에 고칠 방법!
-    const tableRows = dates.map((date, dateIdx) => {
-        const tableRow: Record<string, Array<(string | number | null)> | string> = { ymd: date };
+    const tableRows = dates.map(date => {
+        const tableRow: Record<string, string | number | null> = { ymd: date };
 
-        // OPEN API에서 순서 보장하고 있다.=>!!!!!!! Join
+        // OPEN API에서 순서 보장하고 있다.=>!!!!!!! Join??
         for(const [gen, unitRows] of Object.entries(rawData)) {
             const foundRow = unitRows.find(unit => unit.ymd === date);
             if(foundRow) {
-                const elev = foundRow.elev;
-    
-                if(foundRow.ymd === dates[0]) {
-                    tableRow[gen] = [elev, null];
-                } else {
-                    tableRow[gen] = [elev, ];
-                }
+                tableRow[gen] = Number(foundRow.elev);
             } else {
-                tableRow[gen] = []; // null이 아니게 되었음 영향받는 것들 생각
+                tableRow[gen] = null; // null이 아니게 되었음 영향받는 것들 생각
             }
         }
         return tableRow;
     });
 
-    // Diff 데이터 : 그냥 Diff랑 현황 하나의 배열로 묶자! 바꾸자!
-    const tableDiffRows = dates.map(date => {
-        const tableDiffRow: Record<string, string | number | null> = { ymd: date };
-        tableRows.map((row, idx) => {
-            if(row === null) return;
+    // Diff 데이터 : 아니다. 그냥 Diff랑 현황 하나의 배열로 묶자! 바꾸자!
+    const tableDiffRows = tableRows.map((tableRow, tableIdx) => {
+        const tableDiffRow: Record<string, string | number | null> = { ymd: tableRow.ymd };
+        GENNUMS.map(gen => {
 
             // TODO 검토해봐야함
-            //tableDiffRow.ymd = row.ymd;
-            if(idx === 0) {
-                GENNUMS.map((gen, idx) => {
-                    tableDiffRow[gen] = null;
-                });
+            if(tableIdx === 0) {
+                tableDiffRow[gen] = null;
             } else {
-                const prevRow = tableRows[idx - 1];
-                GENNUMS.map((gen, idx) => {
-                    tableDiffRow[gen] = Number(prevRow[gen]) - Number(row[gen]);
-                });
+                const prevRow = tableRows[tableIdx - 1];
+                tableDiffRow[gen] = (Number(prevRow[gen])*1000 - Number(tableRow[gen])*1000)/1000; // 소수점 3자리까지
             };
         });
         return tableDiffRow;

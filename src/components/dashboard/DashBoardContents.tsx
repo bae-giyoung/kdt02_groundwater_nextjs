@@ -88,10 +88,12 @@ export default function DashBoardContents() {
 
     // URLS
     // 장기 추세
-    const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    //const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    //const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
-    const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    //const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    //const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+
+    // 로컬용 임시 URL
+    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -130,7 +132,7 @@ export default function DashBoardContents() {
 
     const sortedTable = useMemo(() : DashboardTableRow[] | void => {
         if(!displayedTable) return;
-
+        
         const copied = [...displayedTable];
         copied.sort((a, b) => {
             const aYmd = typeof a.ymd === "string" ? a.ymd : "";
@@ -142,6 +144,45 @@ export default function DashBoardContents() {
         });
         return copied;
     }, [displayedTable, isAsc]);
+
+    const displayedDiffTable = useMemo(() => {
+        if (!currElevDiffDatas) return;
+
+        const limit = Number(period);
+        const rows = (() => {
+            if (!Number.isFinite(limit) || limit <= 0) {
+                return currElevDiffDatas;
+            }
+            if (currElevDiffDatas.length <= limit) {
+                return currElevDiffDatas;
+            }
+            return currElevDiffDatas.slice(-limit);
+        })();
+
+        return rows?.map((row) => {
+            const ymd = row.ymd;
+            if (typeof ymd === "string" && ymd.length === 8) {
+                const formatted = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+                return { ...row, ymd: formatted };
+            }
+            return row;
+        });
+    }, [currElevDiffDatas, period]);
+
+    const sortedDiffTable = useMemo(() : DashboardTableRow[] | void => {
+        if(!displayedDiffTable) return;
+
+        const copied = [...displayedDiffTable];
+        copied.sort((a, b) => {
+            const aYmd = typeof a.ymd === "string" ? a.ymd : "";
+            const bYmd = typeof b.ymd === "string" ? b.ymd : "";
+            if (isAsc) {
+                return aYmd.localeCompare(bYmd);
+            }
+            return bYmd.localeCompare(aYmd);
+        });
+        return copied;
+    }, [displayedDiffTable, isAsc]);
 
     // 현황 테이블 csv로 다운로드
     const handleDownloadCSV = () => {
@@ -274,7 +315,7 @@ export default function DashBoardContents() {
             }
             const json: DashboardApiResponse = await resp.json();
             setCurrElevDatas(json.table?.tableRows ?? []);
-            setCurrElevDiffDatas(json.table?.tableRows ?? []);
+            setCurrElevDiffDatas(json.table?.tableDiffRows ?? []);
             setCurrMapDatas(json.geomap ?? {});
             setTrendMetrics(json.trend ?? {});
         } catch (error) {
@@ -372,7 +413,7 @@ export default function DashBoardContents() {
                             </p>
                             <p className="gray-92 text-right text-xs">일평균 수위(m), 전일 대비 증감(m)</p>
                         </div>
-                        <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={currElevDiffDatas} columns={tableColumns} emphasis={station} />
+                        <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
                         <ul className="c-list01 text-right">
                             <li className="inline-block">데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
                         </ul>
@@ -429,9 +470,9 @@ export default function DashBoardContents() {
                     <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
                         <div className="lg:w-2/3 d-group">
                             <p className="c-tit03">
-                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-수위 상관관계 (3년, 데이터 미정)
+                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-예측 수위 상관관계
                             </p>
-                            <WeatherGroundwaterTrendChart baseUrl={weatherUrl} />
+                            <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
                         </div>
                         <div className="lg:w-1/3 d-group">
                             <FeatureImportancePage chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
@@ -515,8 +556,7 @@ export default function DashBoardContents() {
                             </div>
                             <div className="donut-modal-body">
                                 <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감(m)</p>
-                                {/* <CustomTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} columns={tableColumns} /> */}
-                                <CustomTable data={sortedTable  && sortedTable.length > 0 ? sortedTable : []} columns={tableColumns} emphasis={station} />
+                                <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
                             </div>
                         </div>
                     </div>

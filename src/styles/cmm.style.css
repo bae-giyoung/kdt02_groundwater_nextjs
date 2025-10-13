@@ -490,7 +490,7 @@ table td, table th {
     margin-right: auto;
     padding: 30px 20px;
     border-radius: 15px;
-    background-color: #ffffffbb;
+    background-color: #ffffff;
     box-shadow: 0 0 4px 4px #00000011;
     overflow: hidden;
     z-index: 0;
@@ -868,6 +868,10 @@ table td, table th {
 .bar-chart-container text.highcharts-title,
 .line-chart-container text.highcharts-title,
 .pie-chart-container text.highcharts-title {
+  display: none;
+}
+
+.weather-groundwater-chart-container .highcharts-title {
   display: none;
 }
 

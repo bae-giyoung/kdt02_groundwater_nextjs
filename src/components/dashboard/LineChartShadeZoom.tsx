@@ -100,7 +100,6 @@ const fetchData = async(url: string, signal: AbortSignal) => {
 export default function LineChartShadeZoom({
     baseUrl,
     chartTitle = '차트 제목',
-    defaultWindow = 120,
     prefetchedData,
 } : LineChartZoomProps
 ) {
@@ -109,7 +108,6 @@ export default function LineChartShadeZoom({
     const [loading, setLoading] = useState(!prefetchedData);
     const [error, setError] = useState<string | null>(null);
     const [seriesRaw, setSeriesRaw] = useState<LineChartSeriesData>({actual: [], predicted: []});
-    const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(defaultWindow);
 
     // 데이터 받아오기
     useEffect(() => {
@@ -150,6 +148,64 @@ export default function LineChartShadeZoom({
 
     }, [baseUrl, prefetchedData]);
 
+    // zoom 버튼 클릭 핸들러
+    const toggleAreaDataLabels = (enabled: boolean) => {
+        const chart = chartRef.current?.chart;
+        if (!chart) return;
+
+        chart.update(
+            {
+            plotOptions: {
+                areaspline: {
+                    dataLabels: {
+                        enabled,
+                        format: '{y:.2f}',
+                    },
+                },
+            },
+            } satisfies Highcharts.Options,
+            false // 차트 바로 다시 그리지 않게!!
+        );
+    };
+
+    const updateBandAndDataLabels = (from: number, to: number) => {
+        const chart = chartRef.current?.chart;
+        if (!chart) return;
+
+        chart.xAxis[0].update(
+            {
+                plotBands: [
+                    {
+                        id: 'pred-range',
+                        from,
+                        to,
+                        color: 'rgba(255, 255, 0, 0.1)',
+                    },
+                ],
+            },
+            false
+        );
+
+        toggleAreaDataLabels(false);
+        chart.redraw();
+    };
+
+    const hidePredictedBand = () => {
+        const chart = chartRef.current?.chart;
+        if (!chart) return;
+
+        chart.xAxis[0].update({ plotBands: [] }, false);
+        toggleAreaDataLabels(true);
+        chart.redraw();
+    };
+
+    const showPredictedBand = () => {
+        const start = seriesRaw.predicted[0]?.[0];
+        const end = seriesRaw.predicted.at(-1)?.[0];
+        if (!start || !end) return;
+        updateBandAndDataLabels(start, end);
+    };
+
     // areaspline용
     const [minY, maxY] = useMemo(() => {
         const all = [...seriesRaw.actual, ...seriesRaw.predicted].map(([_, value]) => value);
@@ -174,41 +230,11 @@ export default function LineChartShadeZoom({
             },
             panKey: 'shift'
         },
-        /* navigator: {
-            enabled: true,
-            outlineColor: '#1976D2',
-            outlineWidth: 1,
-            maskFill: 'rgba(50, 100, 255, 0.3)',
-            handles: {
-                backgroundColor: '#1976D2',
-                borderColor: '#1976D2',
-                width: 8,
-                symbols: ['squarehandles', 'arrowhandles']
-            },
-            series: {
-                type: 'column',
-                color: '#1976D2',
-                pointPlacement: 'on'
-            }
-        }, */
         rangeSelector: {
             enabled: true,
             floating: true,
             allButtonsEnabled: true,
             inputEnabled: false, // true
-            inputDateFormat: '%Y-%m-%d',
-            inputPosition: {
-                align: 'left',
-                x: 0,
-                y: -40,
-            },
-            inputBoxBorderColor: 'gray',
-            inputBoxWidth: 120,
-            inputBoxHeight: 18,
-            inputStyle: {
-                color: '#222222',
-                fontWeight: 'bold'
-            },
             labelStyle: {
                 color: '#222222',
                 fontWeight: 'bold'
@@ -219,21 +245,16 @@ export default function LineChartShadeZoom({
                 y: -40,
             },
             buttons: [
-                /* {type: 'year', count: 1, text: '1년', events: {click: (e) => {e.preventDefault(); setZoomWindow(12)}}},
-                {type: 'year', count: 3, text: '3년', events: {click: (e) => {e.preventDefault(); setZoomWindow(36)}}},
-                {type: 'year', count: 5, text: '5년', events: {click: (e) => {e.preventDefault(); setZoomWindow(60)}}},
-                {type: 'year', count: 7, text: '7년', events: {click: (e) => {e.preventDefault(); setZoomWindow(84)}}},
-                {type: 'year', count: 10, text: '10년', events: {click: (e) => {e.preventDefault(); setZoomWindow(120)}}}, */
-                {type: 'year', count: 1, text: '1년'},
-                {type: 'year', count: 3, text: '3년'},
-                {type: 'year', count: 5, text: '5년'},
-                {type: 'year', count: 7, text: '7년'},
-                {type: 'year', count: 10, text: '10년'},
+                {type: 'year', count: 1, text: '1년', events: {click: () => hidePredictedBand()}},
+                {type: 'year', count: 3, text: '3년', events: {click: () => hidePredictedBand()}},
+                {type: 'year', count: 5, text: '5년', events: {click: () => showPredictedBand()}},
+                {type: 'year', count: 7, text: '7년', events: {click: () => showPredictedBand()}},
+                {type: 'year', count: 10, text: '10년', events: {click: () => showPredictedBand()}},
             ],
             buttonTheme: {
                 width: 60,
             },
-            selected: 4,
+            selected: 0,
         },
         title:{
             text: chartTitle,
@@ -263,7 +284,7 @@ export default function LineChartShadeZoom({
                 {
                     from: seriesRaw.predicted[0][0],
                     to: seriesRaw.predicted[seriesRaw.predicted.length - 1][0],
-                    color: zoomWindow >= 60 ? 'rgba(255, 255, 0, 0.1)' : 'transparent',
+                    color: 'transparent', // 'rgba(255, 255, 0, 0.1)'
                 },
             ] : undefined,
             plotLines: seriesRaw.predicted.length > 0 ? [
@@ -296,11 +317,6 @@ export default function LineChartShadeZoom({
                 dataLabels: {
                     enabled: true,
                     format: '{y:.2f}',
-                    filter: {
-                        property: 'y',
-                        operator: '>',
-                        value: zoomWindow >= 60 ? 105.80 : 0,
-                    }
                 },
                 marker: {
                     enabled: false,
@@ -350,13 +366,13 @@ export default function LineChartShadeZoom({
                 data: seriesRaw.actual,
                 color: '#1976D2',
                 fillColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                stops: [
-                    [0, 'rgba(25, 118, 210, 0.5)'],
-                    [1, 'rgba(25, 118, 210, 0)'],
-                ],
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, 'rgba(25, 118, 210, 0.5)'],
+                        [1, 'rgba(25, 118, 210, 0)'],
+                    ],
                 },
-                //threshold: null,
+                threshold: null,
                 lineWidth: 2,
             },
             {
@@ -365,17 +381,18 @@ export default function LineChartShadeZoom({
                 data: seriesRaw.predicted,
                 color: '#FFA726',
                 fillColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                stops: [
-                    [0, 'rgba(255, 167, 38, 0.2)'],
-                    [1, 'rgba(255, 167, 38, 0)'],
-                ],
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, 'rgba(255, 167, 38, 0.2)'],
+                        [1, 'rgba(255, 167, 38, 0)'],
+                    ],
                 },
+                threshold: null,
                 lineWidth: 2,
                 dashStyle: 'ShortDash',
             },
         ]
-    }), [seriesRaw, zoomWindow]);
+    }), [seriesRaw]);
 
     Highcharts.setOptions({
         lang: {

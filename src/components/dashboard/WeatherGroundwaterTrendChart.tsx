@@ -146,10 +146,8 @@ export default function WeatherGroundwaterTrendChart({
         chart: {
             type: 'line',
             zoomType: undefined,
-            spacing: [0, 20, 20, 20],
+            spacing: [60, 20, 20, 20],
             borderRadius: 15,
-            borderColor: '#ccc',
-            borderWidth: 1,
             followTouchMove: true,
             panning: {
                 enabled: true,
@@ -182,13 +180,24 @@ export default function WeatherGroundwaterTrendChart({
             },
             crosshair: true,
         },
-        yAxis: {
-            title: {
-                text: '지하 수위'
+        yAxis: [
+            {
+                title: {
+                    text: '예측 지하수위'
+                },
+                opposite: false,
+                startOnTick: true,
+                endOnTick: true,
             },
-            startOnTick: true,
-            endOnTick: true,
-        },
+            {
+                title: {
+                    text: '기상 요인'
+                },
+                opposite: true,
+                startOnTick: true,
+                endOnTick: true,
+            },
+        ],
         tooltip: {
             headerFormat: '<b>{series.name}</b><br>',
             pointFormat: '{point.x:%Y-%m-%d}: {point.y:.2f}',
@@ -199,7 +208,7 @@ export default function WeatherGroundwaterTrendChart({
         plotOptions: {
             line: {
                 dataLabels: {
-                    enabled: true,
+                    enabled: false,
                     format: '{y:.2f}',
                 },
                 marker: {
@@ -238,6 +247,7 @@ export default function WeatherGroundwaterTrendChart({
                     ],
                     symbol: 'menu',
                     align: 'right',
+                    y: -40,
                 }
             }
         },
@@ -256,35 +266,38 @@ export default function WeatherGroundwaterTrendChart({
                 type: 'column',
                 name: '예측 수위',
                 data: seriesRaw.predicted,
-                color: '#039BE5', // '#B3E5FC', '#81D4FA', '#4FC3F7', '#29B6F6', '#039BE5', '#0288D1',
-                //threshold: null,
+                color: '#6BAEDB', // '#B3E5FC', '#81D4FA', '#4FC3F7', '#29B6F6', '#039BE5', '#0288D1',
+                threshold: null,
                 lineWidth: 2,
+                yAxis: 0,
             },
             {
                 type: 'line',
                 name: '강수량',
                 data: seriesRaw.rain_mm,
-                //color: '#FFA726',
+                //color: '#FB8C00', // 주황색 
                 lineWidth: 2,
-                //dashStyle: 'ShortDash',
+                yAxis: 1,
             },
             {
                 type: 'line',
                 name: '기온',
                 data: seriesRaw.temp_c,
                 lineWidth: 2,
+                yAxis: 1,
             },
             {
                 type: 'line',
                 name: '습도',
                 data: seriesRaw.humidity_pct,
                 lineWidth: 2,
+                yAxis: 1,
             },
         ]
     }), [seriesRaw]);
 
     return (
-        <div className="chart-box mt-8 w-full">
+        <div className="chart-boxw-full mt-8 bg-white border-style-2 rounded-xl">
             <div className='relative'>
                 <p className='absolute'>
                     { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
@@ -293,7 +306,7 @@ export default function WeatherGroundwaterTrendChart({
                     highcharts={Highcharts}
                     options={options}
                     ref={chartRef}
-                    containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
+                    containerProps={{className: 'weather-groundwater-chart-container', style: {width: '100%', height: 450}}}
                 />
             </div>
         
