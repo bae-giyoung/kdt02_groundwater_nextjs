@@ -226,6 +226,23 @@ export default function WeatherGroundwaterTrendChart({
                 turboThreshold: 0,
             }
         },
+        navigator: {
+            enabled: true,
+            outlineColor: '#6BAEDB',
+            outlineWidth: 1,
+            maskFill: '#1976D233',
+            handles: {
+                backgroundColor: '#6BAEDB',
+                borderColor: '#6BAEDB',
+                width: 8,
+                symbols: ['squarehandles', 'arrowhandles']
+            },
+            series: {
+                type: 'column',
+                color: '#6BAEDB',
+                pointPlacement: 'on'
+            }
+        },
         exporting: {
             enabled: true,
             filename: chartTitle.replace(/\s+/g, '_'),
@@ -275,7 +292,7 @@ export default function WeatherGroundwaterTrendChart({
                 type: 'line',
                 name: '강수량',
                 data: seriesRaw.rain_mm,
-                //color: '#FB8C00', // 주황색 
+                color: '#FFB74D',
                 lineWidth: 2,
                 yAxis: 1,
             },
@@ -283,6 +300,7 @@ export default function WeatherGroundwaterTrendChart({
                 type: 'line',
                 name: '기온',
                 data: seriesRaw.temp_c,
+                color: '#00ACC1',
                 lineWidth: 2,
                 yAxis: 1,
             },
@@ -290,6 +308,7 @@ export default function WeatherGroundwaterTrendChart({
                 type: 'line',
                 name: '습도',
                 data: seriesRaw.humidity_pct,
+                color: '#7E57C2',
                 lineWidth: 2,
                 yAxis: 1,
             },

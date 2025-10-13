@@ -127,7 +127,7 @@ export default function BarChart({
         <HighchartsReact
             highcharts={Highcharts}
             options={options}
-            containerProps={{ className: 'bar-chart-container', style: { width: '100%', height: 240 } }}
+            containerProps={{ className: 'bar-chart-container chart-title-axis-hidden', style: { width: '100%', height: 240 } }}
         />
     );
     

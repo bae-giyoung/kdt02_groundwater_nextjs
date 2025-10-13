@@ -109,18 +109,18 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
             </p>
             <div className="flex items-baseline gap-3">
                 <span className={`text-4xl font-bold ${summary.valueClass}`}>{summary.valueText}</span>
-                <span className="text-base text-slate-600">
+                <span className="text-base text-slate-600 font-bold">
                     {summary.arrow} {summary.label}
                 </span>
             </div>
-            <p className="c-txt02 mt-2 text-slate-600 border-b-2 border-slate-200 pb-4">{summary.message}</p>
+            <p className="c-txt02 mt-2 text-gray-600 border-b-2 border-slate-200 pb-4">{summary.message}</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-700">
                 <div>
-                    <dt className="font-bold text-slate-500">최신값</dt>
+                    <dt className="font-bold text-gray-800">최신값</dt>
                     <dd>{summary.latestDisplay}</dd>
                 </div>
                 <div>
-                    <dt className="font-bold text-slate-500">관측 구간</dt>
+                    <dt className="font-bold text-gray-800">관측 구간</dt>
                     <dd>{summary.rangeDisplay}</dd>
                 </div>
             </dl>
