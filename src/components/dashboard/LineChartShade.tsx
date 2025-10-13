@@ -331,8 +331,8 @@ export default function LineChartShade({
     }
 
     return (
-        <div className="chart-box mt-8 w-full">
-            <div className="flex justify-start gap-4">
+        <div className="chart-box mt-6 w-full">
+            <div className="chart-zoom-btns ml-20 mb-8">
                 {
                     ZOOM_WINDOWS.map(w => (
                         <button key={w} type='button' onClick={() => changeZoomWindow(w)} aria-pressed={zoomWindow === w}>

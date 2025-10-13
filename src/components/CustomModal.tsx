@@ -10,7 +10,7 @@ export default function CustomModal({
         <div className="donut-modal-header">
             <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
         </div>
-        <p className="donut-modal-body">
+        <div className="donut-modal-body">
             <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                 <p className="flex items-start gap-4">
                     <span className="c-stit02">일별 지하수위 현황</span>
@@ -20,7 +20,7 @@ export default function CustomModal({
                 <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감율 (%)</p>
             </div>
             <CustomTable data={sortedTable} columns={tableColumns} />
-        </p>
+        </div>
         </div>
     </div> */}
   );

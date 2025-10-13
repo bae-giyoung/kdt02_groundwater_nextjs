@@ -15,9 +15,15 @@ const BADGE_THEME: Record<BadgeGrade, string> = {
     warning: 'badge-rank yellow',
 }
 
+const GRADE_NAME: Record<BadgeGrade, string> = {
+    excellent: '최고',
+    good: '좋음',
+    warning: '보통',
+}
+
 function getBadgeGrade(value: number): BadgeGrade {
-    if (value >= 0.9)  return 'excellent';
-    if (value >= 0.8) return 'good';
+    if (value >= 0.95)  return 'excellent';
+    if (value >= 0.80) return 'good';
     return 'warning';
 }
 
@@ -27,6 +33,7 @@ export default function PerformanceBadge({
 } : PerformanceBadgeProps
 ) {
     const grade = getBadgeGrade(value);
+    const gradeName = GRADE_NAME[grade];
     const theme = BADGE_THEME[grade];
 
     return (
@@ -34,7 +41,7 @@ export default function PerformanceBadge({
             <span className={`inline-flex h-12 w-12 items-center justify-center rounded-full border font-semibold shadow-sm transition ${theme}`}>
                 {label}
             </span>
-            <span className="text-xs font-medium text-slate-500">{grade}</span>
+            <span className="text-xs font-medium text-slate-500">{gradeName}</span>
         </div>
     );
 }

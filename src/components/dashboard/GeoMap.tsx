@@ -55,7 +55,10 @@ export default function GeoMap (
   
   const options = useMemo<Highcharts.Options>(() => ({
     chart: {
-      map: krAll as any
+      map: krAll as any,
+      borderRadius: 20,
+      borderColor: '#ccc',
+      borderWidth: 1
     },
     title: undefined,
     credits: {

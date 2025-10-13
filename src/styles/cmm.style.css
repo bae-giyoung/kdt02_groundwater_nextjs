@@ -301,6 +301,18 @@ button[class^="btn-style-"] {
   background-color: #cdeaf8;
   color: #0b1c4a;
 }
+/* flex justify-start gap-4 */
+.chart-zoom-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.chart-zoom-btns button {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
 
 
 /** ===== Accordian Style ===== */
@@ -377,6 +389,10 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
 }
 
 /** ===== Table Style ===== */
+[class^=table-style0] tbody tr:nth-child(2n+1) td:not(.emphasis) {
+  background-color: #fff;
+}
+
 .table-style01, .table-style02  {
   padding-bottom: 2px;
   border-radius: 10px 10px 0 0;
@@ -407,6 +423,10 @@ input:focus-visible {outline: 1px dashed #000000;box-shadow: 0 0 4px 4px #000000
 .table-style02 th {
   background-color: #ECEFF1;
   color: #37474F;
+}
+
+.table-style02 table tbody tr td {
+  background-color: #ffffff;
 }
 
 table tr:hover {
@@ -470,7 +490,7 @@ table td, table th {
     margin-right: auto;
     padding: 30px 20px;
     border-radius: 15px;
-    background-color: #ffffff;
+    background-color: #ffffffbb;
     box-shadow: 0 0 4px 4px #00000011;
     overflow: hidden;
     z-index: 0;
@@ -542,11 +562,12 @@ table td, table th {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  justify-content: center;
+  margin-bottom: 2px;
 }
 
 .donut-card-label {
+  font-size: 1.3rem;
   font-weight: 700;
   color: #1f2937;
 }

@@ -99,6 +99,7 @@ export default function FeatureImportancePage({
     const options = useMemo<Highcharts.Options>(()=> ({
         chart: {
             type: 'pie',
+            backgroundColor: 'transparent',
             options3d: {
                 enabled: true,
                 alpha: 45,

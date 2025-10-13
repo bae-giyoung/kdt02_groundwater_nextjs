@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
 // 다시 작성하며 생각 정리중......!
 
 
 // 상수 선언
 const API_KEY = process.env.GROUNDWATER_API_KEY;
 const BASE_URL = "https://www.gims.go.kr/api/data/observationStationService/getGroundwaterMonitoringNetwork";
-const GENNUMS = ["5724", "9879", "11746", "11777", "65056", "73515", "73538", "82031", "82049", "84020", "514307", "514310"];
+const GENNUMS = ["5724", "9879", "11746", "11777", "65056", "73515", "73538", "82031", "82049", "84020", "514307", "514310"] as const;
 const DEFAULT_DAYS = 30;
 const MIN_DAYS = 1;
 const MAX_DAYS = 365;
@@ -29,7 +30,7 @@ type TrendMetricT = {
 }
 
 type ResponseDataT = {
-    table: Record<string, string | number | null>[],
+    table: DashboardTableData,
     geomap: Record<string, Record<string, number | null>>,
     trend: Record<string, TrendMetricT>
 }
@@ -98,27 +99,58 @@ async function fetchFromEachStation(gennum: string, begindate: string, enddate: 
 
 // 테이블용 데이터로 가공
 function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    // 날짜 Set생성 : 역순으로
+    // 날짜 Set생성 : 결측일 있기 때문에 해야겠네...
     const dateSet = new Set<string>();
     for(const unitRows of Object.values(rawData)) { // unitRows: UnitFromOpenApiT[];
         unitRows.forEach(unit => dateSet.add(unit.ymd));
     }
     const dates = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
 
-    // 테이블 데이터
-    const tableData = dates.map(date => {
-        const tableRow: Record<string, string | number | null> = { ymd: date };
+    // 현황 데이터 O(n*n*nlogn) => 나중에 고칠 방법!
+    const tableRows = dates.map((date, dateIdx) => {
+        const tableRow: Record<string, Array<(string | number | null)> | string> = { ymd: date };
+
+        // OPEN API에서 순서 보장하고 있다.=>!!!!!!! Join
         for(const [gen, unitRows] of Object.entries(rawData)) {
             const foundRow = unitRows.find(unit => unit.ymd === date);
             if(foundRow) {
-                tableRow[gen] = Number(foundRow.elev);
+                const elev = foundRow.elev;
+    
+                if(foundRow.ymd === dates[0]) {
+                    tableRow[gen] = [elev, null];
+                } else {
+                    tableRow[gen] = [elev, ];
+                }
             } else {
-                tableRow[gen] = null;
+                tableRow[gen] = []; // null이 아니게 되었음 영향받는 것들 생각
             }
         }
         return tableRow;
     });
-    return tableData;
+
+    // Diff 데이터 : 그냥 Diff랑 현황 하나의 배열로 묶자! 바꾸자!
+    const tableDiffRows = dates.map(date => {
+        const tableDiffRow: Record<string, string | number | null> = { ymd: date };
+        tableRows.map((row, idx) => {
+            if(row === null) return;
+
+            // TODO 검토해봐야함
+            //tableDiffRow.ymd = row.ymd;
+            if(idx === 0) {
+                GENNUMS.map((gen, idx) => {
+                    tableDiffRow[gen] = null;
+                });
+            } else {
+                const prevRow = tableRows[idx - 1];
+                GENNUMS.map((gen, idx) => {
+                    tableDiffRow[gen] = Number(prevRow[gen]) - Number(row[gen]);
+                });
+            };
+        });
+        return tableDiffRow;
+    });
+
+    return { tableRows: tableRows, tableDiffRows: tableDiffRows };
 }
 
 // 최근 N일 평균 지하수위
@@ -212,7 +244,7 @@ export async function GET(
 ) {
     const {begindate, enddate} = getApiParams(request);
     const gennumList = GENNUMS;
-    const responseData: ResponseDataT = {table: [], geomap: {}, trend: {}};
+    const responseData: ResponseDataT = {table: {}, geomap: {}, trend: {}};
 
     try {
         // 관측소별 일별 지하수 측정자료 받아오기

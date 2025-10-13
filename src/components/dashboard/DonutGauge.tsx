@@ -53,9 +53,9 @@ const BADGE_THEME: Record<GaugeGrade, Array<number | string>[]> = {
     warning: [[0, '#FFB74D'], [1, '#ffcc8074']], //#fb8c00
 }
 
-function getGaugeGrade(value: number): GaugeGrade {
-    if (value >= 0.9)  return 'excellent';
-    if (value >= 0.8) return 'good';
+function getGaugeGrade(value: number, label: string): GaugeGrade {
+    if (value >= 0.95)  return 'excellent';
+    if (value >= 0.80) return 'good';
     return 'warning';
 }
 
@@ -70,7 +70,7 @@ export default function DonutGauge({
   const modalId = useId();
   const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const guageGrade = getGaugeGrade(value);
+  const guageGrade = getGaugeGrade(value, label);
 
   useEffect(() => {
     setIsMounted(true);
@@ -133,7 +133,7 @@ export default function DonutGauge({
       },
       yAxis: {
         min: 0,
-        max,
+        max: 1.02,
         lineWidth: 0,
         tickPositions: [],
       },
@@ -160,7 +160,7 @@ export default function DonutGauge({
           name: label,
           data: [
             {
-              y: value,
+              y: Math.floor(value*1000)/1000,
               radius: '120%',
               innerRadius: '90%',
               color: {
@@ -177,6 +177,7 @@ export default function DonutGauge({
           tooltip: {
             enabled: true,
             valueSuffix: suffix,
+            //valueDecimals: 10
           },
         },
       ],
@@ -185,7 +186,7 @@ export default function DonutGauge({
 
   return (
     <div className="donut-card">
-      <div className="donut-card-header">
+      <div className="donut-card-header text-cener">
         <span className="donut-card-label">{label}</span>
         {exclamation && (
           <button type="button" className="exclamation-icon" aria-label={`${label} 지표 설명 열기`} onClick={() => setIsOpen(true)}>
@@ -195,7 +196,7 @@ export default function DonutGauge({
       </div>
       <div className="donut-card-chart">
         <div className="donut-card-value">
-          <span>{value.toFixed(2)}</span>
+          <span>{Math.floor(value*100)/100}</span>
           {suffix && <span className="donut-card-suffix">{suffix}</span>}
         </div>
         <HighchartsReact 

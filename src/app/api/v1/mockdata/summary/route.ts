@@ -4,7 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 // http://10.125.121.211:8080/api/v1/rawdata/summary/predict?station=1&timestep=monthly&horizons=36
 
 
-const mockData1 = `
+const mockData1 = 
 {
   "table": {
     "table_data_3y": [
@@ -38,10 +38,9 @@ const mockData1 = `
     "KGE": 0.916392163649712,
     "NSE": 0.92311292886734
   }
-}
-`;
+};
 
-const mockData2 = `
+const mockData2 = 
 {
   "table": {
     "table_data_3y": [
@@ -75,8 +74,7 @@ const mockData2 = `
     "KGE": 0.916392163649712,
     "NSE": 0.92311292886734
   }
-}
-`;
+};
 
 //?station=1&timestep=monthly&horizons=36
 function getSearchParams(request: NextRequest) {
@@ -92,7 +90,7 @@ export async function GET(
 ) {
     const { station, timestep, horizons } = getSearchParams(request);
 
-    const data = Number(station) % 2 == 0 ? JSON.parse(mockData2) : JSON.parse(mockData1);
+    const data = Number(station) % 2 == 0 ? mockData2 : mockData1;
 
     return NextResponse.json(data);
 }

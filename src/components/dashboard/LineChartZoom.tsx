@@ -270,7 +270,7 @@ export default function LineChartZoom({
     }
 
     return (
-        <div className="chart-box mt-8 w-full">
+        <div className="chart-box w-full">
             <div className="flex justify-start gap-4">
                 {
                     ZOOM_WINDOWS.map(w => (

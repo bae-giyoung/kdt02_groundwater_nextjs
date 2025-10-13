@@ -165,7 +165,7 @@ export default function LineChartShadeZoom({
         chart: {
             type: 'areaspline',
             zoomType: undefined,
-            spacing: [0, 20, 20, 20],
+            spacing: [40, 20, 20, 20],
             borderRadius: 15,
             followTouchMove: true,
             panning: {
@@ -174,7 +174,7 @@ export default function LineChartShadeZoom({
             },
             panKey: 'shift'
         },
-        navigator: {
+        /* navigator: {
             enabled: true,
             outlineColor: '#1976D2',
             outlineWidth: 1,
@@ -190,28 +190,50 @@ export default function LineChartShadeZoom({
                 color: '#1976D2',
                 pointPlacement: 'on'
             }
-        },
+        }, */
         rangeSelector: {
             enabled: true,
+            floating: true,
+            allButtonsEnabled: true,
+            inputEnabled: false, // true
+            inputDateFormat: '%Y-%m-%d',
+            inputPosition: {
+                align: 'left',
+                x: 0,
+                y: -40,
+            },
+            inputBoxBorderColor: 'gray',
+            inputBoxWidth: 120,
+            inputBoxHeight: 18,
+            inputStyle: {
+                color: '#222222',
+                fontWeight: 'bold'
+            },
+            labelStyle: {
+                color: '#222222',
+                fontWeight: 'bold'
+            },
+            buttonPosition: {
+                align: 'right',
+                x: 0,
+                y: -40,
+            },
             buttons: [
-                {type: 'year', count: 1, text: '1y'},
-                {type: 'year', count: 3, text: '3y'},
-                {type: 'year', count: 5, text: '5y'},
-                {type: 'year', count: 7, text: '7y'},
-                {type: 'year', count: 10, text: '10y'},
+                /* {type: 'year', count: 1, text: '1년', events: {click: (e) => {e.preventDefault(); setZoomWindow(12)}}},
+                {type: 'year', count: 3, text: '3년', events: {click: (e) => {e.preventDefault(); setZoomWindow(36)}}},
+                {type: 'year', count: 5, text: '5년', events: {click: (e) => {e.preventDefault(); setZoomWindow(60)}}},
+                {type: 'year', count: 7, text: '7년', events: {click: (e) => {e.preventDefault(); setZoomWindow(84)}}},
+                {type: 'year', count: 10, text: '10년', events: {click: (e) => {e.preventDefault(); setZoomWindow(120)}}}, */
+                {type: 'year', count: 1, text: '1년'},
+                {type: 'year', count: 3, text: '3년'},
+                {type: 'year', count: 5, text: '5년'},
+                {type: 'year', count: 7, text: '7년'},
+                {type: 'year', count: 10, text: '10년'},
             ],
+            buttonTheme: {
+                width: 60,
+            },
             selected: 4,
-            inputEnabled: false,
-            events: {
-                buttonClick: function(
-                    event: RangeSelectorClickEvent
-                ) {
-                    console.log(zoomWindow); // 실행 안됨
-                    const count = event.button?.count;
-                    if(!count) return;
-                    setZoomWindow((count * 12) as typeof ZOOM_WINDOWS[number]); // 동작 안하고 있음! 이 컴포넌트 사용한다면
-                }
-            }
         },
         title:{
             text: chartTitle,
@@ -321,17 +343,6 @@ export default function LineChartShadeZoom({
                 }
             }
         },
-        lang: {
-            viewFullscreen: '크게 보기',
-            downloadPNG: 'PNG 이미지로 다운로드',
-            downloadJPEG: 'JPEG 이미지로 다운로드',
-            downloadPDF: 'PDF 파일로 다운로드',
-            downloadSVG: 'SVG 이미지로 다운로드',
-            downloadCSV: 'CSV 파일로 다운로드',
-            downloadXLS: 'XLS 파일로 다운로드',
-            contextButtonTitle: '메뉴',
-            rangeSelectorZoom: '기간 선택',
-        },
         series: [
             {
                 type: 'areaspline',
@@ -366,8 +377,24 @@ export default function LineChartShadeZoom({
         ]
     }), [seriesRaw, zoomWindow]);
 
+    Highcharts.setOptions({
+        lang: {
+            viewFullscreen: '크게 보기',
+            downloadPNG: 'PNG 이미지로 다운로드',
+            downloadJPEG: 'JPEG 이미지로 다운로드',
+            downloadPDF: 'PDF 파일로 다운로드',
+            downloadSVG: 'SVG 이미지로 다운로드',
+            downloadCSV: 'CSV 파일로 다운로드',
+            downloadXLS: 'XLS 파일로 다운로드',
+            contextButtonTitle: '메뉴',
+            rangeSelectorZoom: '기간 선택',
+            rangeSelectorFrom: '',
+            rangeSelectorTo: '',
+        },
+    });
+
     return (
-        <div className="chart-box mt-8 w-full">
+        <div className="chart-box mt-6 w-full">
             <div className='relative'>
                 <p className='absolute'>
                     { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }

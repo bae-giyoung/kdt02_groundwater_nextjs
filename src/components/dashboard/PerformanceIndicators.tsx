@@ -40,11 +40,17 @@ const METRIC_CONFIG = [
     defaultValue: 0.84,
     description: 'Kling-Gupta Efficiency (KGE): 상관계수, 분산비, 평균비 세 요소를 통합해 모델의 상관성·규모·편향을 동시에 평가하는 종합 성능 지표로, 1에 가까울수록 이상적입니다.',
   },
-  {
+  /* {
     key: 'RMSE',
     label: 'RMSE',
     defaultValue: 0.76,
     description: 'Root Mean Square Error (RMSE): 예측값과 관측값의 차이를 제곱해 평균한 뒤 제곱근을 취한 값으로, 오차의 절대 크기를 나타내며 값이 작을수록 모델의 정확도가 높습니다.',
+  }, */
+  {
+    key: 'R2',
+    label: 'R²',
+    defaultValue: 0.88,
+    description: '결정계수 (R²): 관측값 변동을 모델이 얼마나 설명하는지를 나타내는 지표로, 1에 가까울수록 모델이 데이터의 분산을 잘 설명하고 높은 적합도를 보입니다.',
   },
 ] as const;
 

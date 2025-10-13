@@ -148,6 +148,8 @@ export default function WeatherGroundwaterTrendChart({
             zoomType: undefined,
             spacing: [0, 20, 20, 20],
             borderRadius: 15,
+            borderColor: '#ccc',
+            borderWidth: 1,
             followTouchMove: true,
             panning: {
                 enabled: true,
