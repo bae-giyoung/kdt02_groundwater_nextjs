@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CustomTable from "@/components/CustomTable";
 import CurrentTable from "./CurrentTable";
@@ -6,7 +6,6 @@ import genInfo from "@/data/gennumInfo.json";
 import GeoMap from "./GeoMap";
 import StationInfoBox from "../StationInfoBox";
 import FeatureImportancePage from "./FeatureImportance";
-import LineChartShade from "./LineChartShade";
 import logoSrc from "../../../public/assets/logo_mulalim.svg";
 import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
@@ -19,6 +18,7 @@ import BarChart from "./BarChart";
 import WeatherGroundwaterTrendChart from "./WeatherGroundwaterTrendChart";
 import LineChartShadeZoom from "./LineChartShadeZoom";
 import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
+import ForecastSummaryPanel from "./ForecastSummaryPanel";
 
 // 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
@@ -209,7 +209,7 @@ export default function DashBoardContents() {
         const link = document.createElement('a');
         link.href = url;
         const today = new Date().toISOString().slice(0, 10);
-        link.download = '일평균_지하수위_현황_'+today+'.csv';
+         link.download = '일평균_지하수위_현황_'+today+'.csv';
         link.click();
         URL.revokeObjectURL(url); // 반드시 참조 해제!!
     };
@@ -456,15 +456,14 @@ export default function DashBoardContents() {
                             <span className="gray-92">지난 10년간 월별 평균 지하수위 추이</span>
                         </div>
                         <div className="rounded-xl border-style-2 mb-6 bg-white">
-                            {/* <LineChartShade baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" /> */}
                             <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
                         </div>
-                        <div className="w-full">
-                            <p className="flex justify-between items-center gap-4 mb-2">
-                                <span className="c-stit02 inline-block">예측 요약</span>
-                                <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-3 -mt-2" />
-                            </p>
-                            <CustomTable data={[]} columns={summaryHeaders} />
+                        <div id="summary-contents" className="w-full">
+                            <ForecastSummaryPanel
+                                station={station}
+                                stationName={stationName}
+                                baseUrl={BASE_URL}
+                            />
                         </div>
                     </div>
                     <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
