@@ -316,7 +316,7 @@ export default function WeatherGroundwaterTrendChart({
     }), [seriesRaw]);
 
     return (
-        <div className="chart-boxw-full mt-8 bg-white border-style-2 rounded-xl">
+        <div className="chart-box w-full mt-8 d-sgroup">
             <div className='relative'>
                 <p className='absolute'>
                     { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }

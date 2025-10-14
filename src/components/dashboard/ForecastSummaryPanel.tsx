@@ -249,7 +249,7 @@ const Heatmap = ({ rows }: { rows: HeatmapRow[] }) => {
       <div className="summary-heatmap-inner">
         <div className="summary-heatmap-header">
           <div className="summary-heatmap-header-cell" style={{ textAlign: 'left' }}>
-            Year
+            년도
           </div>
           {MONTH_LABELS.map((label, idx) => (
             <div key={`hm-header-${idx}`} className="summary-heatmap-header-cell">
@@ -296,7 +296,9 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
   const summaryUrl = useMemo(() => {
     const prefix = baseUrl ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
     const safePrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
-    return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
+    console.log(`${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`);
+    return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
+    //return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
   }, [baseUrl, station]);
 
   useEffect(() => {
@@ -441,7 +443,7 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
     const date = lastUpdated ? formatDateKST(lastUpdated).replace(/\s|:/g, '-') : new Date().toISOString().slice(0, 10);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `요약데이터_${station}_${date}.csv`;
+    link.download = `요약데이터_${station}_${date}.csv`; // CHECK: 한글 인코딩 안깨지는지 나중에 확인할 것
     link.click();
     URL.revokeObjectURL(url);
   }, [heatmapRows, lastUpdated, station, view, yearSummaries]);
@@ -478,8 +480,8 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
             {VIEW_TABS.map((tab) => {
               const isActive = view === tab.id;
               const tabClassName = isActive
-                ? 'summary-tab-button summary-tab-button-active'
-                : 'summary-tab-button';
+                ? 'btn-style-6 active'
+                : 'btn-style-6';
               return (
                 <button
                   key={tab.id}

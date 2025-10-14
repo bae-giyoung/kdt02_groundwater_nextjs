@@ -1,6 +1,5 @@
 ﻿'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import CustomTable from "@/components/CustomTable";
 import CurrentTable from "./CurrentTable";
 import genInfo from "@/data/gennumInfo.json";
 import GeoMap from "./GeoMap";
@@ -47,27 +46,27 @@ type DashboardApiResponse = {
 
 // 임시: 하드코딩용 데이터 모음
 const rainSensitiveTop5 = [
-    { rank: 1, name: '남원도통', metricLabel: '강수 민감도', metricValue: '0.92', note: '짧은 시간 강수에 즉시 반응' },
-    { rank: 2, name: '거창거창', metricLabel: '강수 민감도', metricValue: '0.89', note: '장마철 대응 관측 지점' },
-    { rank: 3, name: '원주문막', metricLabel: '강수 민감도', metricValue: '0.86', note: '내수 침수 위험 지역' },
-    { rank: 4, name: '곡성입면', metricLabel: '강수 민감도', metricValue: '0.82', note: '태풍 여름철 모니터링' },
-    { rank: 5, name: '순창순창', metricLabel: '강수 민감도', metricValue: '0.79', note: '난류 영향 해안 관측소' },
+    { rank: 1, name: '순상쌍치', metricLabel: '강수 민감도', metricValue: '0.21' },
+    { rank: 2, name: '함양병곡', metricLabel: '강수 민감도', metricValue: '0.20' },
+    { rank: 3, name: '영암영암', metricLabel: '강수 민감도', metricValue: '0.18' },
+    { rank: 4, name: '화성팔탄', metricLabel: '강수 민감도', metricValue: '0.16' },
+    { rank: 5, name: '남원도통', metricLabel: '강수 민감도', metricValue: '0.13' },
 ];
 
 const droughtStableTop5 = [
-    { rank: 1, name: '금산금산', metricLabel: '지하수 변동폭', metricValue: '±0.07m', note: '평년 대비 안정 유지' },
-    { rank: 2, name: '안동길안', metricLabel: '지하수 변동폭', metricValue: '±0.09m', note: '대체 수자원 확보 지점' },
-    { rank: 3, name: '순창쌍치', metricLabel: '지하수 변동폭', metricValue: '±0.11m', note: '산간 지역 기저 유량 유지' },
-    { rank: 4, name: '함양병곡', metricLabel: '지하수 변동폭', metricValue: '±0.13m', note: '생활·농업용 안정 공급' },
-    { rank: 5, name: '화성팔탄', metricLabel: '지하수 변동폭', metricValue: '±0.15m', note: '도시 가뭄 대응 관측소' },
+    { rank: 1, name: '순창순창', metricLabel: '강수 민감도', metricValue: '0.04' },
+    { rank: 2, name: '임실오수', metricLabel: '강수 민감도', metricValue: '0.06' },
+    { rank: 3, name: '원주문막', metricLabel: '강수 민감도', metricValue: '0.09' },
+    { rank: 4, name: '금산금산', metricLabel: '강수 민감도', metricValue: '0.09' },
+    { rank: 5, name: '곡성임면', metricLabel: '강수 민감도', metricValue: '0.13' },
 ];
 
 const rmseTop5 = [
-    { rank: 1, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.68 m' },
-    { rank: 2, name: '순창쌍치', metricLabel: 'RMSE', metricValue: '0.74 m' },
-    { rank: 3, name: '남원도통', metricLabel: 'RMSE', metricValue: '0.77 m' },
-    { rank: 4, name: '곡성입면', metricLabel: 'RMSE', metricValue: '0.81 m' },
-    { rank: 5, name: '임실오수', metricLabel: 'RMSE', metricValue: '0.84 m' },
+    { rank: 1, name: '원주문막', metricLabel: 'RMSE', metricValue: '0.014 m' },
+    { rank: 2, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.017 m' },
+    { rank: 3, name: '순창순창', metricLabel: 'RMSE', metricValue: '0.019 m' },
+    { rank: 4, name: '화성팔탄', metricLabel: 'RMSE', metricValue: '0.019 m' },
+    { rank: 5, name: '곡성임면', metricLabel: 'RMSE', metricValue: '0.020 m' },
 ];
 
 export default function DashBoardContents() {
@@ -84,16 +83,15 @@ export default function DashBoardContents() {
     // 현재 관측소명, 현재 관측소의 경향성 지표
     const stationName = genInfo[station]?.["측정망명"];
     const stationTrend = trendMetrics[station];
-    const summaryHeaders = [{key: "관측소", label: "관측소"}, {key: "년도", label: "년도"}, {key: "실측값", label: "실측값"}, {key: "예측값", label: "예측값"}, {key: "오차평균", label: "오차평균"}];
 
     // URLS
     // 장기 추세
-    //const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    //const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
 
     // 로컬용 임시 URL
-    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    //const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    //const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -111,7 +109,7 @@ export default function DashBoardContents() {
 
         const limit = Number(period);
         const rows = (() => {
-            if (!Number.isFinite(limit) || limit <= 0) {
+            if (!Number.isFinite(limit) || limit <= 0) {  
                 return currElevDatas;
             }
             if (currElevDatas.length <= limit) {
@@ -131,6 +129,7 @@ export default function DashBoardContents() {
     }, [currElevDatas, period]);
 
     const sortedTable = useMemo(() : DashboardTableRow[] | void => {
+        
         if(!displayedTable) return;
         
         const copied = [...displayedTable];
@@ -394,7 +393,7 @@ export default function DashBoardContents() {
                     <div className="dash-cont-top mb-12 d-group">
                         <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <span className="c-tit03">전국 관측소 지하수위 현황</span>
-                            <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
+                            <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-3" />
                         </p>
                         <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <span className="c-stit02">
@@ -402,7 +401,7 @@ export default function DashBoardContents() {
                             </span>
                             <span className="gray-92 text-xs">일평균 수위(m)</span>
                         </p>
-                        <div className="rounded-xl border-style-2 mb-6">
+                        <div className="d-sgroup mb-6">
                             <BarChart data={displayedBarChartData} categories={GEN_NAMES} title={period == "1" ? "금일 평균 지하수위" : `최근 ${period}일 평균 지하수위`} xLabel="지하수위(m)" yLabel="관측소명" />
                         </div>
                         <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
@@ -455,14 +454,14 @@ export default function DashBoardContents() {
                             </p>
                             <span className="gray-92">지난 10년간 월별 평균 지하수위 추이</span>
                         </div>
-                        <div className="rounded-xl border-style-2 mb-6 bg-white">
+                        <div className="d-sgroup mb-6">
                             <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
                         </div>
                         <div id="summary-contents" className="w-full">
                             <ForecastSummaryPanel
-                                station={station}
+                                station={`${GEN_CODES.indexOf(station) + 1}`}
                                 stationName={stationName}
-                                baseUrl={BASE_URL}
+                                baseUrl={BASE_SPRING_URL}
                             />
                         </div>
                     </div>
@@ -480,8 +479,8 @@ export default function DashBoardContents() {
                     <div className="flex flex-col lg:flex-row gap-8">
                         <div className="w-full d-group list-card">
                             <p className="c-tit03"><span className="c-txt-point">가뭄 안정</span> 관측소 Top 5</p>
-                            <ul className="ranking-list">
-                                {droughtStableTop5.map(({ rank, name, metricLabel, metricValue, note }) => (
+                            <ul className="ranking-list ranking-list-compact">
+                                {droughtStableTop5.map(({ rank, name, metricLabel, metricValue }) => (
                                     <li key={`drought-${rank}`} className="ranking-item">
                                         <span className={`ranking-rank${rank <= 3 ? ' ranking-rank-top' : ''}`}>{rank.toString().padStart(2, '0')}</span>
                                         <div className="ranking-content">
@@ -492,7 +491,6 @@ export default function DashBoardContents() {
                                                     <span className="ranking-metric-value">{metricValue}</span>
                                                 </span>
                                             </div>
-                                            {note && <span className="ranking-note">{note}</span>}
                                         </div>
                                     </li>
                                 ))}
@@ -500,8 +498,8 @@ export default function DashBoardContents() {
                         </div>
                         <div className="w-full d-group list-card">
                             <p className="c-tit03"><span className="c-txt-point">강수 민감</span> 관측소 Top 5</p>
-                            <ul className="ranking-list">
-                                {rainSensitiveTop5.map(({ rank, name, metricLabel, metricValue, note }) => (
+                            <ul className="ranking-list ranking-list-compact">
+                                {rainSensitiveTop5.map(({ rank, name, metricLabel, metricValue }) => (
                                     <li key={`rain-${rank}`} className="ranking-item">
                                         <span className={`ranking-rank${rank <= 3 ? ' ranking-rank-top' : ''}`}>{rank.toString().padStart(2, '0')}</span>
                                         <div className="ranking-content">
@@ -512,7 +510,6 @@ export default function DashBoardContents() {
                                                     <span className="ranking-metric-value">{metricValue}</span>
                                                 </span>
                                             </div>
-                                            {note && <span className="ranking-note">{note}</span>}
                                         </div>
                                     </li>
                                 ))}
@@ -548,7 +545,7 @@ export default function DashBoardContents() {
                             <div className="donut-modal-header">
                                 <p className="flex items-center gap-4">
                                     <span className="c-tit03 inline-block">일별 지하수위 현황</span>
-                                    <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-4" />
+                                    <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-6" />
                                     <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
                                 </p>
                                 <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />

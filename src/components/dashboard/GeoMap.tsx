@@ -57,8 +57,6 @@ export default function GeoMap (
     chart: {
       map: krAll as any,
       borderRadius: 20,
-      borderColor: '#ccc',
-      borderWidth: 1
     },
     title: undefined,
     credits: {
@@ -177,7 +175,7 @@ export default function GeoMap (
 
 
   return (
-    <div style={{width: "100%"}} id="geo-map-bubble">
+    <div style={{width: "100%"}} id="geo-map-bubble" className="d-sgroup">
       <HighchartsReact
         highcharts={Highcharts}
         constructorType="mapChart"

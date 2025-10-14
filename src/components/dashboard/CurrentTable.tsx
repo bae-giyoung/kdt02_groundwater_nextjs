@@ -1,6 +1,6 @@
 "use client";
 import { memo, useMemo } from "react";
-import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
+import type { DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
 
 type Column = {
     key: any; // keyof T
