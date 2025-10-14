@@ -56,21 +56,6 @@ const mutedPalette = [
     },
 }));
 
-
-// (삭제 예정 함수)개발중 임시 코드와 엔드포인트: 테스트용 파일을 json으로 변환
-const fetchCSVToJSON = async() => {
-    const resp = await fetch(`${BASE_URL}/api/v1/dashboard/featureImportance`, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-type" : "application/json" },
-    });
-    if(resp.ok) {
-        const json = await resp.json();
-        return json.stateCode === 200 ? 'SUCCESS' : 'FAIL';
-    }
-    else return 'FAIL';
-}
-
 // 데이터 가져오기
 const fetchData = async() => {
     const resp = await fetch(`${BASE_URL}/api/v1/dashboard/featureImportance`, {
@@ -188,7 +173,7 @@ export default function FeatureImportancePage({
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
-                containerProps={{className: 'pie-chart-container', style: {width: "100%", height: 400}}}
+                containerProps={{className: 'pie-chart-container', style: {width: "100%", height: "100%"}}}
                 immutable
             />
         </div>

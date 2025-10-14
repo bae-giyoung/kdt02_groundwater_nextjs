@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import Wave from "@/customcodes/Wave";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function () {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
@@ -13,6 +15,21 @@ export default function () {
     };
 
     useEffect(()=>{
+        // 테스트 코드: CSV To JSON파일
+        const runCSTToJSON = async () => {
+            const resp = await fetch(`${BASE_URL}/api/v1/dashboard/featureImportance`, 
+                {
+                    headers: { "Content-type" : "application/json" },
+                    method: "POST",
+                }
+            );
+            if(resp.ok) {
+                console.log(resp.json());
+            } else {
+                console.log(resp.body);
+            }
+        };
+        //runCSTToJSON();
         if(canvasRef.current) drawWave(canvasRef.current);
     },[]);
 

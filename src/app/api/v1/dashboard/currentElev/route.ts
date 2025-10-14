@@ -88,6 +88,10 @@ async function fetchFromEachStation(gennum: string, begindate: string, enddate: 
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
     if(!resp.ok) throw new Error(`OPEN API 오류: ${resp.status}`);

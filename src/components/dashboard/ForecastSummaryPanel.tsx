@@ -502,10 +502,22 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
         <div className="summary-loading-wrapper">
           <div className="summary-skeleton-grid">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={`skeleton-card-${idx}`} className="summary-skeleton-card" />
+              <div key={`skeleton-card-${idx}`} className="summary-kpi-card summary-skeleton-card">
+                <span className="summary-kpi-label">indicators</span>
+                <span className="summary-kpi-value">00</span>
+              </div>
             ))}
           </div>
-          <div className="summary-skeleton-block" />
+          <table className="summary-data-table summary-skeleton-block">
+                <thead>
+                  <tr><th className="" colSpan={10}>로딩중.......</th></tr>
+                </thead>
+                <tbody>
+                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
+                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
+                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
+                </tbody>
+              </table>
         </div>
       ) : error ? (
         <div className="summary-error-box">{error}</div>

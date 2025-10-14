@@ -14,18 +14,20 @@ export async function POST(
     request: NextRequest
 ) {
     try{
-        const csvFilePath = path.join(process.cwd(), "src/data/feature_importance.csv");
-        const jsonFilePath = path.join(process.cwd(), "src/data/feature_importance.json");
-        const csvData = await fs.readFile(csvFilePath, "utf-8");
-        const jsonData = await Papa.parse(csvData, {header: true, dynamicTyping: true});
-        await fs.writeFile(jsonFilePath, JSON.stringify(jsonData.data));
-        console.log(csvData);
-        console.log(jsonData);
-        
-        return NextResponse.json({stateCode: 200, message: "OK"});
+
+      const csvFilePath = path.join(process.cwd(), `src/data/feature_importances_12.csv`);
+      const jsonFilePath = path.join(process.cwd(), `src/data/feature_importances_12.json`);
+      const csvData = await fs.readFile(csvFilePath, "utf-8");
+      const jsonData = await Papa.parse(csvData, {header: true, dynamicTyping: true});
+      await fs.writeFile(jsonFilePath, JSON.stringify(jsonData.data));
+      console.log(csvData);
+      console.log(jsonData);
+      
+      console.log("실행됨: ");
+      return NextResponse.json({stateCode: 200, message: "OK"});
     } catch(error) {
-        console.error(error);
-        return NextResponse.json({stateCode: 500, message: "Internal Server Error"});
+      console.error(error);
+      return NextResponse.json({stateCode: 500, message: "Internal Server Error"});
     }
 }
 
