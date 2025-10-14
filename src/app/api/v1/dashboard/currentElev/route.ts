@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
-// 다시 작성하며 생각 정리중......!
-
 
 // 상수 선언
 const API_KEY = process.env.GROUNDWATER_API_KEY;
@@ -114,7 +112,7 @@ function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
     const tableRows = dates.map(date => {
         const tableRow: Record<string, string | number | null> = { ymd: date };
 
-        // OPEN API에서 순서 보장하고 있다.=>!!!!!!! Join??
+        // OPEN API에서 순서 보장하고 있다.=>!!!!!!!
         for(const [gen, unitRows] of Object.entries(rawData)) {
             const foundRow = unitRows.find(unit => unit.ymd === date);
             if(foundRow) {

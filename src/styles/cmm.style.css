@@ -93,14 +93,20 @@ div, input, select {box-sizing: border-box;}
 /** -- 텍스트  */
 .c-txt01 {
   color: #444;
-  font-size: 1em;
+  font-size: 1rem;
   margin-bottom: 24px;
 }
 
 .c-txt02 {
   color: #64748b;
-  font-size: 0.9em;
+  font-size: 0.9rem;
   margin-bottom: 24px;
+}
+
+.c-txt03 {
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 /** ===== Color ===== */
@@ -568,7 +574,6 @@ table td, table th {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
-    overflow: hidden;
     z-index: 0;
     box-sizing: border-box;
 }
@@ -1391,11 +1396,7 @@ table td, table th {
 }
 
 /* Loading, Skeleton */
-.summary-loading-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+.summary-loading-wrapper {}
 
 .summary-skeleton-grid {
   display: grid;
@@ -1442,6 +1443,12 @@ table td, table th {
   border-radius: 0.75rem;
   background-color: #e2e8f0;
   animation: pulse 1.5s ease-in-out infinite;
+}
+
+table.summary-skeleton-block {
+  border-collapse: separate;
+  border-spacing: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .summary-error-box {

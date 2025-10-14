@@ -296,9 +296,8 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
   const summaryUrl = useMemo(() => {
     const prefix = baseUrl ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
     const safePrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
-    console.log(`${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`);
-    return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
-    //return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
+    //return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
+    return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
   }, [baseUrl, station]);
 
   useEffect(() => {
@@ -443,7 +442,7 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
     const date = lastUpdated ? formatDateKST(lastUpdated).replace(/\s|:/g, '-') : new Date().toISOString().slice(0, 10);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `요약데이터_${station}_${date}.csv`; // CHECK: 한글 인코딩 안깨지는지 나중에 확인할 것
+    link.download = `요약데이터_${station}_${date}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   }, [heatmapRows, lastUpdated, station, view, yearSummaries]);
@@ -469,10 +468,10 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
       <div className="summary-header">
         <div className="summary-header-info">
           <h2 className="summary-header-title">
-            {stationName ?? 'Station'} 예측 기간 요약
+            <span>{stationName ?? 'Station'}</span> 예측 기간 요약
           </h2>
           <p className="summary-header-subtitle">
-            소제목 소제목
+            변동 추세 및 정확도
           </p>
         </div>
         <div className="summary-header-actions">
@@ -500,24 +499,28 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
 
       {loading ? (
         <div className="summary-loading-wrapper">
-          <div className="summary-skeleton-grid">
-            {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={`skeleton-card-${idx}`} className="summary-kpi-card summary-skeleton-card">
-                <span className="summary-kpi-label">indicators</span>
-                <span className="summary-kpi-value">00</span>
-              </div>
-            ))}
+          <div className="summary-kpi-section">
+            <div className="summary-kpi-grid summary-skeleton-grid">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <div key={`skeleton-card-${idx}`} className="summary-kpi-card summary-skeleton-card">
+                  <span className="summary-kpi-label">indicators</span>
+                  <span className="summary-kpi-value">00</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <table className="summary-data-table summary-skeleton-block">
-                <thead>
-                  <tr><th className="" colSpan={10}>로딩중.......</th></tr>
-                </thead>
-                <tbody>
-                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
-                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
-                  <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}>로딩중.......</td></tr>
-                </tbody>
-              </table>
+          <div className="summary-table-wrapper">
+            <table className="summary-data-table summary-skeleton-block">
+              <thead>
+                <tr><th className="" colSpan={10}>로딩중</th></tr>
+              </thead>
+              <tbody>
+                <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}><p style={{width: "24px", height: "24px"}}>로딩중</p></td></tr>
+                <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}><p style={{width: "24px", height: "24px"}}>로딩중</p></td></tr>
+                <tr className="summary-data-rows"><td className="summary-data-cell" colSpan={10}><p style={{width: "24px", height: "24px"}}>로딩중</p></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : error ? (
         <div className="summary-error-box">{error}</div>
@@ -583,6 +586,10 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
 
       <div className="summary-footer">
         <div className="summary-footer-legend">
+          <span className="summary-legend-item">
+            <span className="summary-legend-dot-neutral" />
+            <span>Heatmap: </span>
+          </span>
           <span className="summary-legend-item">
             <span className="summary-legend-dot summary-legend-dot-positive" />
             <span>수위 편차 &gt; 0</span>

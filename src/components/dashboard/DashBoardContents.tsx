@@ -85,13 +85,13 @@ export default function DashBoardContents() {
     const stationTrend = trendMetrics[station];
 
     // URLS
-    // 장기 추세
-    const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    // 장기 추세, 기상-수위
+    //const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    //const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
 
     // 로컬용 임시 URL
-    //const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    //const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -420,7 +420,7 @@ export default function DashBoardContents() {
                     <div className="flex gap-8 mb-12">
                         <div className="w-full d-group">
                             <p className="c-tit03">전국 관측망</p>
-                            <p className="c-txt01">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
+                            <p className="c-txt03 mb-4">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
                             <GeoMap mapData={currMapDatas} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                             <ul className="c-list01 mt-2">
                                 <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
