@@ -231,3 +231,17 @@ Pie 차트 (특성 중요도)
 // ["#F2F8F3", "#DDEFE0", "#C8E0C9", "#D6ECEA", "#A9D5D1"]
 
 //'#B3E5FC', '#81D4FA', '#4FC3F7', '#29B6F6', '#039BE5', '#0288D1'
+
+/* Excellent : 밝은 → 현재색(어두운) */
+bg-gradient-to-br from-emerald-100 via-emerald-400 to-emerald-600 text-emerald-900
+
+/* Good : 밝은 → 현재색(어두운) */
+bg-gradient-to-br from-sky-100 via-sky-400 to-sky-600 text-sky-900
+
+/* Warning A : 현재색 → 어두운 */
+bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 text-amber-950
+
+/* Warning B : 밝은 → 현재색(어두운) */
+bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 text-amber-900
+
+return t === 'up' ? '#ffaf5f' : t === 'down' ? '#4fa3d1' : '#66c7bf';

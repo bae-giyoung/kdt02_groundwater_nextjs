@@ -18,6 +18,7 @@ import WeatherGroundwaterTrendChart from "./WeatherGroundwaterTrendChart";
 import LineChartShadeZoom from "./LineChartShadeZoom";
 import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
 import ForecastSummaryPanel from "./ForecastSummaryPanel";
+import ForecastNext7Days from "./ForecastNext7Days";
 
 // 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
@@ -440,11 +441,12 @@ export default function DashBoardContents() {
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
                             </div>
                             <div className="w-full d-group">
-                                <div>
-                                    <StationInfoBox stationCode={station} />
-                                    <PerformanceIndicators stationCode={station} />
-                                </div>
+                                <ForecastNext7Days station={station} stationName={stationName} />
+                                <PerformanceIndicators stationCode={station} />
                             </div>
+                            {/* <div className="w-full d-group">
+                                {<StationInfoBox stationCode={station} />}
+                            </div> */}
                         </div>
                     </div>
                     <div className="w-full d-group mb-12">
