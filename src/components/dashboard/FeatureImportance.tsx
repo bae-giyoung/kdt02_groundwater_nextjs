@@ -8,6 +8,9 @@ import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
 
 
+// JSON 파일 임포트로 바꿀것!
+
+
 // Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
   const win = window as typeof window & { Highcharts?: typeof Highcharts; _Highcharts?: typeof Highcharts };

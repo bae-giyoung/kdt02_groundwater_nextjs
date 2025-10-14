@@ -223,7 +223,7 @@ export default function ForecastNext7Days({
             series: [
                 {
                     type: 'arearange',
-                    name: '밴드',
+                    name: '신뢰구간',
                     data: lo?.map((l, i) => [i, l, hi[i]]), // [[인덱스, 저, 고],[요소3개],...],
                     color: '#bcecf3',
                     fillOpacity: 0.3,
