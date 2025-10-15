@@ -49,7 +49,10 @@ export async function GET(
     dataKeys.map((stationCode: string) => {
       // 여기서 1 Depth 더 줄일 수 있다!!!!! 타입에러도 잡고 => 나중에!!!!!!
       const FeatureImportancesArray = Object.entries(data[stationCode]); //["0", [{"feature": "name", "importance": 0.05}, ...] // 바껴서
-      const FearuresFinal = FeatureImportancesArray.map((entrie)=> {console.log(entrie); return [entrie[1].feature, Number(entrie[1].importance)]});
+      const FearuresFinal = FeatureImportancesArray.map((entrie)=> {
+        //console.log(entrie); 
+        return [entrie[1].feature, Number(entrie[1].importance)]
+      });
       transformedData[stationCode] = FearuresFinal;
     });// [{}]
     
@@ -62,7 +65,7 @@ export async function GET(
     };
 
     console.log("========================= 특성 중요도 확인용 ========================");
-    console.log("transformedData: ", transformedData, "typeof transformedData: ", typeof transformedData);
+    //console.log("transformedData: ", transformedData, "typeof transformedData: ", typeof transformedData);
     
     // jsonData : fs.readFile(경로, 인코딩)의 결과는 string
     // data: JSON.parse(jsonData)는 Object

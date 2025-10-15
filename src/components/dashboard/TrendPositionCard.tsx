@@ -107,11 +107,19 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 지하수위 현황 
                 <span className="text-lg text-slate-600"> (최근 {windowDays}일 내 상대 위치)</span>
             </p>
-            <div className="flex items-baseline gap-3">
-                <span className={`text-4xl font-bold ${summary.valueClass}`}>{summary.valueText}</span>
-                <span className="text-base text-slate-600 font-bold">
-                    {summary.arrow} {summary.label}
-                </span>
+            <div className="flex justify-between">
+                <div className="flex items-baseline gap-3">
+                    <span className={`text-4xl font-bold ${summary.valueClass}`}>{summary.valueText}</span>
+                    <span className="text-base text-slate-600 font-bold">
+                        {summary.arrow} {summary.label}
+                    </span>
+                </div>
+                <div className="gauge-container w-full max-w-64">
+                    <div className="gauge-bar">
+                        <div className="gauge-fill animate-pulse fill-mode-none repeat-1" style={{maxWidth: Number.isFinite(parseInt(summary.valueText)) ? `${summary.valueText}` : 0, animation: 'gauge-animation 1s linear'}}></div>
+                        <div className="gauge-marker" style={{left: Number.isFinite(parseInt(summary.valueText)) ? `${summary.valueText}` : 0 }}></div>
+                    </div>
+                </div>
             </div>
             <p className="c-txt02.inline mt-2 text-gray-600 border-b-2 border-slate-200 pb-2">{summary.message}</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-700">

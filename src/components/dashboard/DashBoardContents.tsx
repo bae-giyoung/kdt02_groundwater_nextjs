@@ -85,6 +85,11 @@ export default function DashBoardContents() {
     const stationName = genInfo[station]?.["측정망명"];
     const stationTrend = trendMetrics[station];
 
+    // 관측소 select GeoMap에 보낼 것: 나중에
+    const onChangeStationHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setStation(e.target.value as GenInfoKey);
+    };
+
     // 향후 예측 7일용 임시코드
     const getBaseElevForForecast = (station: GenInfoKey) => {
         if(currElevDatas[currElevDatas.length - 1]?.[station] === undefined) return 105.72;
@@ -482,7 +487,7 @@ export default function DashBoardContents() {
                             <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
                         </div>
                         <div className="lg:w-1/3 d-group">
-                            <FeatureImportancePage chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
+                            <FeatureImportancePage stationCode={station} chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
                         </div>
                     </div>
                     <div className="flex flex-col lg:flex-row gap-6">

@@ -1469,3 +1469,54 @@ table.summary-skeleton-block {
   text-align: center;
   font-size: 0.875rem;
 }
+
+/** == Trend Style */
+.gauge-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+
+.gauge-text {
+  color: #0277bd;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.gauge-bar {
+  position: relative;
+  flex: 1;
+  width: 0;
+  height: 30px;
+  background: linear-gradient(to right, #e1f5fe, #bcecf3);
+  border-radius: 6px;
+}
+
+@keyframes gauge-animation {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.gauge-fill {
+  height: 100%;
+  background: linear-gradient(to right, #bcecf3, #26c6da);
+  border-radius: 6px 0 0 6px;
+}
+
+.gauge-marker {
+  position: absolute;
+  top: -5px;
+  width: 0;
+  height: 0;
+  margin-left: -6px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #0288d1;
+}

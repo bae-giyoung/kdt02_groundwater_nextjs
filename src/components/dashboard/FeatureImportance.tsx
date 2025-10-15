@@ -73,7 +73,7 @@ export default function FeatureImportancePage({
     stationCode = '5724',
 } : {
     chartTitle?: string,
-    stationCode?: string,
+    stationCode: string,
 }) {
     const [allData, setAllData] = useState<Record<string, FeatureT[]>>({}); // Record<"stationCode", [["name", 0.05], .....]>
 
