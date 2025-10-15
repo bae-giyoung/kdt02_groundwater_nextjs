@@ -104,7 +104,7 @@ export default function LineChartShade({
     const [zoomWindow, setZoomWindow] = useState<typeof ZOOM_WINDOWS[number]>(defaultWindow);
 
     useEffect(() => {
-        console.log("baseUrl: ", baseUrl);
+        //console.log("baseUrl: ", baseUrl);
         if(prefetchedData) {
             setSeriesRaw({
                 actual: normalizeTuples(prefetchedData.data?.series?.actual),
@@ -143,7 +143,7 @@ export default function LineChartShade({
     }, [baseUrl, prefetchedData]);
 
     const slicedSeries = useMemo(() => {
-        console.log("실측 수위의 길이: ", seriesRaw.actual.length);
+        //console.log("실측 수위의 길이: ", seriesRaw.actual.length);
         return {
             actual: lastN(seriesRaw.actual, zoomWindow),
             predicted: lastN(seriesRaw.predicted, zoomWindow),

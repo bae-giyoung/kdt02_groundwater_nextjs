@@ -397,6 +397,7 @@ export default function LineChartShadeZoom({
     Highcharts.setOptions({
         lang: {
             viewFullscreen: '크게 보기',
+            exitFullscreen: '크게 보기 나가기',
             downloadPNG: 'PNG 이미지로 다운로드',
             downloadJPEG: 'JPEG 이미지로 다운로드',
             downloadPDF: 'PDF 파일로 다운로드',

@@ -102,7 +102,7 @@ export default function WeatherGroundwaterTrendChart({
     });
 
     useEffect(() => {
-        console.log("baseUrl: ", baseUrl);
+        //console.log("baseUrl: ", baseUrl);
         if(prefetchedData) {
             setSeriesRaw({
                 predicted: normalizeTuples(prefetchedData.data?.series_raw?.predicted),

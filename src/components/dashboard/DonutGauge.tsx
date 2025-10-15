@@ -133,7 +133,7 @@ export default function DonutGauge({
       },
       yAxis: {
         min: 0,
-        max: 1.02,
+        max: 1,
         lineWidth: 0,
         tickPositions: [],
       },

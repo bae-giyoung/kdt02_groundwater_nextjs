@@ -85,14 +85,21 @@ export default function DashBoardContents() {
     const stationName = genInfo[station]?.["측정망명"];
     const stationTrend = trendMetrics[station];
 
+    // 향후 예측 7일용 임시코드
+    const getBaseElevForForecast = (station: GenInfoKey) => {
+        if(currElevDatas[currElevDatas.length - 1]?.[station] === undefined) return 105.72;
+        const baseElev = Number(currElevDatas[currElevDatas.length - 1]?.[station]);
+        return Number.isFinite(baseElev) ? baseElev : 105.72;
+    }
+
     // URLS
     // 장기 추세, 기상-수위
-    //const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    //const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
 
     // 로컬용 임시 URL
-    const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    //const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    //const weatherUrl = `${BASE_URL}/api/v1/mockdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -103,7 +110,7 @@ export default function DashBoardContents() {
 
     // 현황 테이블
     const tableColumns = useMemo(() => [{ key: "ymd", label: "기준일" }, ...options], []);
-    console.log("tableColumns", tableColumns);
+    //console.log("tableColumns", tableColumns);
 
     const displayedTable = useMemo(() => {
         if (!currElevDatas) return;
@@ -333,7 +340,7 @@ export default function DashBoardContents() {
 
     return (
         <>
-            <div ref={contentRef} className="section d-section flex flex-col lg:flex-row gap-8 mb-12">
+            <div ref={contentRef} className="section d-section flex flex-col lg:flex-row gap-6 mb-6">
                 <DashboardNavi
                     className="relative dash-navi-container d-group m-0 lg:shrink-0 flex flex-col gap-5 lg:justify-between"
                     pinned={
@@ -391,7 +398,7 @@ export default function DashBoardContents() {
                     }
                 />
                 <div className="dash-contents">
-                    <div className="dash-cont-top mb-12 d-group">
+                    <div className="dash-cont-top mb-6 d-group">
                         <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <span className="c-tit03">전국 관측소 지하수위 현황</span>
                             <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-3" />
@@ -418,7 +425,7 @@ export default function DashBoardContents() {
                             <li className="inline-block">데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
                         </ul>
                     </div>
-                    <div className="flex gap-8 mb-12">
+                    <div className="flex gap-6 mb-6">
                         <div className="w-full d-group">
                             <p className="c-tit03">전국 관측망</p>
                             <p className="c-txt03 mb-4">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
@@ -436,12 +443,12 @@ export default function DashBoardContents() {
                                 </p>
                             </div>
                         </div>
-                        <div className="w-full flex flex-col gap-8">
+                        <div className="w-full flex flex-col gap-6">
                             <div className="w-full d-group">
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
                             </div>
                             <div className="w-full d-group">
-                                <ForecastNext7Days station={station} stationName={stationName} />
+                                <ForecastNext7Days station={station} stationName={stationName} baseElev={getBaseElevForForecast(station)}/>
                                 <PerformanceIndicators stationCode={station} />
                             </div>
                             {/* <div className="w-full d-group">
@@ -449,7 +456,7 @@ export default function DashBoardContents() {
                             </div> */}
                         </div>
                     </div>
-                    <div className="w-full d-group mb-12">
+                    <div className="w-full d-group mb-6">
                         <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <p className="c-tit03">
                                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 장기 추세 그래프 (2014 ~ 2023)
@@ -467,7 +474,7 @@ export default function DashBoardContents() {
                             />
                         </div>
                     </div>
-                    <div className="flex gap-8 flex-col lg:flex-row w-full mb-12">
+                    <div className="flex gap-6 flex-col lg:flex-row w-full mb-6">
                         <div className="lg:w-2/3 d-group">
                             <p className="c-tit03">
                                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-예측 수위 상관관계
@@ -478,7 +485,7 @@ export default function DashBoardContents() {
                             <FeatureImportancePage chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
                         </div>
                     </div>
-                    <div className="flex flex-col lg:flex-row gap-8">
+                    <div className="flex flex-col lg:flex-row gap-6">
                         <div className="w-full d-group list-card">
                             <p className="c-tit03"><span className="c-txt-point">가뭄 안정</span> 관측소 Top 5</p>
                             <ul className="ranking-list ranking-list-compact">

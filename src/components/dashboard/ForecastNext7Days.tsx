@@ -84,15 +84,16 @@ function buildMockForecast(p: StationObsPayload): Next7Forecast {
 }
 
 // 목업 데이터용 로딩 흉내내기: 나중에
-function fetchMockStationObs(station: string, stationName: string): Promise<StationObsPayload> {
-    const baseElev = 105.72; // 목업용
+function fetchMockStationObs(station: string, stationName: string, baseElev: number = 105.72): Promise<StationObsPayload> {
     const today = new Date();
     const observed: DailyObs[] = [-2, -1, 0].map(off => { // 2일 전~오늘, 3일치
         const d = new Date(today);
         d.setDate(d.getDate() + off);
 
         // 변동 흉내
-        const level = baseElev + off * 0.02; // 하루에 0.02m 변동
+        //const randomPlusMinus = Math.random() < 0.5 ? -1 : 1;
+        //const randomDeltaAbs = 0.05 * Math.random();
+        const level = baseElev + off * 0.02; // 하루 변동치 0.02m
         return {
             date: d.toISOString().slice(0, 10),
             elev: Number(level.toFixed(3)),
@@ -122,10 +123,12 @@ function trendColor(t: 'up' | 'down' | 'flat') {
 
 export default function ForecastNext7Days({
     station = '5724',
-    stationName = '남원도통'
+    stationName = '남원도통',
+    baseElev = 105.72,
 } : {
     station?: string;
     stationName?: string;
+    baseElev?: number;
 }) {
     const [forecastData, setForecastData] = useState<Next7Forecast>({} as any);
     const [loading, setLoading] = useState(true);
@@ -136,7 +139,7 @@ export default function ForecastNext7Days({
     useEffect(() => {
         let alive = true;
         setLoading(true);
-        fetchMockStationObs(station, stationName)
+        fetchMockStationObs(station, stationName, baseElev)
             .then(payload => alive && setForecastData(buildMockForecast(payload)))
             .catch(err => alive && setError(err.message))
             .finally(() => alive && setLoading(false));
@@ -156,7 +159,7 @@ export default function ForecastNext7Days({
         return {
             chart: {
                 //type: 'line',
-                height: 160,
+                height: 200, // 160
                 spacing: [8, 8, 8, 8]
             },
             title: {
@@ -245,30 +248,34 @@ export default function ForecastNext7Days({
         }
     }, [forecastData]);
 
+    // 에러 발생시 렌더링
     if (error) {
         return (
             <div className="rounded-2xl p-4 bg-white/60 shadow">
-                <div className="c-tit03">지하수위 향후 7일 예측</div>
+                <div className="c-tit03">향후 7일 지하수위 예측</div>
                 <div className="text-red-600 text-sm">로드 실패: {error}</div>
             </div>
         );
     }
 
+    // 로딩중 렌더링
     if (loading || !forecastData) {
         return (
-            <div className="rounded-2xl p-4 bg-white/60 shadow">
-                <div className="c-tit03">지하수위 향후 7일 예측</div>
+            <div className="">
+                <div className="c-tit03">향후 7일 지하수위 예측</div>
                 {/* 스켈레톤 */}
-                <div className="h-4 w-48 bg-gray-200/60 rounded mb-2 animate-pulse" />
-                <div className="h-4 w-64 bg-gray-200/60 rounded mb-4 animate-pulse" />
-                <div className="h-[160px] w-full bg-gray-100 rounded animate-pulse" />
+                <div className="h-5 w-48 bg-gray-200/60 rounded mb-1 animate-pulse" />
+                <div className="h-5 w-64 bg-gray-200/60 rounded mb-3 animate-pulse" />
+                <div className="h-[200px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
+                <div className="h-6 w-64 bg-gray-200/60 rounded animate-pulse" />
+                <div className="h-[33px] w-64 bg-gray-200/60 rounded mt-3 animate-pulse" />
             </div>
         );
     }
 
     const trend = trendLabel(forecastData.summary.trend);
 
-
+    // 렌더링
     return (
         <div id="forecast-7days-container">
             <div className="flex items-end justify-between">
@@ -306,7 +313,7 @@ export default function ForecastNext7Days({
                 {trend} 추세
                 </span>
                 <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                예측 7포인트
+                예측 7일
                 </span>
             </div>
 

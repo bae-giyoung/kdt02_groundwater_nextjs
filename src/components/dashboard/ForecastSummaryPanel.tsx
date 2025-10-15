@@ -197,6 +197,9 @@ const buildHeatmap = (years: YearSummary[]): HeatmapRow[] => {
 const formatNumber = (value: number, fractionDigits = 2) =>
   Number.isFinite(value) ? value.toFixed(fractionDigits) : '-';
 
+const formatMetric = (value: number | undefined, digits: number) =>
+    value == null || Number.isNaN(value) ? '-' : Math.floor(value * 10 ** digits) / 10 ** digits;
+
 const Sparkline = ({
   data,
   color = '#1E88E5',
@@ -296,8 +299,8 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
   const summaryUrl = useMemo(() => {
     const prefix = baseUrl ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
     const safePrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
-    //return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
-    return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
+    return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
+    //return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
   }, [baseUrl, station]);
 
   useEffect(() => {
@@ -370,13 +373,11 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
   };
 
   const currentKpis = useMemo(() => {
-    const formatMetric = (value: number | undefined, digits: number) =>
-      value == null || Number.isNaN(value) ? '-' : value.toFixed(digits);
 
     if (Object.keys(metrics).length) {
       return [
-        { key: 'KGE', label: 'KGE', value: formatMetric(metrics.KGE, 2), title: KPI_DESCRIPTIONS.KGE },
         { key: 'NSE', label: 'NSE', value: formatMetric(metrics.NSE, 2), title: KPI_DESCRIPTIONS.NSE },
+        { key: 'KGE', label: 'KGE', value: formatMetric(metrics.KGE, 2), title: KPI_DESCRIPTIONS.KGE },
         { key: 'RMSE', label: 'RMSE (m)', value: formatMetric(metrics.RMSE, 3), title: KPI_DESCRIPTIONS.RMSE },
         { key: 'R2', label: 'R^2', value: formatMetric(metrics.R2, 2), title: KPI_DESCRIPTIONS.R2 },
       ];
@@ -385,8 +386,8 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
     if (!yearSummaries.length) return [];
     const latest = yearSummaries[0];
     return [
-      { key: 'KGE', label: 'KGE', value: formatMetric(latest.kge, 2), title: KPI_DESCRIPTIONS.KGE },
       { key: 'NSE', label: 'NSE', value: formatMetric(latest.nse, 2), title: KPI_DESCRIPTIONS.NSE },
+      { key: 'KGE', label: 'KGE', value: formatMetric(latest.kge, 2), title: KPI_DESCRIPTIONS.KGE },
       { key: 'RMSE', label: 'RMSE (m)', value: formatMetric(latest.rmse, 3), title: KPI_DESCRIPTIONS.RMSE },
       { key: 'R2', label: 'R^2', value: formatMetric(latest.r2, 2), title: KPI_DESCRIPTIONS.R2 },
     ];
@@ -402,8 +403,8 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
             summary.meanPred.toFixed(3),
             summary.meanObs.toFixed(3),
             summary.rmse.toFixed(3),
-            summary.nse.toFixed(3),
-            summary.kge.toFixed(3),
+            formatMetric(summary.nse, 3),
+            formatMetric(summary.kge, 3),
             summary.bias.toFixed(3),
             summary.range.toFixed(3),
             summary.mae.toFixed(3),
@@ -649,8 +650,8 @@ const FragmentRow = ({
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.meanPred, 3)}</td>
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.meanObs, 3)}</td>
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.rmse, 3)}</td>
-        <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.nse, 3)}</td>
-        <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.kge, 3)}</td>
+        <td className="summary-data-cell summary-numeric-cell">{formatMetric(summary.nse, 3)}</td>
+        <td className="summary-data-cell summary-numeric-cell">{formatMetric(summary.kge, 3)}</td>
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.bias, 3)}</td>
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.range, 3)}</td>
         <td className="summary-data-cell summary-numeric-cell">{formatNumber(summary.mae, 3)}</td>

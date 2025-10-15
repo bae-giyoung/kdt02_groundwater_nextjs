@@ -4,8 +4,8 @@ import fs from "fs/promises";
 import Papa from "papaparse";
 
 // 타입
-type featureImportanceUnitT = {
-    feature: string,
+interface FeatureImportanceUnitT {
+    feature: string;
     importance: number
 }
 
@@ -37,23 +37,32 @@ export async function GET(
     request: NextRequest
 ) {
   try {
-    const jsonFilePath = path.join(process.cwd(), "src/data/feature_importance.json");
+    const jsonFilePath = path.join(process.cwd(), "src/data/feature_importances_all.json");
     const jsonData = await fs.readFile(jsonFilePath, "utf-8");
 
     // 데이터 가공: 파이차트용
-    const data = JSON.parse(jsonData);
-    const transforedData = data.map((d : featureImportanceUnitT) => [d.feature, Number(d.importance)]);
+    const data = JSON.parse(jsonData); // Record<"stationCode", [{"feature": "name", "importance": 0.05}, .....]>
+    const dataKeys = Object.keys(data);
+    //const dataEntries : Array<[string, FeatureImportanceUnitT[]]> = Object.entries(data); // ["", [{"feature": "name", "importance": 0.05}]][]
+
+    const transformedData = {} as Record<string, Record<string, any>[]>; // FeatureImportanceUnitT[] 로 타입 명확하게 지정해야 하는데 일단은 이걸로!!!!!!!
+    dataKeys.map((stationCode: string) => {
+      // 여기서 1 Depth 더 줄일 수 있다!!!!! 타입에러도 잡고 => 나중에!!!!!!
+      const FeatureImportancesArray = Object.entries(data[stationCode]); //["0", [{"feature": "name", "importance": 0.05}, ...] // 바껴서
+      const FearuresFinal = FeatureImportancesArray.map((entrie)=> {console.log(entrie); return [entrie[1].feature, Number(entrie[1].importance)]});
+      transformedData[stationCode] = FearuresFinal;
+    });// [{}]
+    
+    // 이전 관측소 1개만 있었을 때 코드 : [d.feature, Number(d.importance)]
+    
     const resp = {
       stateCode: 200,
       message: "OK",
-      data: transforedData,
+      data: transformedData,
     };
 
-    //console.log("========================= 특성 중요도 확인용 ========================");
-    //console.log("jsonData", jsonData, "typeof jsonData: ", typeof jsonData);
-    //console.log("data", data, "typeof data: ", typeof data);
-    //console.log("transforedData", transforedData, "typeof transforedData: ", typeof transforedData);
-    //console.log("resp", resp, "typeof resp: ", typeof resp);
+    console.log("========================= 특성 중요도 확인용 ========================");
+    console.log("transformedData: ", transformedData, "typeof transformedData: ", typeof transformedData);
     
     // jsonData : fs.readFile(경로, 인코딩)의 결과는 string
     // data: JSON.parse(jsonData)는 Object

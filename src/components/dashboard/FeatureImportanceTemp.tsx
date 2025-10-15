@@ -7,6 +7,10 @@ import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
 
+
+// JSON 파일 임포트로 바꿀것!
+
+
 // Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
   const win = window as typeof window & { Highcharts?: typeof Highcharts; _Highcharts?: typeof Highcharts };
@@ -55,7 +59,7 @@ const mutedPalette = [
     },
 }));
 
-// 데이터 가져오기 : 이제 안 쓸거임!
+// 데이터 가져오기
 const fetchData = async() => {
     const resp = await fetch(`${BASE_URL}/api/v1/dashboard/featureImportance`, {
         headers: { "Content-type" : "application/json" },
@@ -70,26 +74,15 @@ const fetchData = async() => {
 
 export default function FeatureImportancePage({
     chartTitle = '주요 영향 변수 분석',
-    stationCode = '5724',
-} : {
-    chartTitle?: string,
-    stationCode?: string,
 }) {
-    const [allData, setAllData] = useState<Record<string, FeatureT[]>>({}); // Record<"stationCode", [["name", 0.05], .....]>
+    const [data, setData] = useState<FeatureT[]>([]);
 
     useEffect(() => {
-        fetchData().then(res => {
+        const data = fetchData().then(res => {
             if(res.stateCode !== 200) return;
-            setAllData(res.data);
+            setData(res.data);
         });
     },[]);
-
-    useEffect(() => {
-        if(!allData) return;
-        console.log("allData: ", allData);
-        console.log(stationCode);
-        console.log("allData[stationCode]: ", allData?.[stationCode]);
-    }, [allData]);
 
     const options = useMemo<Highcharts.Options>(()=> ({
         chart: {
@@ -171,10 +164,10 @@ export default function FeatureImportancePage({
         series: [{
             type: 'pie',
             name: '특성 중요도',
-            data: allData?.[stationCode]
+            data: data
         }]
 
-    }), [allData, stationCode]);
+    }), [data]);
 
 
     return (

@@ -113,7 +113,7 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
                     {summary.arrow} {summary.label}
                 </span>
             </div>
-            <p className="c-txt02 mt-2 text-gray-600 border-b-2 border-slate-200 pb-4">{summary.message}</p>
+            <p className="c-txt02.inline mt-2 text-gray-600 border-b-2 border-slate-200 pb-2">{summary.message}</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-700">
                 <div>
                     <dt className="font-bold text-gray-800">최신값</dt>
