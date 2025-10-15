@@ -281,7 +281,7 @@ export default function WeatherGroundwaterTrendChart({
         series: [
             {
                 type: 'column',
-                name: '예측 수위',
+                name: '예측 수위(el.m)',
                 data: seriesRaw.predicted,
                 color: '#6BAEDB', // '#B3E5FC', '#81D4FA', '#4FC3F7', '#29B6F6', '#039BE5', '#0288D1',
                 threshold: null,
@@ -290,7 +290,7 @@ export default function WeatherGroundwaterTrendChart({
             },
             {
                 type: 'line',
-                name: '강수량',
+                name: '강수량(mm)',
                 data: seriesRaw.rain_mm,
                 color: '#FFB74D',
                 lineWidth: 2,
@@ -298,7 +298,7 @@ export default function WeatherGroundwaterTrendChart({
             },
             {
                 type: 'line',
-                name: '기온',
+                name: '기온(°C)',
                 data: seriesRaw.temp_c,
                 color: '#00ACC1',
                 lineWidth: 2,
@@ -306,7 +306,7 @@ export default function WeatherGroundwaterTrendChart({
             },
             {
                 type: 'line',
-                name: '습도',
+                name: '습도(%)',
                 data: seriesRaw.humidity_pct,
                 color: '#7E57C2',
                 lineWidth: 2,

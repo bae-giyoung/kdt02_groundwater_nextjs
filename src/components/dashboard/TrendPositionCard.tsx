@@ -41,15 +41,15 @@ export default function TrendPositionCard({ metric, stationName, windowDays }: T
         const latestYmd = formatYmd(metric?.latestYmd);
 
         const latestDisplay = (() => {
-            if (latestValue && latestYmd) return `${latestValue} m (${latestYmd})`;
-            if (latestValue) return `${latestValue} m`;
+            if (latestValue && latestYmd) return `${latestValue} el.m (${latestYmd})`;
+            if (latestValue) return `${latestValue} el.m`;
             if (latestYmd) return latestYmd;
             return "-";
         })();
 
         const rangeDisplay = (() => {
-            const minText = minValue ? `${minValue} m` : null;
-            const maxText = maxValue ? `${maxValue} m` : null;
+            const minText = minValue ? `${minValue} el.m` : null;
+            const maxText = maxValue ? `${maxValue} el.m` : null;
             if (minText && maxText) return `${minText} ~ ${maxText}`;
             return minText || maxText || "-";
         })();

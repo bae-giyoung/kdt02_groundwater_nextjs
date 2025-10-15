@@ -274,7 +274,7 @@ const Heatmap = ({ rows }: { rows: HeatmapRow[] }) => {
                   title={
                     val == null
                       ? '측정치 없음'
-                      : `${row.year} ${MONTH_LABELS[monthIdx]} | Delta-h: ${formatNumber(val, 3)} m`
+                      : `${row.year} ${MONTH_LABELS[monthIdx]} | Delta-h: ${formatNumber(val, 3)} el.m`
                   }
                 >
                   {val == null ? '-' : formatNumber(val, 2)}
@@ -505,7 +505,7 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
               {Array.from({ length: 4 }).map((_, idx) => (
                 <div key={`skeleton-card-${idx}`} className="summary-kpi-card summary-skeleton-card">
                   <span className="summary-kpi-label">indicators</span>
-                  <span className="summary-kpi-value">00</span>
+                  <span className="summary-kpi-value">0</span>
                 </div>
               ))}
             </div>

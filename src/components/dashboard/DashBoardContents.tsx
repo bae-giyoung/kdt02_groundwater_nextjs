@@ -63,11 +63,11 @@ const droughtStableTop5 = [
 ];
 
 const rmseTop5 = [
-    { rank: 1, name: '원주문막', metricLabel: 'RMSE', metricValue: '0.014 m' },
-    { rank: 2, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.017 m' },
-    { rank: 3, name: '순창순창', metricLabel: 'RMSE', metricValue: '0.019 m' },
-    { rank: 4, name: '화성팔탄', metricLabel: 'RMSE', metricValue: '0.019 m' },
-    { rank: 5, name: '곡성임면', metricLabel: 'RMSE', metricValue: '0.020 m' },
+    { rank: 1, name: '원주문막', metricLabel: 'RMSE', metricValue: '0.014 el.m' },
+    { rank: 2, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.017 el.m' },
+    { rank: 3, name: '순창순창', metricLabel: 'RMSE', metricValue: '0.019 el.m' },
+    { rank: 4, name: '화성팔탄', metricLabel: 'RMSE', metricValue: '0.019 el.m' },
+    { rank: 5, name: '곡성임면', metricLabel: 'RMSE', metricValue: '0.020 el.m' },
 ];
 
 export default function DashBoardContents() {
@@ -466,7 +466,7 @@ export default function DashBoardContents() {
                             <p className="c-tit03">
                                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 장기 추세 그래프 (2014 ~ 2023)
                             </p>
-                            <span className="gray-92">지난 10년간 월별 평균 지하수위 추이</span>
+                            <span className="gray-92 c-txt03">지난 10년간 월별 평균 지하수위 추이(단위: el.m)</span>
                         </div>
                         <div className="d-sgroup mb-6">
                             <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
@@ -566,7 +566,7 @@ export default function DashBoardContents() {
                             </div>
                             <div className="donut-modal-body">
                                 <p className="gray-92 text-right">일평균 수위(el.m), 전일 대비 증감(el.m)</p>
-                                <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
+                                <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} />
                             </div>
                         </div>
                     </div>

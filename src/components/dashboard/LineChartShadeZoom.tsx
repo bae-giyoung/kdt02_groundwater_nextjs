@@ -52,12 +52,6 @@ interface LineChartZoomProps {
     prefetchedData?: BackendSeriesResponse;
 }
 
-interface RangeSelectorClickEvent extends Event {
-    button?: {
-        count?: number;
-    }
-}
-
 // 상수 선언
 const ZOOM_WINDOWS = [12, 36, 60, 84, 120] as const;
 

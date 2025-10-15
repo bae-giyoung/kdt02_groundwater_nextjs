@@ -177,7 +177,6 @@ export default function DonutGauge({
           tooltip: {
             enabled: true,
             valueSuffix: suffix,
-            //valueDecimals: 10
           },
         },
       ],

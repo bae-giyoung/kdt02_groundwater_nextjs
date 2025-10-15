@@ -168,7 +168,7 @@ export default function GeoMap (
       pointFormatter: function() {
         const p = this as any;
         return `<b>${p.name}</b>`
-              + (typeof p.z === 'number' ? `<br/>${mappointDesc}: ${Highcharts.numberFormat(p.z, 3)}` : '');
+              + (typeof p.z === 'number' ? `<br/>${mappointDesc}: ${Highcharts.numberFormat(p.z, 3)} el.m` : '');
       }
     }
   }), [points, mappointDesc]);

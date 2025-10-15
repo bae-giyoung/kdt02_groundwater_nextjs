@@ -280,18 +280,18 @@ export default function ForecastNext7Days({
         <div id="forecast-7days-container">
             <div className="flex items-end justify-between">
                 <div className="c-tit03">향후 7일 지하수위 예측</div>
-                <span className="text-xs text-gray-500">단위: m</span>
+                <span className="text-xs text-gray-500">단위: el.m</span>
             </div>
 
             <div className="text-sm text-gray-700 mb-1">
-                최신 관측: <b>{forecastData.latestObserved.elev.toFixed(2)} m</b> ({forecastData.latestObserved.date})
+                최신 관측: <b>{forecastData.latestObserved.elev.toFixed(2)} el.m</b> ({forecastData.latestObserved.date})
             </div>
             <div className="text-sm text-gray-700 mb-3 flex items-center gap-2">
-                7일 후 예측: <b>{forecastData.summary.day7.predicted.toFixed(2)} m</b>
+                7일 후 예측: <b>{forecastData.summary.day7.predicted.toFixed(2)} el.m</b>
                 <span
                 className="px-2 py-0.5 rounded-full text-xs font-semibold"
                 style={{ background: trendColor(forecastData.summary.trend), color: '#fff' }}
-                aria-label={`7일 후 ${trend} ${forecastData.summary.day7.delta_m.toFixed(2)}미터`}
+                aria-label={`7일 후 ${trend} ${forecastData.summary.day7.delta_m.toFixed(2)}el.m`}
                 >
                 {forecastData.summary.day7.delta_m >= 0 ? '▲' : '▼'} {forecastData.summary.day7.delta_m.toFixed(2)}
                 </span>
@@ -307,7 +307,7 @@ export default function ForecastNext7Days({
             {/* 작은 KPI 배지 */}
             <div className="flex gap-2 text-xs">
                 <span className="px-2 py-1 rounded-full bg-[#c9f4e6] text-[#063a46]">
-                예상 변동폭 {forecastData.summary.range_m.toFixed(2)} m
+                예상 변동폭 {forecastData.summary.range_m.toFixed(2)} el.m
                 </span>
                 <span className="px-2 py-1 rounded-full bg-[#ffe1b8] text-[#412200]">
                 {trend} 추세
