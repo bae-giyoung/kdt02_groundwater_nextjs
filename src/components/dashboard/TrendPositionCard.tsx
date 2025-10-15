@@ -20,7 +20,7 @@ function formatElev(value: number | null | undefined) {
     if (typeof value !== "number" || !Number.isFinite(value)) {
         return null;
     }
-    return value.toFixed(2);
+    return Math.round(value * 1000) / 1000;
 }
 
 function formatYmd(ymd: string | null | undefined) {
