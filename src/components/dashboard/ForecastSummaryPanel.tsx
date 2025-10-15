@@ -378,7 +378,7 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
       return [
         { key: 'NSE', label: 'NSE', value: formatMetric(metrics.NSE, 2), title: KPI_DESCRIPTIONS.NSE },
         { key: 'KGE', label: 'KGE', value: formatMetric(metrics.KGE, 2), title: KPI_DESCRIPTIONS.KGE },
-        { key: 'RMSE', label: 'RMSE (m)', value: formatMetric(metrics.RMSE, 3), title: KPI_DESCRIPTIONS.RMSE },
+        { key: 'RMSE', label: 'RMSE (el.m)', value: formatMetric(metrics.RMSE, 3), title: KPI_DESCRIPTIONS.RMSE },
         { key: 'R2', label: 'R^2', value: formatMetric(metrics.R2, 2), title: KPI_DESCRIPTIONS.R2 },
       ];
     }
@@ -388,7 +388,7 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
     return [
       { key: 'NSE', label: 'NSE', value: formatMetric(latest.nse, 2), title: KPI_DESCRIPTIONS.NSE },
       { key: 'KGE', label: 'KGE', value: formatMetric(latest.kge, 2), title: KPI_DESCRIPTIONS.KGE },
-      { key: 'RMSE', label: 'RMSE (m)', value: formatMetric(latest.rmse, 3), title: KPI_DESCRIPTIONS.RMSE },
+      { key: 'RMSE', label: 'RMSE (el.m)', value: formatMetric(latest.rmse, 3), title: KPI_DESCRIPTIONS.RMSE },
       { key: 'R2', label: 'R^2', value: formatMetric(latest.r2, 2), title: KPI_DESCRIPTIONS.R2 },
     ];
   }, [metrics, yearSummaries]);
@@ -550,14 +550,14 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
                 <thead>
                   <tr>
                     <th>년도</th>
-                    <th>예측 평균 (m)</th>
-                    <th>실측 평균 (m)</th>
+                    <th>예측 평균 (el.m)</th>
+                    <th>실측 평균 (el.m)</th>
                     <th>RMSE</th>
                     <th>NSE</th>
                     <th>KGE</th>
-                    <th>Bias (m)</th>
-                    <th>Range (m)</th>
-                    <th>MAE (m)</th>
+                    <th>Bias (el.m)</th>
+                    <th>Range (el.m)</th>
+                    <th>MAE (el.m)</th>
                     <th>월별 수위차 스파크라인</th>
                   </tr>
                 </thead>

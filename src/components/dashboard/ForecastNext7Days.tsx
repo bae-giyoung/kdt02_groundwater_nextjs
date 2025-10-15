@@ -176,7 +176,7 @@ export default function ForecastNext7Days({
             },
             yAxis: {
                 title: {
-                    text: '수위(m)',
+                    text: '수위(el.m)',
                 },
                 gridLineWidth: 0,
                 labels: {

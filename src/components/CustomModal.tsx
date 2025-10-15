@@ -17,7 +17,7 @@ export default function CustomModal({
                     <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-5 -mt-0.5" />
                     <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4 -mt-2" />
                 </p>
-                <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감율 (%)</p>
+                <p className="gray-92 text-right">일평균 수위(el.m), 전일 대비 증감율 (%)</p>
             </div>
             <CustomTable data={sortedTable} columns={tableColumns} />
         </div>

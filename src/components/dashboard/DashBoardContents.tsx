@@ -412,10 +412,10 @@ export default function DashBoardContents() {
                             <span className="c-stit02">
                                 <b className="text-sky-500">{period == "1" ? "금일" : `${period}일`}</b> 평균 지하수위
                             </span>
-                            <span className="gray-92 text-xs">일평균 수위(m)</span>
+                            <span className="gray-92 text-xs">일평균 수위(el.m)</span>
                         </p>
                         <div className="d-sgroup mb-6">
-                            <BarChart data={displayedBarChartData} categories={GEN_NAMES} title={period == "1" ? "금일 평균 지하수위" : `최근 ${period}일 평균 지하수위`} xLabel="지하수위(m)" yLabel="관측소명" />
+                            <BarChart data={displayedBarChartData} categories={GEN_NAMES} title={period == "1" ? "금일 평균 지하수위" : `최근 ${period}일 평균 지하수위`} xLabel="지하수위(el.m)" yLabel="관측소명" />
                         </div>
                         <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <p className="flex items-start gap-4">
@@ -423,7 +423,7 @@ export default function DashBoardContents() {
                                 <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-5 -mt-0.5" />
                                 <CustomButton handler={() => setIsModalOpen(true)} caption="일별 수위 크게 보기" bType="button" bStyle="btn-style-5 -mt-0.5" />
                             </p>
-                            <p className="gray-92 text-right text-xs">일평균 수위(m), 전일 대비 증감(m)</p>
+                            <p className="gray-92 text-right text-xs">일평균 수위(el.m), 전일 대비 증감(el.m)</p>
                         </div>
                         <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
                         <ul className="c-list01 text-right">
@@ -565,7 +565,7 @@ export default function DashBoardContents() {
                                 <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
                             </div>
                             <div className="donut-modal-body">
-                                <p className="gray-92 text-right">일평균 수위(m), 전일 대비 증감(m)</p>
+                                <p className="gray-92 text-right">일평균 수위(el.m), 전일 대비 증감(el.m)</p>
                                 <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
                             </div>
                         </div>
