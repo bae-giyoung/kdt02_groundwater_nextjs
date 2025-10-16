@@ -91,9 +91,10 @@ function fetchMockStationObs(station: string, stationName: string, baseElev: num
         d.setDate(d.getDate() + off);
 
         // 변동 흉내
-        //const randomPlusMinus = Math.random() < 0.5 ? -1 : 1;
-        //const randomDeltaAbs = 0.05 * Math.random();
         const level = baseElev + off * 0.02; // 하루 변동치 0.02m
+        //const randomPlusMinus = Math.random() < 0.5 ? -1 : 1;
+        //const randomDeltaAbs = 0.02 * Math.random();
+        //const level = baseElev + (off * randomPlusMinus*randomDeltaAbs); // 하루 변동치
         return {
             date: d.toISOString().slice(0, 10),
             elev: Number(level.toFixed(3)),
