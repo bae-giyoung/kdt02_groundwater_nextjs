@@ -349,12 +349,12 @@ export default function DashBoardContents() {
                 <DashboardNavi
                     className="relative dash-navi-container d-group m-0 lg:shrink-0 flex flex-col gap-5 lg:justify-between"
                     pinned={
-                        <div id="dashboard-navi" className="h-auto flex flex-row lg:flex-col gap-7 justify-end pt-7 transition-transform duration-150">
-                            <div className="logo-box w-full flex justify-center  shrink-0">
+                        <div id="dashboard-navi" className="h-auto flex flex-row lg:flex-col gap-2 sm:gap-7 justify-end pt-7 transition-transform duration-150">
+                            <div className="logo-box w-full justify-center shrink-0 hidden md:flex">
                                 <Image src={logoSrc} width={50} height={50} alt="로고" />
                             </div>
 
-                            <div className="flex flex-row gap-6 w-full max-w-3/5 lg:max-w-none lg:flex-col lg:py-10 lg:border-t-2 lg:border-b-2 shrink-0">
+                            <div className="flex flex-row gap-2 md:gap-6 w-full max-w-4/5 sm:max-w-3/5 lg:max-w-none lg:flex-col lg:py-10 lg:border-t-2 lg:border-b-2 shrink-0">
                                 <div className="period-box w-full">
                                     <label htmlFor="period-select"><span className="c-stit01 block">기간 선택</span></label>
                                     <select
@@ -389,10 +389,10 @@ export default function DashBoardContents() {
                                 </div>
                             </div>
 
-                            <div className="btn-box max-w-1/4 lg:max-w-none shrink-0 flex items-center lg:items-start flex-col md:flex-row lg:flex-col">
+                            <div className="btn-box max-w-1/5 sm:max-w-none shrink-0 flex items-center lg:items-start gap-1 lg:gap-4 flex-col sm:flex-row lg:flex-col">
                                 <p className="c-stit01 hidden lg:block">다운로드</p>
-                                <CustomButton caption="PNG저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePng} />
-                                <CustomButton caption="PDF저장" bType="button" bStyle="btn-style-3 h-full max-h-12 mr-0 lg:w-full lg:mb-4 lg:mr-0 md:mr-4 text-xl" handler={handleSavePdf} />
+                                <CustomButton caption="PNG저장" bType="button" bStyle="btn-style-3 h-full max-h-12 w-full" handler={handleSavePng} />
+                                <CustomButton caption="PDF저장" bType="button" bStyle="btn-style-3 h-full max-h-12 w-full" handler={handleSavePdf} />
                             </div>
                         </div>
                     }
@@ -430,8 +430,8 @@ export default function DashBoardContents() {
                             <li className="inline-block">데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
                         </ul>
                     </div>
-                    <div className="flex gap-6 mb-6">
-                        <div className="w-full d-group">
+                    <div className="flex flex-col lg:flex-row gap-6 mb-6">
+                        <div className="w-full lg:w-1/2 d-group">
                             <p className="c-tit03">전국 관측망</p>
                             <p className="c-txt03 mb-4">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
                             <GeoMap mapData={currMapDatas} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
@@ -448,7 +448,7 @@ export default function DashBoardContents() {
                                 </p>
                             </div>
                         </div>
-                        <div className="w-full flex flex-col gap-6">
+                        <div className="w-full lg:w-1/2 flex flex-col gap-6">
                             <div className="w-full d-group">
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
                             </div>
@@ -480,13 +480,13 @@ export default function DashBoardContents() {
                         </div>
                     </div>
                     <div className="flex gap-6 flex-col lg:flex-row w-full mb-6">
-                        <div className="lg:w-2/3 d-group">
+                        <div className="w-full lg:w-2/3 d-group">
                             <p className="c-tit03">
                                 <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-예측 수위 상관관계
                             </p>
                             <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
                         </div>
-                        <div className="lg:w-1/3 d-group">
+                        <div className="w-full lg:w-1/3 d-group">
                             <FeatureImportancePage stationCode={station} chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
                         </div>
                     </div>

@@ -151,7 +151,7 @@ export default function ForecastNext7Days({
 
     // props로 주입받는 방식으로 바꾸는 것이 좋을까?
     const options = useMemo<Highcharts.Options>(() => {
-        if(!forecastData) return {};
+        if(!forecastData) return {}; // 여기 괜찮은지 확인!
         const categories = forecastData.forecast?.map(f => f.date.slice(5)); // 'MM-DD'
         const pred = forecastData.forecast?.map(f => f.predicted);
         const lo = forecastData.forecast?.map(f => f.lo_m);

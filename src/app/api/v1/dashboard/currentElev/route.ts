@@ -254,8 +254,8 @@ export async function GET(
 
         // 데이블 데이터
         responseData.table = transformToTableData(dataByStation);
-        //console.log("=================== 테이블데이터 ================================================");
-        //console.log(responseData.table);
+        console.log("=================== 테이블데이터 ================================================");
+        console.log(responseData.table);
 
         // 지도 데이터
         responseData.geomap = transformToGeoMapData(dataByStation);

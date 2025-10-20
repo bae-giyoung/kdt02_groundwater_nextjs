@@ -348,6 +348,18 @@ button[class^="btn-style-"] {
   color: #0284c7;
 }
 
+@media all and (max-width:599px) {
+  .btn-style-1,
+  .btn-style-2 {
+    font-size: 16px;
+  }
+
+  .btn-style-3 {
+    font-size: 12px;
+    padding: 6px;
+  }
+}
+
 /* flex justify-start gap-4 */
 .chart-zoom-btns {
   display: flex;
