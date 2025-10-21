@@ -30,25 +30,31 @@ export default function LoginForm() {
         }
 
         // 로그인 요청
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const baseUrl = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
+        const loginURL = `${baseUrl}/api/v1/auth/login`;
         try {
-            const resp = await fetch(`${baseUrl}/api/v1/auth/login`, {
+            const response = await fetch(loginURL, {
                 method: "POST",
-                mode: "cors",
                 credentials: "include",
                 headers: {
                     "Content-type" : "application/json",
                 },
                 body: JSON.stringify({"username": formRef.current.username.value, "password": formRef.current.password.value})
             });
+            console.log(response);
 
-            if(resp.ok) {
-                const data : Promise<UserType | LoginErrorType> = await resp.json();
+            if(response.ok) {
+                const data = await response.json(); // UserType | UserErrorType 타입 정의주려면 더 생각
                 console.log(data);
-                
-                setLoginAtom(true);
-                sessionStorage.setItem("user", JSON.stringify(data));
-                router.push("/userpage");
+                console.log(data.user.username);
+                if(response.status == 200) {
+                    setLoginAtom(true);
+                    sessionStorage.setItem("user", JSON.stringify(data));
+                    alert("로그인 성공");
+                    router.push("/userpage");
+                } else {
+                    alert("로그인 실패");
+                }
             } else {
                 alert("로그인 실패");
             }

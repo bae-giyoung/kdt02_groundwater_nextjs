@@ -8,8 +8,11 @@ import CustomAccordian from "./CustomAccordian";
 export default function RegisterForm() {
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
+    const baseUrl = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
+    const registerURL = `${baseUrl}/api/v1/auth/register`;
+    // 회원가입 보안 관련 고민 URL 노출이 괜찮은지?
 
-    const handleRegister = (e: FormEvent<HTMLFormElement>) => {
+    const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if(!formRef.current) return;
 
@@ -31,9 +34,54 @@ export default function RegisterForm() {
             return;
         }
 
+        if(!formRef.current.privacyPolicy.checked) {
+            alert("개인정보 처리방침에 동의해주세요");
+            formRef.current.privacyPolicy.focus();
+            return;
+        }
+
+        if(!formRef.current.termsOfUse.checked) {
+            alert("이용약관에 동의해주세요");
+            formRef.current.termsOfUse.focus();
+            return;
+        }
+        
         // 성공하면 toast창 띄우고 로그인 페이지로
-        alert("회원 가입 되셨습니다. 로그인을 진행해 주세요.")
-        router.push("/login");
+        try {
+            const response = await fetch(registerURL, {
+                method: "POST",
+                headers: {
+                    "Content-type" : "application/json",
+                },
+                credentials: "include", // 쿠키 포함, Cross-site도 되나?
+                body: JSON.stringify({
+                    username: formRef.current.username.value, 
+                    email: formRef.current.email.value, 
+                    password: formRef.current.password.value
+                })
+            });
+            console.log(response);
+
+            if(response.ok) {
+                if(response.status == 201) {
+                    const data = await response.json();
+                    console.log(data);
+                    alert(data.username + "님, 회원 가입 되셨습니다. 로그인을 진행해 주세요.");
+                    router.push("/login");
+                } else if(response.status == 409) {
+                    alert("이미 존재하는 아이디입니다.");
+                    formRef.current.username.focus();
+                } else {
+                    alert("회원가입 실패: 서버 오류");
+                }
+            } else {
+                alert("회원가입 실패: 서버 오류");
+                console.log(response.status);
+            }
+        } catch (error) {
+            console.error("회원가입 시도 중 오류 발생: ", error);
+            alert("회원가입 실패");
+        }
     }
 
     const handleAgreeAll = () => {
@@ -61,15 +109,15 @@ export default function RegisterForm() {
                 </div>
                 <div className="mb-3 md:mb-5 lg:mb-10">
                     <div className="mb-5 md:mb-8 lg:mb-12">
-                        <label htmlFor="username" className="block mb-2 gray-6a text-2xl font-bold">Username</label>
+                        <label htmlFor="username" className="block mb-2 gray-6a text-2xl font-bold">Username <span className="required">*</span></label>
                         <CustomInput ipType="text" ipName="username" caption="아이디를 입력하세요" />
                     </div>
                     <div className="mb-5 md:mb-8 lg:mb-12">
-                        <label htmlFor="email" className="block mb-2 gray-6a text-2xl font-bold">Email</label>
+                        <label htmlFor="email" className="block mb-2 gray-6a text-2xl font-bold">Email <span className="required">*</span></label>
                         <CustomInput ipType="email" ipName="email" caption="이메일을 입력하세요" />
                     </div>
                     <div>
-                        <label htmlFor="password" className="block mb-2 gray-6a text-2xl font-bold">Password</label>
+                        <label htmlFor="password" className="block mb-2 gray-6a text-2xl font-bold">Password <span className="required">*</span></label>
                         <CustomInput ipType="password" ipName="password" caption="비밀번호를 입력하세요" />
                     </div>
                 </div>
