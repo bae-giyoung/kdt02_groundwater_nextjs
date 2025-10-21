@@ -6,6 +6,7 @@ import "./globals.css";
 import "@/styles/cmm.style.css";
 import "@/styles/header.css";
 import "@/styles/layout.css";
+import ToastProvider from "@/components/ui/ToastProvider";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
         <Header/>
         {children}
         <Footer />
+        <ToastProvider />
       </body>
     </html>
   );

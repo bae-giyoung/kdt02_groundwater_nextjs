@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 let scrollTriggerRegistered = false;
 
 if (typeof window !== 'undefined' && !scrollTriggerRegistered) {
-  console.log("ScroppTrigger 한번만 임포트 되고 있나? 체크");
   gsap.registerPlugin(ScrollTrigger);
   scrollTriggerRegistered = true;
 }
@@ -116,7 +115,6 @@ export default function DashboardNavi({
       if (isDesktop) {
         if (currentModeRef.current !== 'desktop') {
           setupDesktop();
-          console.log('첫 로딩시 작동하는가');
         } else {
           scrollTriggerRef.current?.refresh();
         }

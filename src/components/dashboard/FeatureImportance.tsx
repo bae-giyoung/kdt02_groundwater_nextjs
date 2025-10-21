@@ -84,13 +84,6 @@ export default function FeatureImportancePage({
         });
     },[]);
 
-    useEffect(() => {
-        if(!allData) return;
-        console.log("allData: ", allData);
-        console.log(stationCode);
-        console.log("allData[stationCode]: ", allData?.[stationCode]);
-    }, [allData]);
-
     const options = useMemo<Highcharts.Options>(()=> ({
         chart: {
             type: 'pie',
