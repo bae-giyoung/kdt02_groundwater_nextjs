@@ -2,12 +2,10 @@
 import { isLoginAtom } from "@/atoms/atoms";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 export default function UserButton({targetPath} : {targetPath: string}) {  
   const [isLogin, setLogin] = useAtom(isLoginAtom);
-  const router = useRouter();
   
   
   const handleLogout = async () => {
