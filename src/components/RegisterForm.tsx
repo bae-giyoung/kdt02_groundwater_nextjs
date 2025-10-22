@@ -163,7 +163,6 @@ export default function RegisterForm() {
                     password: formValues.password
                 })
             });
-            //console.log(response);
 
             const payload = await safeParseResponseToJson<{username: string} | UserErrorType>(response);
 

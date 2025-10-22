@@ -64,10 +64,10 @@ function buildMockForecast(p: StationObsPayload): Next7Forecast {
         }
     });
     
-    const day7 = forecast[6];
-    const delta = Number((day7.predicted - latest.elev).toFixed(3)); // 7일 변화량
-    const range = Number(Math.max(...forecast.map(f => f.predicted)) - Math.min(...forecast.map(f => f.predicted))).toFixed(3);
-    const trend = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+    const day7 = forecast[6]; // 7일후 예측값
+    const delta = Number((day7.predicted - latest.elev).toFixed(3)); // 7일후 변화량! 7일후 예측 뱃지 부분
+    const range = Number(Math.max(...forecast.map(f => f.predicted)) - Math.min(...forecast.map(f => f.predicted))).toFixed(3); // 예상 변동폭
+    const trend = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'; // 추세
 
     return {
         station: p.station,

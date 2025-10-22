@@ -51,7 +51,7 @@ export default function LoginForm() {
     }
 
     // 성공시 핸들러
-    const handleSuccess = (message: string, payload?: LoginSuccessPayload) => {
+    const handleSuccess = (message: string, payload: UserType) => {
         toast.success(message, {
             position: "top-center",
             autoClose: 2000,
@@ -62,7 +62,7 @@ export default function LoginForm() {
         sessionStorage.setItem("user", JSON.stringify(payload));
 
         setTimeout(() => {
-            router.push("/mypage");
+            router.push("/userpage");
         }, 2000);
     };
 
@@ -118,7 +118,6 @@ export default function LoginForm() {
                     "password": passwordValue
                 })
             });
-            //console.log(response);
 
             const payload = await safeParseResponseToJson<LoginSuccessPayload | UserErrorType>(response);
 
@@ -126,7 +125,7 @@ export default function LoginForm() {
                 case 200: {
                     if(payload && "user" in payload) {
                         let message = `${payload.user.username}님, 환영합니다. 마이 페이지로 이동합니다.`;
-                        handleSuccess(message, payload);
+                        handleSuccess(message, payload.user);
                     } else {
                         let message = "로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.";
                         handleFailure(message);
@@ -137,14 +136,14 @@ export default function LoginForm() {
                     let message = payload && "message" in payload
                     ? payload.message
                     : "로그인에 실패했습니다. 입력 정보를 다시 확인해주세요."
-                    handleFailure(message);
+                    handleFailure(message); // payload.message: 이메일이나 비밀번호가 올바르지 않습니다.
                     break;
                 }
                 default: {
                     let message = payload && "message" in payload
                     ? payload.message
                     : "로그인에 실패했습니다. 관리자에게 문의하세요.";
-                    handleFailure(message);
+                    handleFailure(message); // payload.message: 내부 서버 오류
                     console.log(response.status);
                     break;
                 }
