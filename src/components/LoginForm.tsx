@@ -7,6 +7,7 @@ import CustomButton from "@/components/CustomButton";
 import CustomInput from "./CustomInput";
 import FormField from "./FormField";
 import Link from "next/link";
+import safeParseResponseToJson from "./utils/safeParseResponseToJson";
 import { useRouter } from "next/navigation";
 import { UserType, UserErrorType } from "@/types/uiTypes";
 import { toast } from "react-toastify";
@@ -20,41 +21,12 @@ export default function LoginForm() {
     const router = useRouter();
     const setLoginAtom = useSetAtom(isLoginAtom);
 
-    // 로그인 URL 검증
-    const baseUrl = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-    
-    useEffect(() => {
-        if(!baseUrl) {
-            alert("로그인 서버 연결 정보를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            router.push("/");
-        }
-    }, [baseUrl, router]);
-
-    if(!baseUrl) {
-        return null;
-    }
-
-    // 응담 JSON 파싱 유틸함수: 유틸 함수는 나중에 따로 빼자!
-    async function safeParseResponseToJson<T>(response: Response): Promise<T | null> {
-        const contentType = response.headers.get("content-type") ?? "";
-        
-        if(!contentType || !contentType.includes("application/json"))  {
-            return null;
-        }
-
-        try {
-            return (await response.clone().json()) as T; // stream이므로 유틸 함수에서는 clone하는 걸로
-        } catch (error) {
-            console.error("JSON 파싱 실패: ", error);
-            return null;
-        }
-    }
-
     // 성공시 핸들러
     const handleSuccess = (message: string, payload: UserType) => {
+        const duration = 1500;
         toast.success(message, {
             position: "top-center",
-            autoClose: 2000,
+            autoClose: duration,
         });
 
         // 여기 로직 손봐야함!
@@ -63,7 +35,7 @@ export default function LoginForm() {
 
         setTimeout(() => {
             router.push("/userpage");
-        }, 2000);
+        }, duration);
     };
 
     // 실패시 핸들러
@@ -107,7 +79,7 @@ export default function LoginForm() {
 
         // 로그인 요청
         try {
-            const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
+            const response = await fetch('/java/api/v1/auth/login', {
                 method: "POST",
                 credentials: "include",
                 headers: {

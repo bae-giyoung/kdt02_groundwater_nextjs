@@ -6,6 +6,7 @@ import CustomButton from "@/components/CustomButton";
 import CustomInput from "./CustomInput";
 import CustomAccordian from "./CustomAccordian";
 import FormField from "./FormField";
+import safeParseResponseToJson from "./utils/safeParseResponseToJson";
 import { UserErrorType } from "@/types/uiTypes";
 import { toast } from "react-toastify";
 
@@ -26,21 +27,6 @@ export default function RegisterForm() {
         agreePolicy: false,
         agreeTerms: false,
     });
-
-    // 회원가입 URL 검증
-    const baseUrl = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-    
-    useEffect(() => {
-        if(!baseUrl) {
-            alert("회원가입 서버 연결 정보를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            router.push("/login");
-        }
-    }, [baseUrl, router]);
-
-    if(!baseUrl) {
-        return null; // 대체 UI 시간 되면 하고
-    }
-
     
     // 폼 값 onChange 핸들러
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -70,22 +56,6 @@ export default function RegisterForm() {
             agreePolicy: checked,
             agreeTerms: checked,
         }));
-    }
-
-    // 응담 JSON 파싱 유틸함수
-    async function safeParseResponseToJson<T>(response: Response): Promise<T | null> {
-        const contentType = response.headers.get("content-type") ?? "";
-        
-        if(!contentType || !contentType.includes("application/json"))  {
-            return null;
-        }
-
-        try {
-            return (await response.clone().json()) as T; // stream이므로 유틸 함수에서는 clone하는 걸로
-        } catch (error) {
-            console.error("JSON 파싱 실패: ", error);
-            return null;
-        }
     }
 
     // 성공시 핸들러
@@ -152,7 +122,7 @@ export default function RegisterForm() {
         
         // 성공하면 toast창 띄우고 로그인 페이지로
         try {
-            const response = await fetch(`${baseUrl}/api/v1/auth/register`, {
+            const response = await fetch('/java/api/v1/auth/register', {
                 method: "POST",
                 headers: {
                     "Content-type" : "application/json",

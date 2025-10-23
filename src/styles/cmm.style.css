@@ -11,6 +11,35 @@ div, input, select {box-sizing: border-box;}
   margin-bottom: 0;
 }
 
+/** -- 디자인 타이틀1  */
+.cp-tit01 {
+  display: flex;
+  position: relative;
+  padding: 8px 0 30px 28px;
+  align-items: flex-start;
+  gap: 7px;
+  color: var(--Black, #222);
+  font-family: Inter;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%;
+  letter-spacing: -1.6px;
+}
+
+.cp-tit01::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20.25px;
+  height: 18.333px;
+  aspect-ratio: 20.25/18.33;
+  background: url("/assets/icon_cp_tit01.svg") center;
+  background-size: cover;
+}
+
 /** -- 타이틀1  */
 .c-tit01 {
     position: relative;
@@ -514,6 +543,7 @@ table td, table th {
   width: 24px;
   height: 24px;
   background: url("/assets/home_icon.png") center;
+  font-size: 0;
 }
 
 .subnav-arrow {

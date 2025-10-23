@@ -57,7 +57,6 @@ type ViewMode = 'year' | 'season' | 'heatmap';
 interface Props {
   station: string;
   stationName?: string;
-  baseUrl?: string;
   onHighlightRange?: (from: number | null, to?: number | null) => void;
 }
 
@@ -288,7 +287,7 @@ const Heatmap = ({ rows }: { rows: HeatmapRow[] }) => {
   );
 };
 
-const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange }: Props) => {
+const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props) => {
   const [view, setView] = useState<ViewMode>('year');
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
@@ -297,11 +296,9 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
   const [metrics, setMetrics] = useState<Record<string, number>>({});
 
   const summaryUrl = useMemo(() => {
-    const prefix = baseUrl ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-    const safePrefix = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
-    return `${safePrefix}/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
-    //return `${safePrefix}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
-  }, [baseUrl, station]);
+    return `/java/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
+    //return `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
+  }, [station]);
 
   useEffect(() => {
     let mounted = true;
@@ -309,11 +306,14 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
     const fetchSummary = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const resp = await fetch(summaryUrl, { signal: controller.signal });
+        
         if (!resp.ok) {
           throw new Error(`요약 데이터 로딩 실패 (status ${resp.status}).`);
         }
+
         const json: SummaryApiResponse = await resp.json();
         const rows = json.table?.table_data_3y ?? [];
         const processed: ProcessedRow[] = rows.map((row) => {
@@ -326,21 +326,26 @@ const ForecastSummaryPanel = ({ station, stationName, baseUrl, onHighlightRange 
             diff: diff ?? predicted - observed,
           };
         });
+
         if (mounted) {
           setRawRows(processed);
           setMetrics(json.metrics ?? {});
         }
+
       } catch (err) {
         if (mounted) {
           const message = err instanceof Error ? err.message : '요약 데이터 로딩 중 오류 발생';
           setError(message);
           setRawRows([]);
         }
+
       } finally {
         if (mounted) setLoading(false);
       }
     };
+
     fetchSummary();
+    
     return () => {
       mounted = false;
       controller.abort();

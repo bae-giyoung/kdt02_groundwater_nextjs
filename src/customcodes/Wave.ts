@@ -3,6 +3,16 @@
 * 중심점(y), 곡의 강도, 시작점(y)... 조절할 수 있게 할지 => 객체 인자로 묶자
 */
 import Point from "./Point";
+
+type practiceObjectParameterFnT = {
+    a: string,
+    b: string,
+    c: string
+}
+
+function practiceObjectParameterFn(options= {a: "A", b: "B", c: "C"} as practiceObjectParameterFnT ) {
+    console.log();
+}
 export default class Wave {
 
     constructor(

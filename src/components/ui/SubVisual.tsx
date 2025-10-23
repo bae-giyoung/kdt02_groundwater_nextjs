@@ -1,4 +1,5 @@
-export default async function SubVisual (
+'use client';
+export default function SubVisual (
   {children, tit1, tit2, tit3}
   : {children?: React.ReactNode, tit1: string, tit2: string, tit3: string}
 ) {

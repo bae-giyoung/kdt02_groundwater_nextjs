@@ -2,25 +2,17 @@
 import { isLoginAtom } from "@/atoms/atoms";
 import { useAtom } from "jotai";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 export default function UserButton({targetPath} : {targetPath: string}) {  
   const [isLogin, setLogin] = useAtom(isLoginAtom);
+  const router = useRouter();
   
   
   const handleLogout = async () => {
-    // 로그아웃 URL 검증
-    const baseUrl = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-    if(!baseUrl) {
-      toast("로그아웃 서버 연결 정보를 찾을 수 없습니다. 관리자에게 문의하세요.", {
-        position: "top-center",
-        autoClose: 2000,
-      });
-      return;
-    }
-
     try {
-      const response = await fetch(`${baseUrl}/api/v1/auth/logout`, {
+      const response = await fetch('/java/api/v1/auth/logout', {
         method: "POST",
         credentials: "include",
       });
@@ -33,6 +25,7 @@ export default function UserButton({targetPath} : {targetPath: string}) {
           });
           setLogin(false);
           sessionStorage.removeItem("user");
+          router.push("/login");
           break;
         }
         default: {

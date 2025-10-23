@@ -26,8 +26,6 @@ const GEN_CODES = Object.keys(genInfo);
 const GEN_NAMES = Object.values(genInfo).map(({ ["측정망명"]: name }) => name);
 const CAPTURE_TARGET_NOT_FOUND = 'CAPTURE_TARGET_NOT_FOUND';
 const TABLE_WINDOW_DAYS = 30;
-const BASE_SPRING_URL = process.env.NEXT_PUBLIC_API_SPRING_BASE_URL;
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // 타입 선언
 type TrendMetricT = {
@@ -99,8 +97,8 @@ export default function DashBoardContents() {
 
     // URLS
     // 장기 추세, 기상-수위
-    const longTermUrl = `${BASE_SPRING_URL}/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const weatherUrl = `${BASE_SPRING_URL}/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    const longTermUrl = `/java/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
+    const weatherUrl = `/java/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
 
     // 로컬용 임시 URL
     //const longTermUrl = `${BASE_URL}/api/v1/mockdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
@@ -475,7 +473,6 @@ export default function DashBoardContents() {
                             <ForecastSummaryPanel
                                 station={`${GEN_CODES.indexOf(station) + 1}`}
                                 stationName={stationName}
-                                baseUrl={BASE_SPRING_URL}
                             />
                         </div>
                     </div>
