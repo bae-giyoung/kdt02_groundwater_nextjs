@@ -2,7 +2,6 @@
 import { useEffect, useState, useMemo } from "react";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import PatterFillModule from 'highcharts/modules/pattern-fill';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
@@ -13,10 +12,6 @@ if (typeof window !== 'undefined') {
 
   win.Highcharts = win.Highcharts || Highcharts;
   win._Highcharts = win._Highcharts || Highcharts;
-
-  if (!(Highcharts.Chart)) {
-    (PatterFillModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
-  }
 
   if (!(Highcharts.Chart && (Highcharts.Chart.prototype as any).exportChart)) {
     (ExportingModule as unknown as (H: typeof Highcharts) => void)(Highcharts);
@@ -43,17 +38,6 @@ const mutedPalette = [
   '#388E3C', '#FB8C00', '#00ACC1',
   '#7E57C2', '#D81B60', '#607D8B',
 ]
-.map((color, idx) => ({
-    pattern: {
-      color,
-      path: {
-        d: idx % 2 !== 0 ? 'M 4 0 L 0 4' : '',
-        strokeWidth: 3,
-      },
-      width: 6,
-      height: 6,
-    },
-}));
 
 // 데이터 가져오기 : 이제 안 쓸거임!
 const fetchData = async() => {

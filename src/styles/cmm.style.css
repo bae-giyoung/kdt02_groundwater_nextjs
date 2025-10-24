@@ -225,7 +225,7 @@ div, input, select {box-sizing: border-box;}
 }
 
 /** ===== List Style ===== */
-ul.c-list01 li {
+.c-list01 li {
 	position: relative;				
 	font-size: 0.8em;
 	margin: 0 0 0 9px;
@@ -233,7 +233,7 @@ ul.c-list01 li {
 	line-height: 22px;
 	padding-left: 15px;
 }
-ul.c-list01 li::before {
+.c-list01 li::before {
 	content: '';
     position: absolute;
 	background-color: #ffb873;
@@ -243,6 +243,9 @@ ul.c-list01 li::before {
     width: 5px;
     height: 5px;
     z-index: 1;
+}
+.c-list01.black li::before {
+	background-color: #222222;
 }
 
 /** ===== Button Style ===== */

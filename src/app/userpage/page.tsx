@@ -10,6 +10,7 @@ import Link from "next/link";
 import safeParseResponseToJson from "@/components/utils/safeParseResponseToJson";
 import type { UserErrorType } from "@/types/uiTypes";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 export default function UserPage() {
     // WhetherAuthorized : 서버의 인가 설정에 따를 것이므로 임시 코드임. 추후 백엔드와 합치고 지울것
@@ -76,14 +77,12 @@ export default function UserPage() {
                 <div className="max-w-3xs">
                     <div className="flex justify-start items-start gap-3.5 mb-9">
                         <div className="h-24 relative flex justify-start items-center gap-2.5">
-                            <div className="w-24 h-24 left-0 top-0 bg-neutral-200 rounded-full"></div>
-                            <div className="w-7 h-7 p-2.5 left-[65px] top-[62px] absolute bg-white rounded-[20px] outline outline-1 outline-offset-[-1px] inline-flex flex-col justify-center items-center gap-2.5">
-                                <div className="w-6 h-6 left-[2px] top-[2px] absolute rounded-[20px] overflow-hidden">
-                                    <div className="w-6 h-6 left-0 top-0 absolute"></div>
-                                    <div className="w-5 h-5 left-[2.66px] top-[2.40px] absolute bg-neutral-200"></div>
-                                </div>
+                            <div className="flex justify-center items-center w-24 h-24 left-0 top-0 bg-neutral-200 rounded-full">
+                                <Image src={"/assets/icon_user.png"} width={20} height={23} alt="" />
                             </div>
-                            <div className="w-12 h-12 left-[21px] top-[21px] absolute bg-white rounded-full"></div>
+                            <div className="w-7 h-7 p-1.5 left-[65px] top-[62px] absolute bg-white rounded-[20px] outline outline-1 outline-offset-[-1px] inline-flex flex-col justify-center items-center gap-2.5">
+                                <Image src={"/assets/icon_settings.png"} width={20} height={23} alt="" />
+                            </div>
                         </div>
                         <div className="flex flex-col justify-center items-start gap-1">
                             <div className="p-[3px] bg-neutral-800 inline-flex justify-center items-center gap-2.5">

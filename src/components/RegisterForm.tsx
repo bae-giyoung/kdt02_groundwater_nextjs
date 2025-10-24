@@ -8,6 +8,8 @@ import CustomAccordian from "./CustomAccordian";
 import FormField from "./FormField";
 import safeParseResponseToJson from "./utils/safeParseResponseToJson";
 import { UserErrorType } from "@/types/uiTypes";
+import PrivacyText from "./legal/PrivacyText";
+import UseOfTermsText from "./legal/UseOfTermsText";
 import { toast } from "react-toastify";
 
 type RegisterPayload = {
@@ -203,14 +205,18 @@ export default function RegisterForm() {
                     </div>
                     <div className="mb-3 md:mb-5 lg:mb-10">
                         <div className="mb-5 md:mb-8 lg:mb-12">
-                            <CustomAccordian head="개인정보 처리 방침" content="텍스트 크므로 import?" />
+                            <CustomAccordian head="개인정보 처리 방침">
+                                <PrivacyText />
+                            </CustomAccordian>
                             <div className="checkbox-group">
                                 <input onChange={handleCheckboxChange} id="agreePolicy" name="agreePolicy" type="checkbox" checked={formValues.agreePolicy} required />
                                 <label htmlFor="agreePolicy" className="select-none mt-2 md:mt-3">[개인정보 처리방침]에 동의합니다.</label>
                             </div>
                         </div>
                         <div className="mb-5 md:mb-8 lg:mb-12">
-                            <CustomAccordian head="이용 약관" content="텍스트 크므로 import?" />
+                            <CustomAccordian head="이용 약관">
+                                <UseOfTermsText />
+                            </CustomAccordian>
                             <div className="checkbox-group">
                                 <input onChange={handleCheckboxChange} id="agreeTerms" name="agreeTerms" type="checkbox" checked={formValues.agreeTerms} required />
                                 <label htmlFor="agreeTerms" className="select-none mt-2 md:mt-3">[이용 약관]에 동의합니다.</label>
