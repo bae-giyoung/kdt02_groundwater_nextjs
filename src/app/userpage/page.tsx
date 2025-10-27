@@ -78,7 +78,7 @@ export default function UserPage() {
                     <div className="flex justify-start items-start gap-3.5 mb-9">
                         <div className="h-24 relative flex justify-start items-center gap-2.5">
                             <div className="flex justify-center items-center w-24 h-24 left-0 top-0 bg-neutral-200 rounded-full">
-                                <Image src={"/assets/icon_user.png"} width={20} height={23} alt="" />
+                                <Image src={"/assets/icon_user.png"} width={60} height={60} alt="" />
                             </div>
                             <div className="w-7 h-7 p-1.5 left-[65px] top-[62px] absolute bg-white rounded-[20px] outline outline-1 outline-offset-[-1px] inline-flex flex-col justify-center items-center gap-2.5">
                                 <Image src={"/assets/icon_settings.png"} width={20} height={23} alt="" />

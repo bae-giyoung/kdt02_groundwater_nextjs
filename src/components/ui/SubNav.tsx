@@ -3,11 +3,6 @@ import { usePathname } from "next/navigation";
 import SubNavUnit from "./SubNavUnit";
 import pageNamesInfo from "@/data/pageNamesInfo.json";
 
-type pathListType = {
-    path: string,
-    name: string
-}
-
 type pageNamesKey = keyof typeof pageNamesInfo;
 
 export default function SubNav () {

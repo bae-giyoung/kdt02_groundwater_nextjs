@@ -83,11 +83,6 @@ export default function DashBoardContents() {
     const stationName = genInfo[station]?.["측정망명"];
     const stationTrend = trendMetrics[station];
 
-    // 관측소 select GeoMap에 보낼 것: 나중에
-    const onChangeStationHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setStation(e.target.value as GenInfoKey);
-    };
-
     // 향후 예측 7일용 임시코드
     const getBaseElevForForecast = (station: GenInfoKey) => {
         if(currElevDatas[currElevDatas.length - 1]?.[station] === undefined) return 105.72;
