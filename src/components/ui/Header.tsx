@@ -15,7 +15,7 @@ export default async function Header () {
                         <h1 className="font-medium text-xl sm:text-2xl lg:text-3xl tracking-tighter">MulAlim Lab</h1>
                     </Link>
                     <Nav />
-                    <UserButton targetPath="/login" />
+                    <UserButton />
                     <SetHeaderStyle />
                     <MenuButton />
                 </div>

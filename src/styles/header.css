@@ -172,7 +172,8 @@ header .mobile-menu-btn::after{
     right:110px;
 }
 
-.is-mobile-menu-open .user-btn {
+.is-mobile-menu-open .user-btn,
+.is-mobile-menu-open #user-util-btns {
     display: flex;
 }
 

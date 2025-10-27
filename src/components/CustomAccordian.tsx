@@ -21,7 +21,7 @@ export default function CustomAccordian (
       <div ref={accordianRef} className="accordian w-full border-style-1 h-auto font-medium border-radius-15 shadow-1 bg-white overflow-hidden">
         <div onClick={handleAccordian} tabIndex={0} className="accordian-head flex items-center min-h-14 px-5">{head}<i className="accordian-arrow"></i></div>
         <div className="accordian-content">
-          <p className="p-5">{children}</p>
+          <div className="p-5">{children}</div>
         </div>
       </div>
     );
