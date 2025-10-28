@@ -2,9 +2,9 @@ import Nav from "./Nav";
 import Link from "next/link";
 import ControlScrollingHeader from "@/components/utils/ControlScrollingHeader";
 import SetHeaderStyle from "@/components/utils/SetHeaderStyle";
-import AuthProvider from "@/components/utils/AuthProvider";
 import UserButton from "@/components/ui/UserButton";
 import MenuButton from "@/components/ui/MenuButton";
+import AuthProvider from "../utils/AuthProvider";
 
 export default async function Header () {
     return (

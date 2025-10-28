@@ -1,15 +1,13 @@
 'use client';
-import { isLoginAtom } from "@/atoms/atoms";
-import { useAtom } from "jotai";
+import { useSetAtom, useAtom } from "jotai";
+import { sessionAtom, userInfoAtom } from "@/atoms/atoms";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function UserButton() {  
-  const [isLogin, setLogin] = useAtom(isLoginAtom);
-  const router = useRouter();
-  
+export default function UserButton() {
+  const setSession = useSetAtom(sessionAtom);
+  const [userInfo, setUserInfo] = useAtom(userInfoAtom);
   
   const handleLogout = async () => {
     try {
@@ -24,9 +22,8 @@ export default function UserButton() {
             position: "top-center",
             autoClose: 1000,
           });
-          setLogin(false);
-          sessionStorage.removeItem("user");
-          router.push("/login");
+          setUserInfo(null);
+          setSession({ status: "unauthenticated", user: null });
           break;
         }
         default: {
@@ -43,13 +40,16 @@ export default function UserButton() {
   }
 
   return (
-    <div className="user-btn-group flex justify-center items-center">
+    <div className="user-btn-group flex invisible opacity-0 lg:visible lg:opacity-100 justify-center items-center">
       {
-        isLogin ? (
-          <div id="user-util-btns" className="hidden lg:flex gap-2 items-end text-center">
-            <Link href="/userpage" id="user-page" className="relative group p-1 border-2 border-black rounded-[50%]">
-              <Image src={"/assets/icon_user.svg"} width={30} height={30} alt="" />
-              <p className="hidden group-hover:block absolute left-1/2 -bottom-full -translate-x-1/2 text-xs w-28">마이 페이지</p>
+        userInfo?.username ? (
+          <div id="user-util-btns" className="flex lg:gap-4 gap-2 items-end text-center">
+            <Link href="/userpage" id="user-page" className="relative group">
+              <Image src={"/assets/icon_user.svg"} width={40} height={40} alt="" />
+              <p className="hidden group-hover:block absolute left-1/2 -bottom-4/5 -translate-x-1/2 
+              text-white bg-black text-xs w-16 p-1">
+                마이 페이지
+              </p>
             </Link>
             <div id="logout-btn"
                 onClick={handleLogout}
@@ -60,7 +60,7 @@ export default function UserButton() {
           </div>
         ) : (
           <Link href="/login" id="login-btn"
-              className="user-btn group hidden lg:flex items-center gap-1.5 px-2.5 py-1 lg:gap-2.5 lg:px-3.5 lg:py-2 border-b-[3px] border-radius-15 cursor-pointer">
+              className="user-btn group flex items-center gap-1.5 px-2.5 py-1 lg:gap-2.5 lg:px-3.5 lg:py-2 border-b-[3px] border-radius-15 cursor-pointer">
               <span className="shrink-0 text-lg sm:text-xl lg:text-2xl font-bold">Login</span>
               <i className="arr w-4 h-4 lg:w-[22px] lg:h-[22px] shrink-0 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-all duration-300"></i>
           </Link>

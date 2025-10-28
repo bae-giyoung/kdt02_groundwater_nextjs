@@ -1,11 +1,7 @@
 'use client';
 import Link from "next/link";
-import { isLoginAtom } from "@/atoms/atoms";
-import { useAtomValue } from "jotai";
 
 export default function Nav () {
-  const isLogin = useAtomValue(isLoginAtom);
-  
   return (
     <nav className="hidden lg:block">
       <ul className="flex items-center justify-center gap-10 text-xl font-bold">

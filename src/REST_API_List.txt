@@ -4,7 +4,7 @@
 2. 백엔드 Spring boot 서버
 
 = REST API =
-- 이슈: 클라이언트에서 -> 다른 오리진의 BE 엔드포인트로 요청.
+- 이슈: 클라이언트에서 -> 다른 오리진의 BE 엔드포인트로 요청. => 그래서 Next.js의 rewrites설정을 하고 있음.
 
 1. 회원가입 (Register)
 - Method: POST
@@ -31,7 +31,7 @@ Accept: application/json
 - Request Body:
 { "username": "a@naver.com", "password": "abc" }
 - Response: 
---- 200 OK (서버가 자동으로 Set-Cookie: JSESSIONID=...; HttpOnly; ... 전송):
+--- 200 OK (서버가 자동으로 Set-Cookie: JSESSIONID=...; HttpOnly; ... 전송): 주의사항: 현재 프론트 코드에서 이 Response.body의 내용 사용하지 않음.
 {
   "user": {
     "username": "a@naver.com",
@@ -54,6 +54,7 @@ Accept: application/json
 - Request Body: 없음
 - Response:
 --- 200 OK:
+JSESSIONID 쿠키 지움(미정); 세션 무효화(완료)
 { "message": "logged out" }
 
 --- 500 Internal Server Error:
@@ -61,11 +62,12 @@ Accept: application/json
 
 
 
-4. 내정보(me)
+4. 내정보(me)와 인증용 API
 - GET /api/v1/auth/me
 Response:
 --- 200 OK:
-{ "username": "a@naver.com" }
+{ "username": "a@naver.com", roles: "USER", "email": "a@naver.com"}
 
 --- 401 Unauthorized
+JSESSIONID 쿠키 지움(미정); 세션 무효화(완료)
 { "code": 401, "message": "인증 필요" }

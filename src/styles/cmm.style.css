@@ -1565,3 +1565,28 @@ table.summary-skeleton-block {
   border-right: 6px solid transparent;
   border-top: 6px solid #0288d1;
 }
+
+/** == User Page  */
+.nav-hover-item span {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-hover-item span::before {
+    content:"";
+    display: block;
+    position: absolute;
+    left:unset;
+    right:0;
+    bottom: -4px;
+    width:0;
+    height:2px;
+    background-color: #000;
+    transition: all .3s ease;
+}
+
+.nav-hover-item span:hover::before {
+    left:0;
+    right:unset;
+    width: 100%;
+}

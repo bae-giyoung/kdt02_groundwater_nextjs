@@ -1,6 +1,6 @@
 'use client';
-import { FormEvent, useEffect, useState } from "react";
-import type { ChangeEvent } from "react";
+import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "./CustomInput";
@@ -136,27 +136,27 @@ export default function RegisterForm() {
                 })
             });
 
-            const payload = await safeParseResponseToJson<{username: string} | UserErrorType>(response);
+            const result = await safeParseResponseToJson<{username: string} | UserErrorType>(response);
 
             switch (response.status) {
                 case 201: {
-                    let message = payload && "username" in payload
-                    ? `${payload.username}님, 회원 가입 되셨습니다. 로그인 페이지로 이동합니다.`
+                    let message = result && "username" in result
+                    ? `${result.username}님, 회원 가입 되셨습니다. 로그인 페이지로 이동합니다.`
                     : "회원가입 성공. 로그인 페이지로 이동합니다.";
                     handleSuccess(message);
                     break;
                 }
                 case 400:
                 case 409: {
-                    let message = payload && "message" in payload
-                    ? payload.message
+                    let message = result && "message" in result
+                    ? result.message
                     : "회원가입에 실패했습니다. 입력 정보를 다시 확인해주세요."
                     handleFailure(message);
                     break;
                 }
                 default: {
-                    let message = payload && "message" in payload
-                    ? payload.message
+                    let message = result && "message" in result
+                    ? result.message
                     : "회원가입에 실패했습니다. 관리자에게 문의하세요.";
                     handleFailure(message);
                     console.log(response.status);

@@ -11,12 +11,9 @@ interface CustomCheckBoxProps {
 }
 
 export default function CustomCheckBox({caption, ipRef, ipName, ipValue, isEssential} : CustomCheckBoxProps) {
-    const handleChange = () => {
-        console.log(ipRef?.current?.checked);
-    }
     return (
         <div className="checkbox-group">
-            <input ref={ipRef && ipRef} id={ipName} name={ipName} value={ipValue && ipValue} type="checkbox" onChange={handleChange} required={isEssential} />
+            <input ref={ipRef && ipRef} id={ipName} name={ipName} value={ipValue && ipValue} type="checkbox" required={isEssential} />
             <label htmlFor={ipName}>{caption}</label>
         </div>
     );
