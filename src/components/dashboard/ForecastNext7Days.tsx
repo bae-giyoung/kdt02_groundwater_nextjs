@@ -125,6 +125,7 @@ function trendColor(t: 'up' | 'down' | 'flat') {
     return t === 'up' ? '#ffaf5f' : t === 'down' ? '#4fa3d1' : '#66c7bf';
 }
 
+// 컴포넌트
 export default function ForecastNext7Days({
     station = '5724',
     stationName = '남원도통',
@@ -139,28 +140,23 @@ export default function ForecastNext7Days({
     const [error, setError] = useState<string | null>(null);
     const userInfo = useAtomValue(userInfoAtom);
 
-
     // 지연 로딩, 목업용 fetch
     useEffect(() => {
-        // 사용자 인증 전
-        if(!userInfo) {
-            setLoading(false);
-            setForecastData({} as any);
-            setError(null);
-            return;
-        }
-
         // 사용자 인증 후 fetch
-        let alive = true;
-        setLoading(true);
-        fetchMockStationObs(station, stationName, baseElev)
-            .then(payload => alive && setForecastData(buildMockForecast(payload)))
-            .catch(err => alive && setError(err.message))
-            .finally(() => alive && setLoading(false));
-        return () => {
-            alive = false;
-        }
-    }, [station, stationName]);
+        if(userInfo) {
+            let alive = true;
+            setLoading(true);
+            fetchMockStationObs(station, stationName, baseElev)
+                .then(payload => alive && setForecastData(buildMockForecast(payload)))
+                .catch(err => alive && setError(err.message))
+                .finally(() => alive && setLoading(false));
+                console.log(forecastData);
+                
+            return () => {
+                alive = false;
+            }
+        };
+    }, [station, stationName, userInfo]);
 
     // props로 주입받는 방식으로 바꾸는 것이 좋을까?
     const options = useMemo<Highcharts.Options>(() => {
@@ -272,7 +268,7 @@ export default function ForecastNext7Days({
         );
     }
 
-    // 사용자 인증 실패 렌더링
+    // 사용자 인증 전 렌더링
     if (!userInfo) {
         return (
             <div className="rounded-2xl p-4 bg-white/60 shadow">
@@ -285,7 +281,7 @@ export default function ForecastNext7Days({
     }
 
     // 로딩중 렌더링
-    if (loading || !forecastData) {
+    if (!forecastData || loading) {
         return (
             <div className="">
                 <div className="c-tit03">향후 7일 지하수위 예측</div>

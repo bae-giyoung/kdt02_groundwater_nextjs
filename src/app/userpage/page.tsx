@@ -27,9 +27,19 @@ export default function UserPage() {
     }, [session.status, router]);
 
     if(!session.user || !isAuthenticated) {
-        return null;
+        return (
+            <div id="contents">
+                <SubVisual 
+                tit1="마이 페이지" 
+                tit2="나의 정보 확인 및 변경" 
+                tit3="회원 정보를 확인하세요." 
+                />
+                <div className="min-h-dvh flex justify-center items-center text-center text-neutral-400">회원 정보가 없습니다. 로그인이 필요합니다.</div>
+            </div>
+        );
     }
 
+    // 탭 변경 핸들러
     const handleChangeTab = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
         setTab(e.currentTarget.dataset.tab ?? 'user-info');
@@ -38,7 +48,7 @@ export default function UserPage() {
     const { username, email, roles } = session.user;
 
     return (
-        <div id="contents" className="">
+        <div id="contents">
             <SubVisual 
             tit1="마이 페이지" 
             tit2="나의 정보 확인 및 변경" 

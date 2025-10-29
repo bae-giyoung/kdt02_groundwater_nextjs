@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 
 
-export default function () {
+export default function MenuButton() {
     const pathname = useAtomValue(pathnameAtom);
 
     const handleMoMenu = () => {

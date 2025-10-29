@@ -26,6 +26,8 @@ export default function SetHeaderStyle() {
             document.body.classList.add("has-hstyle-1");
         else
             document.body.classList.remove("has-hstyle-1");
+
+        document.body.classList.remove("is-mobile-menu-open");
     }, [pathname]);
 
     return null;
