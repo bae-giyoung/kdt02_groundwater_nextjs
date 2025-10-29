@@ -442,16 +442,16 @@ export default function DashBoardContents() {
                             </div>
                         </div>
                         <div className="w-full lg:w-1/2 flex flex-col gap-6">
-                            <div className="w-full d-group">
+                            {/* <div className="w-full d-group">
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
+                            </div> */}
+                            <div className="w-full d-group">
+                                {<StationInfoBox stationCode={station} stationName={stationName} />}
                             </div>
                             <div className="w-full d-group">
                                 <ForecastNext7Days station={station} stationName={stationName} baseElev={getBaseElevForForecast(station)}/>
                                 <PerformanceIndicators stationCode={station} />
                             </div>
-                            {/* <div className="w-full d-group">
-                                {<StationInfoBox stationCode={station} />}
-                            </div> */}
                         </div>
                     </div>
                     <div className="w-full d-group mb-6">

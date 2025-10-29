@@ -2,11 +2,14 @@
 import genInfo from "@/data/gennumInfo.json"; // 중복으로 import인데 나중에 생각
 import type { GenInfoKey } from '@/types/uiTypes';
 
-export default function StationInfoBox({stationCode} : {stationCode: GenInfoKey}) {
+export default function StationInfoBox({stationCode, stationName} : {stationCode: GenInfoKey, stationName?: string}) {
     const station = genInfo[stationCode];
+    const fallbackName = stationName || "해당 관측소";
     return (
         <div className="overflow-x-auto">
-            <p className="c-tit03">관측소 정보</p>
+            <p className="c-tit03">
+                <span className="c-txt-point">{fallbackName}</span> 관측소 정보
+            </p>
             <div className="table-style02 table-container">
                 <table className="min-w-full text-sm text-left">
                     <colgroup>
