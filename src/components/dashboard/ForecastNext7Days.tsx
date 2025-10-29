@@ -2,6 +2,9 @@
 import { useMemo, useEffect, useState } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { useAtomValue } from 'jotai';
+import { userInfoAtom } from '@/atoms/atoms';
+import Link from 'next/link';
 
 // 타입 선언
 type DailyObs = {
@@ -134,10 +137,20 @@ export default function ForecastNext7Days({
     const [forecastData, setForecastData] = useState<Next7Forecast>({} as any);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const userInfo = useAtomValue(userInfoAtom);
 
 
     // 지연 로딩, 목업용 fetch
     useEffect(() => {
+        // 사용자 인증 전
+        if(!userInfo) {
+            setLoading(false);
+            setForecastData({} as any);
+            setError(null);
+            return;
+        }
+
+        // 사용자 인증 후 fetch
         let alive = true;
         setLoading(true);
         fetchMockStationObs(station, stationName, baseElev)
@@ -254,9 +267,21 @@ export default function ForecastNext7Days({
         return (
             <div className="rounded-2xl p-4 bg-white/60 shadow">
                 <div className="c-tit03">향후 7일 지하수위 예측</div>
-                <div className="text-red-600 text-sm">로드 실패: {error}</div>
+                <div className="text-red-600 text-sm min-h-80">로드 실패: {error}</div>
             </div>
         );
+    }
+
+    // 사용자 인증 실패 렌더링
+    if (!userInfo) {
+        return (
+            <div className="rounded-2xl p-4 bg-white/60 shadow">
+                <div className="c-tit03">향후 7일 지하수위 예측</div>
+                <div className="flex justify-center items-center min-h-80 bg-gray-50 rounded-2xl">
+                    <Link href={"/login"} className="btn-style-4" >로그인 후 이용 가능</Link>
+                </div>
+            </div>
+        )
     }
 
     // 로딩중 렌더링
