@@ -62,7 +62,7 @@ export default function UserEditBox(
         });
     };
 
-    // 회원정보 수정 핸들러: 백엔드 로직에서 currentPassword는 필수요건으로 변경해야함! 현재 이메일만 변경시에는 현재비밀번호 검증 안되고 있음.
+    // 회원정보 수정 핸들러
     const handleUpdate = async (e : FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -101,7 +101,7 @@ export default function UserEditBox(
         }
 
         if(newPasswordValue === currentPasswordValue) {
-            toast.info("현재 비밀번호와 동일합니다.", {
+            toast.info("입력한 현재 비밀번호와 변경 비밀번호가 동일합니다.", {
                 position: "top-center",
                 autoClose: 1000,
             });
