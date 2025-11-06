@@ -1,34 +1,34 @@
 'use client';
 import { useMemo, useEffect, useState } from 'react';
+import genInfo from "@/data/gennumInfo.json";
+import type { GenInfoKey } from '@/types/uiTypes';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { userInfoAtom } from '@/atoms/atoms';
-import Link from 'next/link';
+
+//** 상수 선언  */
+const GEN_CODES = Object.keys(genInfo);
 
 // 타입 선언
-type DailyObs = {
-    date: string,
-    elev: number,
-}
-
-type StationObsPayload = {
-    station: string;
-    stationName: string;
-    observed: DailyObs[];
-    sourceNote: string;
-}
-
 type ForecastPoint = {
-    date: string;
-    predicted: number;
-    lo_m: number;
-    hi_m: number;
+    datetime: string;
+    predicted_elev: number;
+    lower_approx: number;
+    upper_approx: number;
+}
+
+type ForecastResponse = {
+    station: number;
+    num_predictions: number;
+    latest_elev: number;
+    predicted_values: ForecastPoint[];
 }
 
 type Next7Forecast = {
     station: string;
-    latestObserved: DailyObs;
+    latestObserved: {observed_elev: number, datetime: string};
     forecast: ForecastPoint[];
     summary: {
         day7: {predicted: number, delta_m: number};
@@ -39,84 +39,7 @@ type Next7Forecast = {
     note: string;
 }
 
-// 목업 데이터
-function buildMockForecast(p: StationObsPayload): Next7Forecast {
-    const obs = [...p.observed].slice(-3);
-    const latest = obs[obs.length - 1];
-
-    // 선형 추세 흉내(일간 기울기)
-    let slope = 0;
-    if(obs.length >= 2) {
-        const l = obs.length;
-        const dy = obs[l - 1].elev - obs[l - 2].elev;
-        slope = dy; // 1일간 변화량, 나중에는 l일변화량 / (l - 1)
-    }
-
-    // 7일 예측
-    const start = new Date(latest.date);
-    const band = 0.06; // 신뢰 밴드 흉내, 나중에 모델개발 파트와 논의.
-    const forecast: ForecastPoint[] = Array.from({length: 7}, (_, i) => { // 7번 반복
-        const d = new Date(start);
-        d.setDate(d.getDate() + (i + 1));
-        const pred = latest.elev + slope * (i + 1);
-        return {
-            date: d.toISOString().slice(0, 10),
-            predicted: Number(pred.toFixed(3)),
-            lo_m: Number((pred - band).toFixed(3)),
-            hi_m: Number((pred + band).toFixed(3)),
-        }
-    });
-    
-    const day7 = forecast[6]; // 7일후 예측값
-    const delta = Number((day7.predicted - latest.elev).toFixed(3)); // 7일후 변화량! 7일후 예측 뱃지 부분
-    const range = Number(Math.max(...forecast.map(f => f.predicted)) - Math.min(...forecast.map(f => f.predicted))).toFixed(3); // 예상 변동폭
-    const trend = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'; // 추세
-
-    return {
-        station: p.station,
-        latestObserved: latest,
-        forecast,
-        summary: {
-            day7: {predicted: day7.predicted, delta_m: delta},
-            range_m: Number(range),
-            trend,
-            generatedAt: new Date().toISOString(),
-        },
-        note: `${p.sourceNote}`,
-    };
-}
-
-// 목업 데이터용 로딩 흉내내기: 나중에
-function fetchMockStationObs(station: string, stationName: string, baseElev: number = 105.72): Promise<StationObsPayload> {
-    const today = new Date();
-    const observed: DailyObs[] = [-2, -1, 0].map(off => { // 2일 전~오늘, 3일치
-        const d = new Date(today);
-        d.setDate(d.getDate() + off);
-
-        // 변동 흉내
-        const level = baseElev + off * 0.02; // 하루 변동치 0.02m
-        //const randomPlusMinus = Math.random() < 0.5 ? -1 : 1;
-        //const randomDeltaAbs = 0.02 * Math.random();
-        //const level = baseElev + (off * randomPlusMinus*randomDeltaAbs); // 하루 변동치
-        return {
-            date: d.toISOString().slice(0, 10),
-            elev: Number(level.toFixed(3)),
-        }
-    });
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                station,
-                stationName,
-                observed,
-                sourceNote: '데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」, AI 모델 예측 데이터',
-            });
-        }, 1000);
-    });
-}
-
-// 설정
+// 렌더링 설정
 function trendLabel(t: 'up' | 'down' | 'flat') {
     return t === 'up' ? '상승' : t === 'down' ? '하락' : '보합';
 }
@@ -125,57 +48,137 @@ function trendColor(t: 'up' | 'down' | 'flat') {
     return t === 'up' ? '#ffaf5f' : t === 'down' ? '#4fa3d1' : '#66c7bf';
 }
 
+// 예측 데이터 받아오기
+async function fetchForecast(station: string) {
+    const response = await fetch(`/ml/api/v1/model/forecast?station=${station}`, { // 개발중: 나중에 url 반드시 숨겨야함!
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    
+    // 실패 시
+    if(!response.ok) { // 상태코드별로 다 분기 나중에.. - ml에 명세서대로 해달라고 전달하기. 404, 500
+        const error = new Error('AI 모델이 예측에 실패했습니다.');
+        (error as any).status = response.status;
+        throw error;
+    }
+
+    // 성공 시
+    return await (response.json());
+}
+
+// 예측 데이터 가공
+function buildForecastData(data: ForecastResponse, station: string): Next7Forecast | null {
+    if(!data.predicted_values || data.predicted_values.length === 0) {
+        console.error("데이터 없음, 관측소코드: ", station);
+        return null;
+    }
+
+    const forecast: ForecastPoint[] = data.predicted_values;
+    const latest = data.latest_elev;
+    
+    const day7Predicted = forecast[forecast.length - 1].predicted_elev; // 7일후 예측값
+    const delta = Number((day7Predicted - latest).toFixed(3)); // 7일후 변화량! 7일후 예측 뱃지 부분
+    const range = Number(Math.max(...forecast.map(f => f.predicted_elev)) - Math.min(...forecast.map(f => f.predicted_elev))).toFixed(3); // 예상 변동폭
+    const trend = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'; // 추세
+    
+    return {
+        station: station,
+        latestObserved: {observed_elev: latest, datetime: forecast[0].datetime},
+        forecast,
+        summary: {
+            day7: {predicted: day7Predicted, delta_m: delta},
+            range_m: Number(range),
+            trend,
+            generatedAt: new Date().toISOString(),
+        },
+        note: '데이터 출처: 국가지하수정보센터 「국가지하수측정자료조회서비스」, AI 모델 예측 데이터',
+    };
+}
+
 // 컴포넌트
 export default function ForecastNext7Days({
-    station = '5724',
-    stationName = '남원도통',
-    baseElev = 105.72,
+    stationCode = '5724',
+    stationName = '남원도통'
 } : {
-    station?: string;
+    stationCode?: GenInfoKey;
     stationName?: string;
-    baseElev?: number;
 }) {
-    const [forecastData, setForecastData] = useState<Next7Forecast>({} as any);
+    const [forecastData, setForecastData] = useState<Next7Forecast | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const userInfo = useAtomValue(userInfoAtom);
 
-    // 지연 로딩, 목업용 fetch
+    // 데이터 받아오기
     useEffect(() => {
         // 사용자 인증 후 fetch
-        if(userInfo) {
-            let alive = true;
-            setLoading(true);
-            fetchMockStationObs(station, stationName, baseElev)
-                .then(payload => alive && setForecastData(buildMockForecast(payload)))
-                .catch(err => alive && setError(err.message))
-                .finally(() => alive && setLoading(false));
-                console.log(forecastData);
-                
-            return () => {
-                alive = false;
-            }
-        };
-    }, [station, stationName, userInfo]);
+        if(!userInfo) return;
 
-    // props로 주입받는 방식으로 바꾸는 것이 좋을까?
+        let alive = true;
+        
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const stationId = `${GEN_CODES.indexOf(stationCode) + 1}`;
+                const result = await fetchForecast(stationId);
+                if(alive) {
+                    const buildedData = buildForecastData(result, stationId);
+                    if(buildedData) {
+                        setForecastData(buildedData);
+                    } else {
+                        setError("해당 관측소의 예측 데이터를 찾을 수 없습니다.");
+                    }
+                }
+            } catch(error: any) {
+                if(alive) {
+                    switch (error.status) {
+                        case 404:
+                            setError("해당 관측소의 예측 데이터를 찾을 수 없습니다.");
+                            break;
+                        case 500:
+                            setError("AI 모델 서버에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                            break;
+                        default:
+                            setError("데이터를 불러오는 중 오류가 발생했습니다.");
+                            break;
+                    }
+                    console.error(error);
+                }
+            } finally {
+                if(alive) setLoading(false);
+            }
+
+        }
+
+        fetchData();
+            
+        return () => {
+            alive = false;
+        }
+    }, [stationCode, userInfo]);
+
+    // Highcharts 옵션
     const options = useMemo<Highcharts.Options>(() => {
         if(!forecastData) return {}; // 여기 괜찮은지 확인!
-        const categories = forecastData.forecast?.map(f => f.date.slice(5)); // 'MM-DD'
-        const pred = forecastData.forecast?.map(f => f.predicted);
-        const lo = forecastData.forecast?.map(f => f.lo_m);
-        const hi = forecastData.forecast?.map(f => f.hi_m);
+        const categories = forecastData.forecast?.map(f => f.datetime.slice(5,16)); // 'MM-DD'
+        const pred = forecastData.forecast?.map(f => f.predicted_elev);
+        const lo = forecastData.forecast?.map(f => f.lower_approx);
+        const hi = forecastData.forecast?.map(f => f.upper_approx);
 
         return {
             chart: {
-                //type: 'line',
-                height: 200, // 160
+                type: 'line',
+                height: 260, // 160
                 spacing: [8, 8, 8, 8]
             },
             title: {
                 text: ''
             },
             xAxis: {
+                //type: 'datetime',
                 categories,
                 tickLength: 0,
                 labels: {
@@ -262,7 +265,9 @@ export default function ForecastNext7Days({
     if (error) {
         return (
             <div className="rounded-2xl p-4 bg-white/60 shadow">
-                <div className="c-tit03">향후 7일 지하수위 예측</div>
+                <div className="c-tit03">
+                    <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
+                </div>
                 <div className="text-red-600 text-sm min-h-80">로드 실패: {error}</div>
             </div>
         );
@@ -272,7 +277,9 @@ export default function ForecastNext7Days({
     if (!userInfo) {
         return (
             <div className="rounded-2xl p-4 bg-white/60 shadow">
-                <div className="c-tit03">향후 7일 지하수위 예측</div>
+                <div className="c-tit03">
+                    <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
+                </div>
                 <div className="flex justify-center items-center min-h-80 bg-gray-50 rounded-2xl">
                     <Link href={"/login"} className="btn-style-4" >로그인 후 이용 가능</Link>
                 </div>
@@ -284,7 +291,9 @@ export default function ForecastNext7Days({
     if (!forecastData || loading) {
         return (
             <div className="">
-                <div className="c-tit03">향후 7일 지하수위 예측</div>
+                <div className="c-tit03">
+                    <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
+                </div>
                 {/* 스켈레톤 */}
                 <div className="h-5 w-48 bg-gray-200/60 rounded mb-1 animate-pulse" />
                 <div className="h-5 w-64 bg-gray-200/60 rounded mb-3 animate-pulse" />
@@ -301,12 +310,14 @@ export default function ForecastNext7Days({
     return (
         <div id="forecast-7days-container">
             <div className="flex items-end justify-between">
-                <div className="c-tit03">향후 7일 지하수위 예측</div>
-                <span className="text-xs text-gray-500">단위: el.m</span>
+                <div className="c-tit03">
+                    <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
+                </div>
+                <span className="text-xs text-gray-500 text-right">단위: el.m</span>
             </div>
 
             <div className="text-sm text-gray-700 mb-1">
-                최신 관측: <b>{forecastData.latestObserved.elev.toFixed(2)} el.m</b> ({forecastData.latestObserved.date})
+                최신 관측: <b>{forecastData.latestObserved?.observed_elev?.toFixed(2)} el.m</b> ({forecastData.latestObserved.datetime})
             </div>
             <div className="text-sm text-gray-700 mb-3 flex items-center gap-2">
                 7일 후 예측: <b>{forecastData.summary.day7.predicted.toFixed(2)} el.m</b>
@@ -319,6 +330,7 @@ export default function ForecastNext7Days({
                 </span>
             </div>
 
+
             {/* 미니 차트 */}
             <div className="mb-3">
                 {Highcharts && HighchartsReact && (
@@ -329,7 +341,7 @@ export default function ForecastNext7Days({
             {/* 작은 KPI 배지 */}
             <div className="flex gap-2 text-xs">
                 <span className="px-2 py-1 rounded-full bg-[#c9f4e6] text-[#063a46]">
-                예상 변동폭 {forecastData.summary.range_m.toFixed(2)} el.m
+                전 구간 변동폭 {forecastData.summary.range_m.toFixed(2)} el.m
                 </span>
                 <span className="px-2 py-1 rounded-full bg-[#ffe1b8] text-[#412200]">
                 {trend} 추세

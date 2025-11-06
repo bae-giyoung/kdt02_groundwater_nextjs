@@ -1,27 +1,39 @@
 'use client';
+import { useState, useEffect } from "react";
+import { useAtom } from "jotai";
+import { modalStateAtom } from "@/atoms/atoms";
+import { createPortal } from "react-dom";
+import CustomButton from "./CustomButton";
 
-export default function CustomModal({
+export default function CustomModal() {
+    const [modalState, setModalState] = useAtom(modalStateAtom);
+    const [isMounted, setIsMounted] = useState(false);
 
-}) {
-  return (
-    {/* <div className="donut-modal" role="dialog" aria-modal="true">
-        <div className="donut-modal-backdrop" onClick={() => setIsModalOpen(false)} />
-        <div className="donut-modal-content">
-        <div className="donut-modal-header">
-            <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
-        </div>
-        <div className="donut-modal-body">
-            <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
-                <p className="flex items-start gap-4">
-                    <span className="c-stit02">일별 지하수위 현황</span>
-                    <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-5 -mt-0.5" />
-                    <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4 -mt-2" />
-                </p>
-                <p className="gray-92 text-right">일평균 수위(el.m), 전일 대비 증감율 (%)</p>
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const handleClose = () => {
+        setModalState({ isOpen: false, content: null });
+    };
+
+    if (!isMounted || !modalState.isOpen ) return null;
+
+    const modalRoot = document.getElementById('modal-root');
+    if (!modalRoot) return null;
+
+    return createPortal( // 인자 2개
+        <div className="donut-modal curr-modal" role="dialog" aria-modal="true">
+            <div className="donut-modal-backdrop" onClick={handleClose}></div>
+            <div className="donut-modal-content">
+                <div className="donut-modal-header">
+                    <CustomButton handler={handleClose} caption="닫기" bStyle="donut-modal-close" bType="button" />
+                </div>
+                <div className="donut-modal-body">
+                    {modalState.content}
+                </div>
             </div>
-            <CustomTable data={sortedTable} columns={tableColumns} />
-        </div>
-        </div>
-    </div> */}
-  );
+        </div>,
+        modalRoot
+    );
 }

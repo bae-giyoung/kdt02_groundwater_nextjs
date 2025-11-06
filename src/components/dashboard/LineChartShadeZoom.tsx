@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { yyyymmToUTC } from '../utils/timeFormatUtils';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import ExportingModule from 'highcharts/modules/exporting';
@@ -54,14 +55,6 @@ interface LineChartZoomProps {
 
 // 상수 선언
 const ZOOM_WINDOWS = [12, 36, 60, 84, 120] as const;
-
-// 함수
-const yyyymmToUTC = (yyyymm: Yyyymm) : number => {
-    const yyyymmNum = yyyymm;
-    const yyyy = Math.floor(yyyymmNum / 100);
-    const mm = (yyyymmNum % 100) - 1;
-    return Date.UTC(yyyy, mm, 1);
-}
 
 // 미완성: 나중에
 const normalizeTuples = (tuples: SeriesTuple[] | undefined) : [number, number][] => {

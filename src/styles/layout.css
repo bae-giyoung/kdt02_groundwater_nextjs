@@ -177,12 +177,11 @@ footer {
 
 #login-form {}
 
+.donut-modal-content.bg-custom-gradient,
 #contents.bg-custom-gradient {
 	position: relative;
     min-height: 100svh; /* 임시 레이아웃 나중에 지우기 */
     background: linear-gradient(-45deg, #DEEEFE99, #B6C9CF99, #DEEEFE99);
-    /* background-image: linear-gradient(45deg, #ECF6F7 51.75%, #ECF6F7 51.76%, #DEEFF9 100.35%, rgba(236, 246, 247, 0.00) 100.36%); */
-	/* background-size: 100% 100%; */
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -225,6 +224,11 @@ footer {
 }
 
 /* == Dashboard Style */
+#dashboard .table-container {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
 .dash-navi-container {
     position: relative;
     width: 144px;
@@ -239,10 +243,6 @@ footer {
     width: calc(100% - 180px);
 }
 
-.dash-cont-top .table-container {
-    max-height: 150px;
-    overflow-y: auto;
-}
 
 #navi-footer .info-bar svg {
   position: relative;

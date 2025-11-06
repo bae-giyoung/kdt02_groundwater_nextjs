@@ -101,7 +101,7 @@ async function fetchFromEachStation(gennum: string, begindate: string, enddate: 
 
 // 테이블용 데이터로 가공
 function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    // 날짜 Set생성 : 결측일 있기 때문에 해야겠네...
+    // 날짜 Set생성
     const dateSet = new Set<string>();
     for(const unitRows of Object.values(rawData)) { // unitRows: UnitFromOpenApiT[];
         unitRows.forEach(unit => dateSet.add(unit.ymd));
@@ -124,18 +124,38 @@ function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
         return tableRow;
     });
 
-    // Diff 데이터 : 아니다. 그냥 Diff랑 현황 하나의 배열로 묶자! 바꾸자!
+    // Diff 데이터
+    const tableRowsByDate = new Map(tableRows.map(row => [row.ymd as string, row]));
+
     const tableDiffRows = tableRows.map((tableRow, tableIdx) => {
         const tableDiffRow: Record<string, string | number | null> = { ymd: tableRow.ymd };
-        GENNUMS.map(gen => {
+        const currentDateStr = tableRow.ymd as string;
 
-            // TODO 검토해봐야함
-            if(tableIdx === 0) {
-                tableDiffRow[gen] = null;
-            } else {
-                const prevRow = tableRows[tableIdx - 1];
-                tableDiffRow[gen] = (Number(prevRow[gen])*1000 - Number(tableRow[gen])*1000)/1000; // 소수점 3자리까지
-            };
+        // 현재 날짜 기준 하루 전 날짜(YYYYMMDD) 문자열 생성
+        const year = parseInt(currentDateStr.slice(0, 4), 10);
+        const month = parseInt(currentDateStr.slice(4, 6), 10) - 1;
+        const day = parseInt(currentDateStr.slice(6, 8), 10);
+
+        const prevDate = new Date(year, month, day);
+        prevDate.setDate(prevDate.getDate() - 1);
+        const prevDateStr = formatDateToParam(prevDate);
+
+        // 하루 전 데이터 조회
+        const prevRow = tableRowsByDate.get(prevDateStr);
+
+        GENNUMS.map(gen => {
+            // 전일 데이터가 존재할 경우
+            if(prevRow) {
+                const currentValue = tableRow[gen];
+                const prevValue = prevRow[gen];
+
+                // 현재와 전일 값 모두 유효한 숫자인지 확인 후 계산
+                if(typeof currentValue === "number" && typeof prevValue === "number") {
+                    tableDiffRow[gen] = (currentValue * 1000 - prevValue * 1000) / 1000;
+                } else {
+                    tableDiffRow[gen] = null;
+                }
+            }
         });
         return tableDiffRow;
     });

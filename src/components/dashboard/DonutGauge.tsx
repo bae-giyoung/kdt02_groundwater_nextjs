@@ -108,7 +108,7 @@ export default function DonutGauge({
       chart: {
         type: 'solidgauge', 
         backgroundColor: 'transparent',
-        height: 140,
+        height: 100,
       },
       title: {
         text: undefined,

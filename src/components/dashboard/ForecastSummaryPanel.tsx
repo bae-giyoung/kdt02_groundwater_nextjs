@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import CustomButton from '@/components/CustomButton';
+import { toDateUTC, formatDateKST } from '../utils/timeFormatUtils';
 
 type RawSummaryRow = [number, number, number, number, number?];
 
@@ -80,24 +81,6 @@ const KPI_DESCRIPTIONS: Record<string, string> = {
   NSE: 'Nash-Sutcliffe efficiency (closer to 1 indicates stronger performance).',
   RMSE: 'Root mean square error of groundwater level in meters.',
   R2: 'R-squared goodness-of-fit (closer to 1 indicates better alignment).',
-};
-
-const toDateUTC = (yyyymm: number) => {
-  const year = Math.floor(yyyymm / 100);
-  const month = (yyyymm % 100) - 1;
-  return Date.UTC(year, month, 1);
-};
-
-const formatDateKST = (timestamp: number) => {
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return '-';
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
 };
 
 const mean = (values: number[]) => (values.length ? values.reduce((acc, cur) => acc + cur, 0) / values.length : 0);
