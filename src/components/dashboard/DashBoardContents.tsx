@@ -21,6 +21,9 @@ import LineChartShadeZoom from "./LineChartShadeZoom";
 import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
 import ForecastSummaryPanel from "./ForecastSummaryPanel";
 import ForecastNext7Days from "./ForecastNext7Days";
+import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
+import SensitivityInsightText from "./SensitivityInsightText";
+import HorizontalBarChart from "./HorizontalBarChart";
 
 
 /**
@@ -53,31 +56,15 @@ type DashboardApiResponse = {
     trend?: Record<string, TrendMetricT>;
 };
 
+type ModalTabKey = 'trend' | 'summary' | 'weather';
 
-// 임시: 하드코딩용 데이터 모음
-const rainSensitiveTop5 = [
-    { rank: 1, name: '순상쌍치', metricLabel: '강수 민감도', metricValue: '0.21' },
-    { rank: 2, name: '함양병곡', metricLabel: '강수 민감도', metricValue: '0.20' },
-    { rank: 3, name: '영암영암', metricLabel: '강수 민감도', metricValue: '0.18' },
-    { rank: 4, name: '화성팔탄', metricLabel: '강수 민감도', metricValue: '0.16' },
-    { rank: 5, name: '남원도통', metricLabel: '강수 민감도', metricValue: '0.13' },
-];
-
-const droughtStableTop5 = [
-    { rank: 1, name: '순창순창', metricLabel: '강수 민감도', metricValue: '0.04' },
-    { rank: 2, name: '임실오수', metricLabel: '강수 민감도', metricValue: '0.06' },
-    { rank: 3, name: '원주문막', metricLabel: '강수 민감도', metricValue: '0.09' },
-    { rank: 4, name: '금산금산', metricLabel: '강수 민감도', metricValue: '0.09' },
-    { rank: 5, name: '곡성임면', metricLabel: '강수 민감도', metricValue: '0.13' },
-];
-
-const rmseTop5 = [
-    { rank: 1, name: '원주문막', metricLabel: 'RMSE', metricValue: '0.014 el.m' },
-    { rank: 2, name: '영암영암', metricLabel: 'RMSE', metricValue: '0.017 el.m' },
-    { rank: 3, name: '순창순창', metricLabel: 'RMSE', metricValue: '0.019 el.m' },
-    { rank: 4, name: '화성팔탄', metricLabel: 'RMSE', metricValue: '0.019 el.m' },
-    { rank: 5, name: '곡성임면', metricLabel: 'RMSE', metricValue: '0.020 el.m' },
-];
+type DashboardModalContentProps = {
+    station: GenInfoKey;
+    stationId: string;
+    stationName?: string;
+    longTermUrl: string;
+    weatherUrl: string;
+};
 
 
 // 컴포넌트
@@ -87,7 +74,8 @@ export default function DashBoardContents() {
     const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
     const [currElevDiffDatas, setCurrElevDiffDatas] = useState<DashboardTableDiffRow[]>([]);
     const [currMapDatas, setCurrMapDatas] = useState<Record<string, Record<string, number | null>>>({});
-    const [trendMetrics, setTrendMetrics] = useState<Record<string, TrendMetricT>>({});
+    //const [trendMetrics, setTrendMetrics] = useState<Record<string, TrendMetricT>>({}); // 지우기
+    const { data: sensitivityData, loading: sensitivityLoading } = useFetchSensitivityData();
     const [isAsc, setIsAsc] = useState<boolean>(true);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const openModal = useSetAtom(openModalAtom);
@@ -95,12 +83,30 @@ export default function DashBoardContents() {
     
     // 현재 관측소명, 현재 관측소의 경향성 지표
     const stationName = genInfo[station]?.["측정망명"];
+    const stationId = `${GEN_CODES.indexOf(station) + 1}`;
     //const stationTrend = trendMetrics[station];
 
     // URLS - 숨기기!!!!!
     // 장기 추세, 기상-수위
-    const longTermUrl = `/java/api/v1/rawdata/longterm?station=${GEN_CODES.indexOf(station) + 1}&timestep=monthly&horizons=120`;
-    const weatherUrl = `/java/api/v1/rawdata/summary/weather?station=${GEN_CODES.indexOf(station) + 1}`;
+    const longTermUrl = `/java/api/v1/rawdata/longterm?station=${stationId}&timestep=monthly&horizons=120`;
+    const weatherUrl = `/java/api/v1/rawdata/summary/weather?station=${stationId}`;
+
+    // 가뭄 취약/ 강수 민감 통계 Top-5 데이터
+    const droughtData = useMemo(() => {
+        if(!sensitivityData) return;
+        return sensitivityData.top5_drought_decrease.map(d => ({
+            name: genInfo[(GEN_CODES[Number(d.station) - 1] as GenInfoKey)]?.["측정망명"],
+            y: d.decrease_if_drought
+        }));
+    }, [sensitivityData]);
+
+    const rainData = useMemo(() => {
+        if(!sensitivityData) return;
+        return sensitivityData?.top5_rainfall_increase.map(d => ({
+            name: genInfo[(GEN_CODES[Number(d.station) - 1] as GenInfoKey)]?.["측정망명"],
+            y: d.increase_if_rainfall
+        }));
+    }, [sensitivityData]);
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
@@ -312,42 +318,13 @@ export default function DashBoardContents() {
     // 관측소 상세 모달창 설정
     const handleOpenModal = () => {
         openModal(
-            <div className="flex">
-                <div className="w-full d-group flex gap-8 flex-col lg:flex-row">
-                    <div className="w-full lg:w-1/3">
-                        <StationInfoBox stationCode={station} stationName={stationName}/>
-                        <PerformanceIndicators stationCode={station} />
-                    </div>
-                    <div className="w-full d-group mb-6">
-                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
-                            <p className="c-tit03">
-                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 장기 추세 그래프 (2014 ~ 2023)
-                            </p>
-                            <span className="gray-92 c-txt03">지난 10년간 월별 평균 지하수위 추이(단위: el.m)</span>
-                        </div>
-                        <div className="d-sgroup mb-6">
-                            <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
-                        </div>
-                        <div id="summary-contents" className="w-full">
-                            <ForecastSummaryPanel
-                                station={`${GEN_CODES.indexOf(station) + 1}`}
-                                stationName={stationName}
-                            />
-                        </div>
-                    </div>
-                    <div className="flex gap-6 flex-col lg:flex-row w-full mb-6">
-                        <div className="w-full lg:w-2/3 d-group">
-                            <p className="c-tit03">
-                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-예측 수위 상관관계
-                            </p>
-                            <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
-                        </div>
-                        <div className="w-full lg:w-1/3 d-group">
-                            <FeatureImportancePage stationCode={station} chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <DashboardModalContent
+                station={station}
+                stationId={stationId}
+                stationName={stationName}
+                longTermUrl={longTermUrl}
+                weatherUrl={weatherUrl}
+            />
         );
     };
     
@@ -367,13 +344,13 @@ export default function DashBoardContents() {
             setCurrElevDatas(json.table?.tableRows ?? []);
             setCurrElevDiffDatas(json.table?.tableDiffRows ?? []);
             setCurrMapDatas(json.geomap ?? {});
-            setTrendMetrics(json.trend ?? {});
+            //setTrendMetrics(json.trend ?? {});
         } catch (error) {
             console.error("failed to fetch current data", error);
             setCurrElevDatas([]);
             setCurrElevDiffDatas([]);
             setCurrMapDatas({});
-            setTrendMetrics({});
+            //setTrendMetrics({});
         }
     }, []);
 
@@ -411,6 +388,7 @@ export default function DashBoardContents() {
                                 <div className="gen-box w-full">
                                     <label htmlFor="gen-select"><span className="c-stit01 block">관측소 선택</span></label>
                                     <select
+                                        value={station}
                                         onChange={(e) => { setStation(e.target.value as GenInfoKey); }}
                                         name="gen-select"
                                         id="gen-select"
@@ -472,115 +450,26 @@ export default function DashBoardContents() {
                         <div className="w-full lg:w-1/2 d-group">
                             <p className="c-tit03">전국 관측망</p>
                             <p className="c-txt03 mb-4">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
-                            <GeoMap mapData={currMapDatas} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
-                            <ul className="c-list01 mt-2">
-                                <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
-                            </ul>
-                            <div className="info-box mt-5 max-h-20 overflow-y-auto" style={{ marginBottom: 0, fontSize: '12px'}}>
-                                <p className="text-xs">
-                                    <b>관측소별 지하수위 ‘경고/위험/정상’ 구분 기준</b>은  
-                                    각 관측소의 <b>최근 10년간 월평균 수위 분포를 기반으로</b> 설정됩니다.  
-                                    <br />- 상위/하위 <b>10% 구간은 ‘위험’</b>,  
-                                    <br />- <b>10~25% 구간은 ‘경고’</b>,  
-                                    <br />- <b>25~75% 구간은 ‘정상 범위’</b>로 분류됩니다.
-                                </p>
-                            </div>
+                            <GeoMap mapData={currMapDatas} sensitivityData={sensitivityData} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                         </div>
                         <div className="w-full lg:w-1/2 flex flex-col gap-6">
                             <CustomButton handler={handleOpenModal} caption="관측소 정보 및 분석 확인" bType="button" bStyle="btn-style-1"/>
                             <div className="w-full d-group">
                                 <ForecastNext7Days stationCode={station} stationName={stationName}/>
                             </div>
+                            {sensitivityData && (
+                                <div className="flex flex-col lg:flex-row gap-6">
+                                    <div className="w-full d-group">
+                                        <HorizontalBarChart title="가뭄 취약 관측소 Top 5" color={"#FFB74D"} data={droughtData} />
+                                    </div>
+                                    <div className="w-full d-group">
+                                        <HorizontalBarChart title="강수 민감 관측소 Top 5" color={"#4A90E2"} data={rainData} />
+                                    </div>
+                                </div>
+                            )}
                             {/* <div className="w-full d-group">
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
                             </div> */}
-                        </div>
-                    </div>
-                    {/* <div className="w-full d-group mb-6">
-                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
-                            <p className="c-tit03">
-                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 장기 추세 그래프 (2014 ~ 2023)
-                            </p>
-                            <span className="gray-92 c-txt03">지난 10년간 월별 평균 지하수위 추이(단위: el.m)</span>
-                        </div>
-                        <div className="d-sgroup mb-6">
-                            <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
-                        </div>
-                        <div id="summary-contents" className="w-full">
-                            <ForecastSummaryPanel
-                                station={`${GEN_CODES.indexOf(station) + 1}`}
-                                stationName={stationName}
-                            />
-                        </div>
-                    </div>
-                    <div className="flex gap-6 flex-col lg:flex-row w-full mb-6">
-                        <div className="w-full lg:w-2/3 d-group">
-                            <p className="c-tit03">
-                                <span className="c-txt-point">{stationName || "해당 관측소"}</span> 기상-예측 수위 상관관계
-                            </p>
-                            <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
-                        </div>
-                        <div className="w-full lg:w-1/3 d-group">
-                            <FeatureImportancePage stationCode={station} chartTitle={stationName + " 주요 영향 변수 분석" || "주요 영향 변수 분석"} />
-                        </div>
-                    </div> */}
-                    <div className="flex flex-col lg:flex-row gap-6">
-                        <div className="w-full d-group list-card">
-                            <p className="c-tit03"><span className="c-txt-point">가뭄 안정</span> 관측소 Top 5</p>
-                            <ul className="ranking-list ranking-list-compact">
-                                {droughtStableTop5.map(({ rank, name, metricLabel, metricValue }) => (
-                                    <li key={`drought-${rank}`} className="ranking-item">
-                                        <span className={`ranking-rank${rank <= 3 ? ' ranking-rank-top' : ''}`}>{rank.toString().padStart(2, '0')}</span>
-                                        <div className="ranking-content">
-                                            <div className="ranking-header">
-                                                <span className="ranking-name">{name}</span>
-                                                <span className="ranking-metric">
-                                                    <span className="ranking-metric-label">{metricLabel}</span>
-                                                    <span className="ranking-metric-value">{metricValue}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="w-full d-group list-card">
-                            <p className="c-tit03"><span className="c-txt-point">강수 민감</span> 관측소 Top 5</p>
-                            <ul className="ranking-list ranking-list-compact">
-                                {rainSensitiveTop5.map(({ rank, name, metricLabel, metricValue }) => (
-                                    <li key={`rain-${rank}`} className="ranking-item">
-                                        <span className={`ranking-rank${rank <= 3 ? ' ranking-rank-top' : ''}`}>{rank.toString().padStart(2, '0')}</span>
-                                        <div className="ranking-content">
-                                            <div className="ranking-header">
-                                                <span className="ranking-name">{name}</span>
-                                                <span className="ranking-metric">
-                                                    <span className="ranking-metric-label">{metricLabel}</span>
-                                                    <span className="ranking-metric-value">{metricValue}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="w-full d-group list-card">
-                            <p className="c-tit03"><span className="c-txt-point">RMSE 상위</span> 관측소 Top 5</p>
-                            <ul className="ranking-list ranking-list-compact">
-                                {rmseTop5.map(({ rank, name, metricLabel, metricValue }) => (
-                                    <li key={`rmse-${rank}`} className="ranking-item">
-                                        <span className={`ranking-rank${rank <= 3 ? ' ranking-rank-top' : ''}`}>{rank.toString().padStart(2, '0')}</span>
-                                        <div className="ranking-content">
-                                            <div className="ranking-header">
-                                                <span className="ranking-name">{name}</span>
-                                                <span className="ranking-metric">
-                                                    <span className="ranking-metric-label">{metricLabel}</span>
-                                                    <span className="ranking-metric-value">{metricValue}</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -609,3 +498,77 @@ export default function DashBoardContents() {
         </>
     );
 }
+
+const DashboardModalContent = ({
+    station,
+    stationId,
+    stationName,
+    longTermUrl,
+    weatherUrl,
+}: DashboardModalContentProps) => {
+    const [activeTab, setActiveTab] = useState<ModalTabKey>('weather');
+    const displayName = stationName || "해당 관측소";
+    const tabs: Array<{ key: ModalTabKey; label: string }> = [
+        { key: 'weather', label: '기상-예측 상관' },
+        { key: 'trend', label: '장기 추세' },
+        { key: 'summary', label: '예측 요약' },
+    ];
+
+    return (
+        <div className="w-full d-group flex flex-col gap-8 lg:flex-row" id="dashboard-station-modal">
+            <div className="w-full lg:w-2/3 flex flex-col gap-4">
+                <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
+                    {tabs.map(({ key, label }) => {
+                        const isActive = activeTab === key;
+
+                        return (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => setActiveTab(key)}
+                                className={`btn-style-4 font-medium transition-colors ${
+                                    isActive
+                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        );
+                    })}
+                </div>
+                {activeTab === 'trend' && (
+                    <div className="w-full d-group space-y-4">
+                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+                            <p className="c-tit03">
+                                <span className="c-txt-point">{displayName}</span> 장기 추세 그래프 (2014 ~ 2023)
+                            </p>
+                            <span className="gray-92 c-txt03">지난 10년간 월별 평균 지하수위 추이(단위: el.m)</span>
+                        </div>
+                        <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
+                    </div>
+                )}
+                {activeTab === 'summary' && (
+                    <div id="summary-contents" className="w-full d-group space-y-4">
+                        <p className="c-tit03">
+                            <span className="c-txt-point">{displayName}</span> 예측 기간 3년 요약
+                        </p>
+                        <ForecastSummaryPanel station={`${stationId}`} stationName={stationName} />
+                    </div>
+                )}
+                {activeTab === 'weather' && (
+                    <div className="w-full d-group space-y-4">
+                        <p className="c-tit03">
+                            <span className="c-txt-point">{displayName}</span> 기상-예측 수위 상관관계
+                        </p>
+                        <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
+                    </div>
+                )}
+            </div>
+            <div className="w-full lg:w-1/3 space-y-4">
+                <StationInfoBox stationCode={station} stationName={stationName} />
+                <PerformanceIndicators stationCode={station} />
+            </div>
+        </div>
+    );
+};

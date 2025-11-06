@@ -177,7 +177,6 @@ footer {
 
 #login-form {}
 
-.donut-modal-content.bg-custom-gradient,
 #contents.bg-custom-gradient {
 	position: relative;
     min-height: 100svh; /* 임시 레이아웃 나중에 지우기 */

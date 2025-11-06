@@ -456,8 +456,8 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props)
     <section className="summary-container">
       <div className="summary-header">
         <div className="summary-header-info">
-          <h2 className="summary-header-title">
-            <span>{stationName ?? 'Station'}</span> 예측 기간 요약
+          <h2 className="summary-header-title c-tit03">
+              <span className="c-txt-point">{stationName ?? 'Station'}</span> 예측 기간 요약
           </h2>
           <p className="summary-header-subtitle">
             변동 추세 및 정확도

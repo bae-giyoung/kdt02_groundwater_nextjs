@@ -380,6 +380,27 @@ button[class^="btn-style-"] {
   color: #0284c7;
 }
 
+.btn-style-tab {
+  font-size: 18px;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 700;
+  border-radius: 15px;
+  padding: 11px 15px;
+  /* background-image: linear-gradient(to right, #B3D5F0, #468FAF, #014F86, #014F86, #468FAF, #B3D5F0);
+  background-size: 200% auto;
+  background-position: left center; */
+  background-color: #000;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition-property: background-position;
+  transition-duration: .3s;
+}
+
+/* .btn-style-tab:hover {
+  background-position: right center;
+} */
+
 @media all and (max-width:599px) {
   .btn-style-1,
   .btn-style-2 {
@@ -1588,4 +1609,29 @@ table.summary-skeleton-block {
     left:0;
     right:unset;
     width: 100%;
+}
+
+.donut-modal-content:has(#dashboard-station-modal) {
+  /* background: linear-gradient(-45deg, #DEEEFE99, #B6C9CF99, #DEEEFE99); */
+  background-color: #ffffffcc;
+  box-sizing: border-box;
+}
+
+.donut-modal-content:has(#dashboard-station-modal)::before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    border-radius: 50%;
+    /* background-image: radial-gradient(#1d8513 , #6e9fd1, #DEEEFE, #DEEEFE); */
+    filter: blur(120px);
+    opacity: 0.4;
+    right:-80%;
+    bottom:-80%;
+    animation: movingBall 15s infinite;
+}
+
+#dashboard-station-modal {
+    background-color: #ffffffcc;
 }
