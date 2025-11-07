@@ -125,7 +125,6 @@ export default function LineChartShadeZoom({
                 if(error?.name !== 'AbortError') {
                     setError(error.message || "Fetch 실패");
                 }
-            } finally {
                 setLoading(false);
             }
         }
@@ -134,6 +133,12 @@ export default function LineChartShadeZoom({
         return () => controller.abort();
 
     }, [baseUrl, prefetchedData]);
+
+    useEffect(() => {
+        if(!seriesRaw.actual.length) {
+            setLoading(false);
+        }
+    }, [seriesRaw]);
 
     // zoom 버튼 클릭 핸들러
     const toggleAreaDataLabels = (enabled: boolean) => {
@@ -398,11 +403,26 @@ export default function LineChartShadeZoom({
         },
     });
 
+    // 로딩중 렌더링
+    if (loading) {
+        return (
+            <div className="chart-box mt-6 w-full">
+                <div className='relative'>
+                    <p className='absolute z-10'>
+                        불러오는 중.....
+                    </p>
+                    <div className="h-[400px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
+                </div>
+            </div>
+        );
+    }
+
+    // 렌더링
     return (
         <div className="chart-box mt-6 w-full">
             <div className='relative'>
-                <p className='absolute'>
-                    { loading ? '불러오는 중......' : error ?  `오류: ${error}` : null }
+                <p className='absolute z-10'>
+                    { error ?  `오류: ${error}` : null }
                 </p>
                 <HighchartsReact
                     highcharts={Highcharts}
@@ -411,7 +431,6 @@ export default function LineChartShadeZoom({
                     containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
                 />
             </div>
-        
         </div>
     );
 }

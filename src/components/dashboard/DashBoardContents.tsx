@@ -474,11 +474,11 @@ export default function DashBoardContents() {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col lg:flex-row gap-6 mb-6">
-                            {/* <div className="w-full d-group">
+                        {/* <div className="flex flex-col lg:flex-row gap-6 mb-6">
+                            <div className="w-full d-group">
                                 <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
-                            </div> */}
-                        </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
