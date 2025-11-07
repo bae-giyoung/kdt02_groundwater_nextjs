@@ -54,7 +54,7 @@ const fetchData = async() => {
 
 export default function FeatureImportancePage({
     chartTitle = '주요 영향 변수 분석',
-    stationCode = '5724',
+    stationCode = '84020',
 } : {
     chartTitle?: string,
     stationCode: string,

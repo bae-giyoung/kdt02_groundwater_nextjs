@@ -14,7 +14,7 @@ export default function CustomModal() {
     }, []);
 
     const handleClose = () => {
-        setModalState({ isOpen: false, content: null });
+        setModalState({ isOpen: false, header: null, content: null });
     };
 
     if (!isMounted || !modalState.isOpen ) return null;
@@ -27,6 +27,7 @@ export default function CustomModal() {
             <div className="donut-modal-backdrop" onClick={handleClose}></div>
             <div className="donut-modal-content">
                 <div className="donut-modal-header">
+                    {modalState.header}
                     <CustomButton handler={handleClose} caption="닫기" bStyle="donut-modal-close" bType="button" />
                 </div>
                 <div className="donut-modal-body">

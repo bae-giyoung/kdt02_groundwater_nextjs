@@ -76,6 +76,7 @@ div, input, select {box-sizing: border-box;}
 }
 
 @media all and (max-width:768px) {
+  .c-tit01 {font-size: 1.66em;}
 	.c-tit02 {padding-left:20px;margin-bottom:10px;font-size:1.54em}
 	.c-tit02:before {width:10px;height:10px;background-size:auto 10px}
 }
@@ -85,6 +86,10 @@ div, input, select {box-sizing: border-box;}
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 12px;
+}
+
+.donut-modal-body .c-tit03 {
+  font-size: 20px;
 }
 
 /** -- 소제목 */
@@ -108,7 +113,8 @@ div, input, select {box-sizing: border-box;}
 }
 
 @media all and (max-width:768px) {
-	.c-tit03 {font-size:1rem;font-size:1rem}
+	.c-tit03,
+  .donut-modal-body .c-tit03 {font-size:1rem;font-size:1rem}
 }
 
 

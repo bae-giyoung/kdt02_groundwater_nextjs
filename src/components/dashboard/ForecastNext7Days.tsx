@@ -99,8 +99,8 @@ function buildForecastData(data: ForecastResponse, station: string): Next7Foreca
 
 // 컴포넌트
 export default function ForecastNext7Days({
-    stationCode = '5724',
-    stationName = '남원도통'
+    stationCode = '84020',
+    stationName = '화성팔탄'
 } : {
     stationCode?: GenInfoKey;
     stationName?: string;
@@ -171,7 +171,7 @@ export default function ForecastNext7Days({
         return {
             chart: {
                 type: 'line',
-                height: 260, // 160
+                height: 240, // 160
                 spacing: [8, 8, 8, 8]
             },
             title: {
@@ -297,9 +297,9 @@ export default function ForecastNext7Days({
                 {/* 스켈레톤 */}
                 <div className="h-5 w-48 bg-gray-200/60 rounded mb-1 animate-pulse" />
                 <div className="h-5 w-64 bg-gray-200/60 rounded mb-3 animate-pulse" />
-                <div className="h-[200px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
+                <div className="h-[240px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
                 <div className="h-6 w-64 bg-gray-200/60 rounded animate-pulse" />
-                <div className="h-[33px] w-64 bg-gray-200/60 rounded mt-3 animate-pulse" />
+                <div className="h-[16px] w-64 bg-gray-200/60 rounded mt-3 animate-pulse" />
             </div>
         );
     }

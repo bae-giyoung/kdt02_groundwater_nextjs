@@ -222,7 +222,7 @@ export default function GeoMap (
       },
     },
     mapView: {
-      zoom: 8.1
+      zoom: 7.7
     },
     colorAxis: currentColorAxis,
     plotOptions: {
@@ -303,13 +303,13 @@ export default function GeoMap (
 
   return (
     <div style={{width: "100%"}} id="geo-map-bubble" className="d-sgroup relative">
-      <div className="pointer-events-auto absolute right-3 top-6 flex flex-col gap-2 rounded-md bg-white/90 p-3 text-sm shadow z-10">
-        <span className="font-medium text-slate-700">레이어 선택</span>
+      <div className="pointer-events-auto absolute right-3 top-8 flex flex-col gap-2 rounded-md bg-white/90 p-3 text-sm shadow z-10">
+        <span className="font-medium text-slate-700">지표 선택</span>
         <label className="cursor-pointer flex items-center gap-2">
           <input type="radio" name="mapType" value="elevation" 
             checked={mapType === 'elevation'} 
             onChange={() => setMapType('elevation')} />
-            현재 지하수위
+            지하수위 현황
         </label>
         <label className="cursor-pointer flex items-center gap-2">
           <input type="radio" name="mapType" value="sensitivity" 
@@ -322,7 +322,7 @@ export default function GeoMap (
         highcharts={Highcharts}
         constructorType="mapChart"
         options={options}
-        containerProps={{style: {width: "100%", height: 700}}}
+        containerProps={{style: {width: "100%", height: 540}}}
         immutable
       />
       {
@@ -331,7 +331,7 @@ export default function GeoMap (
           <ul className="c-list01 mt-2">
               <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
           </ul>
-          <div className="info-box mt-5 max-h-20 overflow-y-auto" style={{ marginBottom: 0, fontSize: '12px'}}>
+          <div className="info-box mt-5 max-h-26 overflow-y-auto" style={{ marginBottom: 0, fontSize: '12px'}}>
               <div className="text-xs">
                   <b>관측소별 지하수위 ‘경고/위험/정상’ 구분 기준</b>은  
                   각 관측소의 <b>최근 10년간 월평균 수위 분포를 기반으로</b> 설정됩니다.  
@@ -349,7 +349,7 @@ export default function GeoMap (
           <ul className="c-list01 mt-2">
               <li>데이터 출처: AI 모델 분석</li>
           </ul>
-          <div className="info-box mt-5 max-h-20 overflow-y-auto" style={{ marginBottom: 0, fontSize: '12px'}}>
+          <div className="info-box mt-5 max-h-26 overflow-y-auto" style={{ marginBottom: 0, fontSize: '12px'}}>
               <div className="text-xs">
                   <b>관측소별 민감도</b>는 기상 변화(강우/가뭄)에 따라 지하수위가 변동하는 법위를 나타냅니다.  
                   민갑도(버블의 크기)가 높을 수록 외부 요인에 의해 수위가 크게 변동할 수 있음을 의미합니다.

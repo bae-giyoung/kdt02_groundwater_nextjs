@@ -282,8 +282,8 @@ export async function GET(
         //console.log("=================== 지도데이터 ================================================");
         //console.log(responseData.geomap);
 
-        // 추세 데이터 - 사용하지 않을 것
-        //responseData.trend = transformToTrendData(dataByStation);
+        // 추세 데이터 - 사용하지 않을 것 현재 DashBoardContentsOld.tsx에서만 사용
+        responseData.trend = transformToTrendData(dataByStation);
         //console.log("=================== 추세 데이터 ================================================");
         //console.log(responseData.trend);
 

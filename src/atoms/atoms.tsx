@@ -78,20 +78,22 @@ export const refreshSessionAtom = atom(
 // 타입 정의
 interface ModalState {
     isOpen: boolean;
+    header: React.ReactNode | null;
     content: React.ReactNode | null;
 }
 
 // 모달 atom
 export const modalStateAtom = atom<ModalState>({
     isOpen: false,
+    header: null,
     content: null,
 });
 
 // 파생 - 모달 열고 내용 설정
 export const openModalAtom = atom(
     null,
-    (get, set, content: React.ReactNode) => {
-        set(modalStateAtom, { isOpen: true, content });
+    (get, set, header?: React.ReactNode, content?: React.ReactNode) => {
+        set(modalStateAtom, { isOpen: true, header, content });
     }
 );
 
@@ -99,6 +101,6 @@ export const openModalAtom = atom(
 export const closeModalAtom = atom(
     null,
     (get, set) => {
-        set(modalStateAtom, { isOpen: false, content: null });
+        set(modalStateAtom, { isOpen: false, header: null, content: null });
     }
 );

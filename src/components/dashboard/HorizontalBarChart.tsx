@@ -69,5 +69,5 @@ export default function HorizontalBarChart({ title, data }: HorizontalBarChartPr
     };
   }, [title, data]);
 
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
+  return <HighchartsReact highcharts={Highcharts} options={options} containerProps={{style: {width: "100%", height: 200}}} />;
 }
