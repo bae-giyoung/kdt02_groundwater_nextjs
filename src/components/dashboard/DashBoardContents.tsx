@@ -10,15 +10,14 @@ import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
 import CustomButton from "../CustomButton";
 import { LiaExclamationCircleSolid } from "react-icons/lia";
-import type { GenInfoKey } from "@/types/uiTypes";
+import type { GenInfoKey, StatusPoint } from "@/types/uiTypes";
 import BarChart from "./BarChart";
-import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
+import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow, SensitivityRecord } from "@/types/uiTypes";
 import ForecastNext7Days from "./ForecastNext7Days";
 import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
-import SensitivityRadarChart from "./SensitivityRadarChart";
 import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
-import StationInfoBox from "../StationInfoBox";
+import StationInfoCard from "./StationInfoCard";
 
 
 /**
@@ -48,8 +47,8 @@ type TrendMetricT = {
 
 type DashboardApiResponse = {
     table?: DashboardTableData;
-    barChart?: Record<string, Record<string, number | null>>;
-    groundwaterStatus?: Record<string, TrendMetricT>;
+    barChart?: Record<string, Record<string, number | null>>; 
+    groundwaterStatus?: StatusPoint[];
 };
 
 
@@ -60,7 +59,7 @@ export default function DashBoardContents() {
     const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
     const [currElevDiffDatas, setCurrElevDiffDatas] = useState<DashboardTableDiffRow[]>([]);
     const [currBarChartDatas, setCurrBarChartDatas] = useState<Record<string, Record<string, number | null>>>({});
-    const [groundwaterStatusData, setGroundwaterStatusData] = useState([]); // 지도 상태
+    const [groundwaterStatusData, setGroundwaterStatusData] = useState<StatusPoint[]>([]); // 지도 상태
 
     const { data: sensitivityData, loading: sensitivityLoading } = useFetchSensitivityData();
     const [isAsc, setIsAsc] = useState<boolean>(true);
@@ -71,6 +70,31 @@ export default function DashBoardContents() {
     // 현재 관측소명, 현재 관측소의 경향성 지표
     const stationName = genInfo[station]?.["측정망명"];
     const stationId = `${GEN_CODES.indexOf(station) + 1}`;
+
+    const selectedStatusData = useMemo(() => {
+        if (!groundwaterStatusData || !station) return null;
+        return groundwaterStatusData.find(d => d.id === station) || null;
+    }, [groundwaterStatusData, station]);
+
+    const sensitivityRecordMap = useMemo(() => {
+        if (!sensitivityData?.stations_analisys) return null;
+        const map = new Map<GenInfoKey, SensitivityRecord>();
+        sensitivityData.stations_analisys.forEach((record, idx) => {
+            const numericStation = Number(record.station);
+            const mappedKey = Number.isFinite(numericStation) && numericStation > 0
+                ? (GEN_CODES[numericStation - 1] as GenInfoKey)
+                : (GEN_CODES[idx] as GenInfoKey);
+            if (mappedKey) {
+                map.set(mappedKey, record);
+            }
+        });
+        return map;
+    }, [sensitivityData]);
+
+    const selectedSensitivityData = useMemo(() => {
+        if (!sensitivityRecordMap) return null;
+        return sensitivityRecordMap.get(station) ?? null;
+    }, [sensitivityRecordMap, station]);
 
     // URLS - 숨기기!!!!!
     // 장기 추세, 기상-수위
@@ -447,18 +471,22 @@ export default function DashBoardContents() {
 
                     {/* 중간 섹션 - 지도, 예측 */}
                     <div className="flex flex-col lg:flex-row gap-6 mb-6">
-                        <div className="w-full lg:w-3/5 d-group">
+                        <div className="w-full lg:w-1/2 d-group">
                             <p className="c-tit03">전국 관측망</p>
                             <GeoMap statusData={groundwaterStatusData} sensitivityData={sensitivityData} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                         </div>
-                        <div className="w-full lg:w-2/5 flex flex-col gap-6">
+                        <div className="w-full lg:w-1/2 flex flex-col gap-6">
+                            <StationInfoCard
+                                stationCode={station}
+                                stationName={stationName}
+                                statusData={selectedStatusData}
+                                sensitivityData={selectedSensitivityData}
+                            >
+                                <CustomButton handler={handleOpenModal} caption="관측소 AI 분석 리포트 확인" bType="button" bStyle="btn-style-1 w-full"/>
+                            </StationInfoCard>
                             <div className="w-full d-group">
                                 <ForecastNext7Days stationCode={station} stationName={stationName}/>
                                 {/* <PerformanceIndicators stationCode={station} /> */}
-                            </div>
-                            <div className="w-full d-group">
-                                <StationInfoBox stationCode={station} stationName={stationName} />
-                                <CustomButton handler={handleOpenModal} caption="관측소 AI 분석 리포트 확인" bType="button" bStyle="btn-style-1 w-full my-6"/>
                             </div>
                         </div>
                     </div>
@@ -487,7 +515,7 @@ export default function DashBoardContents() {
                                 <p className="flex items-center gap-4">
                                     <span className="c-tit03 inline-block">일별 지하수위 현황</span>
                                     <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-6" />
-                                    <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
+                                    <CustomButton handler={() => handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
                                 </p>
                                 <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
                             </div>

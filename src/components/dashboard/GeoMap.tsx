@@ -4,7 +4,7 @@ import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
 import genInfo from "@/data/gennumInfo.json";
-import type { GenInfoKey, SensitivityDataset } from '@/types/uiTypes';
+import type { GenInfoKey, SensitivityDataset, SensitivityRecord } from '@/types/uiTypes';
 
 // 타입 선언
 interface StatusPoint {
@@ -58,11 +58,30 @@ const mapRegions = geoFeatures.map((feature, idx) => ({
 
 
 // 민감도 정보
+const buildSensitivityMap = (sensitivityData: SensitivityDataset | null) => {
+    const map = new Map<GenInfoKey, SensitivityRecord>();
+    const records = sensitivityData?.stations_analisys;
+    if (!records) return map;
+
+    records.forEach((record, idx) => {
+        const numericStation = Number(record.station);
+        const mappedKey = Number.isFinite(numericStation) && numericStation > 0
+            ? (GEN_CODES[numericStation - 1] as GenInfoKey)
+            : (GEN_CODES[idx] as GenInfoKey);
+
+        if (mappedKey) {
+            map.set(mappedKey, record);
+        }
+    });
+
+    return map;
+};
+
 const getSensitivityGeoInfo = (sensitivityData: SensitivityDataset | null) => {
-    if(!sensitivityData || !sensitivityData.stations_analisys) return [];
+    const sensitivityMap = buildSensitivityMap(sensitivityData);
+
     return Object.entries(genInfo).map(([gen, info]) => {
-        const stationIndex = GEN_CODES.indexOf(gen);
-        const analisys = sensitivityData.stations_analisys[stationIndex];
+        const analisys = sensitivityMap.get(gen as GenInfoKey);
 
         if(!analisys) {
             return {
@@ -166,11 +185,37 @@ export default function GeoMap (
 ) {
   const [ mapType, setMapType ] = useState<'elevation' | 'sensitivity'>('elevation');
   
-  const elevationPoints = useMemo(() => statusData.map(point => ({
-    ...point,
-    code: point.id,
-    z: point.value // 'value'를 'z'로 매핑
-  })), [statusData]);
+  // 현재 지하수위 데이터
+  const elevationPoints = useMemo(() => {
+    if (!statusData || statusData.length === 0) {
+      return [];
+    }
+
+    const pointsWithRelativeLevel = statusData.map(p => {
+      if (!p.percentiles || typeof p.percentiles.p25 !== 'number' || typeof p.percentiles.p75 !== 'number') {
+        return { ...p, relativeLevel: 0 };
+      }
+      const midNormal = (p.percentiles.p25 + p.percentiles.p75) / 2;
+      return { ...p, relativeLevel: p.value - midNormal };
+    });
+
+    const relativeLevels = pointsWithRelativeLevel.map(p => p.relativeLevel);
+    const minRelativeLevel = Math.min(...relativeLevels);
+    const maxRelativeLevel = Math.max(...relativeLevels);
+    const range = maxRelativeLevel - minRelativeLevel;
+
+    return pointsWithRelativeLevel.map(point => {
+      const zValue = range > 0 ? 1 + ((point.relativeLevel - minRelativeLevel) / range) * 99 : 50;
+
+      return {
+        ...point,
+        code: point.id,
+        z: zValue,
+      };
+    });
+  }, [statusData]);
+
+  // 민감도 데이터
   const sensitivityPoints = useMemo(() => getSensitivityGeoInfo(sensitivityData), [sensitivityData]);
   
   // 툴팁 설정
@@ -343,7 +388,7 @@ export default function GeoMap (
         highcharts={Highcharts}
         constructorType="mapChart"
         options={options}
-        containerProps={{style: {width: "100%", height: 540}}}
+        containerProps={{style: {width: "100%", height: 640}}}
         immutable
       />
       {

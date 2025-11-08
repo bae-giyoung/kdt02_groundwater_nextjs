@@ -32,24 +32,6 @@
       "range_variation": 0.135704040527344
     },
     {
-      "station": "10",
-      "start_value": 27.5390033721924,
-      "max_value": 27.6826591491699,
-      "min_value": 26.6581249237061,
-      "increase_if_rainfall": 0.143655776977539,
-      "decrease_if_drought": 0.880878448486328,
-      "range_variation": 1.02453422546387
-    },
-    {
-      "station": "11",
-      "start_value": 2.75467109680176,
-      "max_value": 2.8832790851593,
-      "min_value": 2.7450795173645,
-      "increase_if_rainfall": 0.128607988357544,
-      "decrease_if_drought": 0.00959157943725586,
-      "range_variation": 0.1381995677948
-    },
-    {
       "station": "12",
       "start_value": 113.431365966797,
       "max_value": 113.431365966797,
@@ -129,6 +111,24 @@
       "increase_if_rainfall": 0.18072509765625,
       "decrease_if_drought": 0.0715179443359375,
       "range_variation": 0.252243041992188
+    },
+    {
+      "station": "10",
+      "start_value": 27.5390033721924,
+      "max_value": 27.6826591491699,
+      "min_value": 26.6581249237061,
+      "increase_if_rainfall": 0.143655776977539,
+      "decrease_if_drought": 0.880878448486328,
+      "range_variation": 1.02453422546387
+    },
+    {
+      "station": "11",
+      "start_value": 2.75467109680176,
+      "max_value": 2.8832790851593,
+      "min_value": 2.7450795173645,
+      "increase_if_rainfall": 0.128607988357544,
+      "decrease_if_drought": 0.00959157943725586,
+      "range_variation": 0.1381995677948
     }
   ]
 }

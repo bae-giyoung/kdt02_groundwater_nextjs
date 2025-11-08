@@ -41,3 +41,24 @@ export interface SensitivityDataset {
   top5_largest_variation: SensitivityRecord[];
   stations_analisys: SensitivityRecord[];
 }
+
+// 지하수위 현황 데이터 타입 (from currentElev/route.ts)
+export interface PercentileData { 
+    p10: number; 
+    p25: number; 
+    p75: number; 
+    p90: number; 
+    n: number; 
+}
+
+export interface StatusPoint {
+    id: string;
+    name: string;
+    lat: number;
+    lon: number;
+    value: number;
+    status: number;
+    percentiles: PercentileData;
+    minElev: number | null;
+    maxElev: number | null;
+}

@@ -171,7 +171,7 @@ export default function ForecastNext7Days({
         return {
             chart: {
                 type: 'line',
-                height: 240, // 160
+                height: 220, // 160
                 spacing: [8, 8, 8, 8]
             },
             title: {

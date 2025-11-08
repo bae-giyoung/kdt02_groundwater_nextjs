@@ -42,6 +42,8 @@ interface StatusPoint {
     value: number;
     status: number;
     percentiles: PercentileData;
+    minElev: number | null;
+    maxElev: number | null;
 }
 
 // =============================================================================
@@ -174,15 +176,28 @@ function transformToGroundwaterStatus(rawData: Record<string, UnitFromOpenApiT[]
 
         if (!sInfo || !stationData || stationData.length === 0) return null;
 
-        const latestData = stationData[stationData.length - 1];
-        const currentLevel = Number(latestData.elev);
-        if (!Number.isFinite(currentLevel)) return null;
+        // 1. Sort data by date to ensure correctness
+        const sortedStationData = [...stationData].sort((a, b) => a.ymd.localeCompare(b.ymd));
+        
+        // 2. Calculate min/max from all available (30-day) data
+        const elevations = sortedStationData.map(d => Number(d.elev)).filter(Number.isFinite);
+        if (elevations.length === 0) return null; // No valid data points
 
+        const minElev = Math.min(...elevations);
+        const maxElev = Math.max(...elevations);
+
+        // 3. Get latest data point
+        const latestData = sortedStationData[sortedStationData.length - 1];
+        const currentLevel = Number(latestData.elev);
+        if (!Number.isFinite(currentLevel)) return null; // Should not happen due to above check, but for safety
+
+        // 4. Get percentiles and status
         const monthPercentiles = (station.monthly_percentiles as MonthlyPercentiles)[currentMonth];
         if (!monthPercentiles) return null;
 
         const status = getStatus(currentLevel, monthPercentiles);
 
+        // 5. Return full object
         return {
             id: code,
             name: sInfo["측정망명"],
@@ -190,7 +205,9 @@ function transformToGroundwaterStatus(rawData: Record<string, UnitFromOpenApiT[]
             lon: parseFloat(sInfo.lon),
             value: currentLevel,
             status: status,
-            percentiles: monthPercentiles
+            percentiles: monthPercentiles,
+            minElev: minElev,
+            maxElev: maxElev,
         };
     }).filter((p): p is StatusPoint => p !== null);
 
