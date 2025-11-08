@@ -134,13 +134,13 @@ export default function StationInfoCard({
                             regionBadges.map((badge) => (
                                 <span
                                     key={badge}
-                                    className="rounded-full border border-white/40 bg-white/10 px-2.5 py-0.5"
+                                    className="rounded-full border border-blue-700/40 bg-blue-400/10 px-2.5 py-0.5"
                                 >
                                     {badge}
                                 </span>
                             ))
                         ) : (
-                            <span className="rounded-full border border-white/40 bg-white/10 px-2.5 py-0.5">
+                            <span className="rounded-full border border-blue-700/40 bg-blue-400/10 px-2.5 py-0.5">
                                 지역 정보 없음
                             </span>
                         )}
