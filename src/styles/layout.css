@@ -223,7 +223,7 @@ footer {
 }
 
 /* == Dashboard Style */
-#dashboard .table-container {
+#dashboard #current-elev-table {
     max-height: 150px;
     overflow-y: auto;
 }

@@ -264,7 +264,7 @@ export default function ForecastNext7Days({
     // 에러 발생시 렌더링
     if (error) {
         return (
-            <div className="rounded-2xl p-4 bg-white/60 shadow">
+            <div className="" id="forecast-7days-container">
                 <div className="c-tit03">
                     <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
                 </div>
@@ -276,7 +276,7 @@ export default function ForecastNext7Days({
     // 사용자 인증 전 렌더링
     if (!userInfo) {
         return (
-            <div className="rounded-2xl p-4 bg-white/60 shadow">
+            <div className="" id="forecast-7days-container">
                 <div className="c-tit03">
                     <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
                 </div>
@@ -290,7 +290,7 @@ export default function ForecastNext7Days({
     // 로딩중 렌더링
     if (!forecastData || loading) {
         return (
-            <div className="">
+            <div className="" id="forecast-7days-container">
                 <div className="c-tit03">
                     <span className="c-txt-point">{stationName || "해당 관측소"}</span> 향후 7일 지하수위 예측
                 </div>

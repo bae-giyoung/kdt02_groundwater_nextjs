@@ -12,62 +12,98 @@ interface HorizontalBarChartProps {
 }
 
 export default function HorizontalBarChart({ title, data }: HorizontalBarChartProps) {
-  const options: Highcharts.Options = useMemo(() => {
-    const isDrought = title.includes('가뭄');
-    const chartColors = isDrought
-      ? ['#ff6361', '#ff8278', '#ffa091', '#ffbcae', '#ffd7cc'].reverse()
-      : ['#2196F3', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB'].reverse();
+  
+    // HighCarts 옵션
+    const options: Highcharts.Options = useMemo(() => {
+        const isDrought = title.includes('가뭄');
+        const isRainfall = title.includes('강수');
+        const chartColors = isDrought
+          ? ['#ff6361', '#ff8278', '#ffa091', '#ffbcae', '#ffd7cc'].reverse()
+          : isRainfall ? ['#2196F3', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB'].reverse()
+          : ["#C8E6C9", "#A5D6A7", "#81C784", "#4DB6AC", "#26A69A"]
 
-    return {
-      chart: {
-        type: 'bar',
-      },
-      colors: chartColors,
-      title: {
-        text: title,
-      },
-      xAxis: {
-        categories: data.map(d => d.name),
-        title: {
-          text: '',
-        },
-      },
-      yAxis: {
-        min: 0,
-        title: {
-          text: '',
-        },
-      },
-      labels: {
-        overflow: 'justify',
-      },
-      tooltip: {
-        valueDecimals: 2,
-      },
-      plotOptions: {
-        bar: {
-          colorByPoint: true,
-          dataLabels: {
-            enabled: true,
-            format: '{point.y:.2f}'
-          },
-        },
-      },
-      legend: {
-        enabled: false,
-      },
-      credits: {
-        enabled: false,
-      },
-      series: [
-        {
-          type: 'bar',
-          name: title,
-          data: data,
-        },
-      ],
-    };
-  }, [title, data]);
+        return {
+            chart: {
+                type: 'bar',
+            },
+            colors: chartColors,
+            title: {
+                text: title,
+            },
+            xAxis: {
+                categories: data.map(d => d.name),
+                title: {
+                    text: '',
+                },
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: '',
+                },
+            },
+            labels: {
+                overflow: 'justify',
+            },
+            tooltip: {
+                valueDecimals: 2,
+            },
+            plotOptions: {
+                bar: {
+                    colorByPoint: true,
+                    dataLabels: {
+                      enabled: true,
+                      format: '{point.y:.2f}'
+                    },
+                },
+            },
+            legend: {
+                enabled: false,
+            },
+            credits: {
+                enabled: false,
+            },
+            exporting: {
+                enabled: true,
+                filename: `${title.replace(/\s+/g, '_')}`,
+                buttons: {
+                    contextButton: {
+                        theme: {
+                            stroke: "#ccc",
+                            "stroke-width": 1.5,
+                            fill: "#ffffff",
+                        },
+                        menuItems: [
+                            'viewFullscreen',
+                            'downloadPNG',
+                            'downloadJPEG',
+                            'downloadCSV',
+                            'downloadXLS',
+                        ],
+                        symbol: 'menu',
+                        align: 'right',
+                        y: -10,
+                    }
+                }
+            },
+            lang: {
+                viewFullscreen: '크게 보기',
+                downloadPNG: 'PNG 이미지로 다운로드',
+                downloadJPEG: 'JPEG 이미지로 다운로드',
+                downloadCSV: 'CSV 파일로 다운로드',
+                downloadXLS: 'XLS 파일로 다운로드',
+                contextButtonTitle: '메뉴'
+            },
+            series: [
+                {
+                    type: 'bar',
+                    name: title,
+                    data: data,
+                },
+            ],
+        };
+    }, [title, data]);
 
-  return <HighchartsReact highcharts={Highcharts} options={options} containerProps={{style: {width: "100%", height: 200}}} />;
+    // 렌더링
+    return <HighchartsReact highcharts={Highcharts} options={options} containerProps={{style: {width: "100%", height: 200}}} />;
 }

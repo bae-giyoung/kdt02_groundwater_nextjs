@@ -5,36 +5,32 @@ import { openModalAtom } from '@/atoms/atoms';
 import CurrentTable from "./CurrentTable";
 import genInfo from "@/data/gennumInfo.json";
 import GeoMap from "./GeoMap";
-import StationInfoBox from "../StationInfoBox";
-import FeatureImportancePage from "./FeatureImportance";
 import logoSrc from "../../../public/assets/logo_mulalim.svg";
 import Image from "next/image";
 import DashboardNavi from "./DashboardNavi";
 import CustomButton from "../CustomButton";
-import PerformanceIndicators from "./PerformanceIndicators";
-import TrendPositionCard from "./TrendPositionCard";
 import { LiaExclamationCircleSolid } from "react-icons/lia";
 import type { GenInfoKey } from "@/types/uiTypes";
 import BarChart from "./BarChart";
-import WeatherGroundwaterTrendChart from "./WeatherGroundwaterTrendChart";
-import LineChartShadeZoom from "./LineChartShadeZoom";
 import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
-import ForecastSummaryPanel from "./ForecastSummaryPanel";
 import ForecastNext7Days from "./ForecastNext7Days";
 import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
-import SensitivityInsightText from "./SensitivityInsightText";
+import SensitivityRadarChart from "./SensitivityRadarChart";
 import HorizontalBarChart from "./HorizontalBarChart";
+import DashboardModalContent from "./DashBoardModalContent";
+import StationInfoBox from "../StationInfoBox";
 
 
 /**
  * 변수 설명 적어두자
  * *********************************************************************************************************************
- * @ stationCode: station
  * @ 
  * @ 
- * /
+ * @ 
+ * @
+*/
 
-//** 상수 선언  */
+// 상수 선언
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
 const GEN_CODES = Object.keys(genInfo);
 const GEN_NAMES = Object.values(genInfo).map(({ ["측정망명"]: name }) => name);
@@ -52,18 +48,8 @@ type TrendMetricT = {
 
 type DashboardApiResponse = {
     table?: DashboardTableData;
-    geomap?: Record<string, Record<string, number | null>>;
-    trend?: Record<string, TrendMetricT>;
-};
-
-type ModalTabKey = 'trend' | 'summary' | 'weather';
-
-type DashboardModalContentProps = {
-    station: GenInfoKey;
-    stationId: string;
-    stationName?: string;
-    longTermUrl: string;
-    weatherUrl: string;
+    barChart?: Record<string, Record<string, number | null>>;
+    groundwaterStatus?: Record<string, TrendMetricT>;
 };
 
 
@@ -73,8 +59,9 @@ export default function DashBoardContents() {
     const [period, setPeriod] = useState<string>("1");
     const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
     const [currElevDiffDatas, setCurrElevDiffDatas] = useState<DashboardTableDiffRow[]>([]);
-    const [currMapDatas, setCurrMapDatas] = useState<Record<string, Record<string, number | null>>>({});
-    //const [trendMetrics, setTrendMetrics] = useState<Record<string, TrendMetricT>>({}); // 지우기
+    const [currBarChartDatas, setCurrBarChartDatas] = useState<Record<string, Record<string, number | null>>>({});
+    const [groundwaterStatusData, setGroundwaterStatusData] = useState([]); // 지도 상태
+
     const { data: sensitivityData, loading: sensitivityLoading } = useFetchSensitivityData();
     const [isAsc, setIsAsc] = useState<boolean>(true);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -84,7 +71,6 @@ export default function DashBoardContents() {
     // 현재 관측소명, 현재 관측소의 경향성 지표
     const stationName = genInfo[station]?.["측정망명"];
     const stationId = `${GEN_CODES.indexOf(station) + 1}`;
-    //const stationTrend = trendMetrics[station];
 
     // URLS - 숨기기!!!!!
     // 장기 추세, 기상-수위
@@ -93,7 +79,7 @@ export default function DashBoardContents() {
 
     // 가뭄 취약/ 강수 민감 통계 Top-5 데이터
     const droughtData = useMemo(() => {
-        if(!sensitivityData) return;
+        if(!sensitivityData) return [];
         return sensitivityData.top5_drought_decrease.map(d => ({
             name: genInfo[(GEN_CODES[Number(d.station) - 1] as GenInfoKey)]?.["측정망명"],
             y: d.decrease_if_drought
@@ -101,23 +87,30 @@ export default function DashBoardContents() {
     }, [sensitivityData]);
 
     const rainData = useMemo(() => {
-        if(!sensitivityData) return;
+        if(!sensitivityData) return [];
         return sensitivityData?.top5_rainfall_increase.map(d => ({
             name: genInfo[(GEN_CODES[Number(d.station) - 1] as GenInfoKey)]?.["측정망명"],
             y: d.increase_if_rainfall
+        }));
+    }, [sensitivityData]);
+
+    const variationData = useMemo(() => {
+        if(!sensitivityData) return [];
+        return sensitivityData?.top5_largest_variation.map(d => ({
+            name: genInfo[(GEN_CODES[Number(d.station) - 1] as GenInfoKey)]?.["측정망명"],
+            y: d.range_variation
         }));
     }, [sensitivityData]);
     
     // 현황 바 차트
     const displayedBarChartData = useMemo(() => {
         return options.map(({ key, label }) => {
-            return { name: label, y: currMapDatas[key]?.["elevMean" + period] ?? null }
+            return { name: label, y: currBarChartDatas[key]?.["elevMean" + period] ?? null }
         });
-    }, [currMapDatas, period]);
+    }, [currBarChartDatas, period]);
 
     // 현황 테이블
     const tableColumns = useMemo(() => [{ key: "ymd", label: "기준일" }, ...options], []);
-    //console.log("tableColumns", tableColumns);
 
     const displayedTable = useMemo(() => {
         if (!currElevDatas) return;
@@ -336,25 +329,25 @@ export default function DashBoardContents() {
     const getCurrFetchDatas = useCallback(async () => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
         try {
-            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev?days=${TABLE_WINDOW_DAYS}`, {
-                method: "GET",
-                mode: "cors",
-                headers: { "Content-type": "application/json" },
-            });
+            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev?days=${TABLE_WINDOW_DAYS}`);
+
             if (!resp.ok) {
-                throw new Error(`failed to fetch current data: ${resp.status}`);
+                throw new Error(`failed to fetch dashboard data: ${resp.status}`);
             }
-            const json: DashboardApiResponse = await resp.json();
-            setCurrElevDatas(json.table?.tableRows ?? []);
-            setCurrElevDiffDatas(json.table?.tableDiffRows ?? []);
-            setCurrMapDatas(json.geomap ?? {});
-            //setTrendMetrics(json.trend ?? {});
+
+            const data = await resp.json();
+
+            setCurrElevDatas(data.table?.tableRows ?? []);
+            setCurrElevDiffDatas(data.table?.tableDiffRows ?? []);
+            setCurrBarChartDatas(data.barChart ?? {});
+            setGroundwaterStatusData(data.groundwaterStatus ?? []);
+
         } catch (error) {
-            console.error("failed to fetch current data", error);
+            console.error("failed to fetch dashboard data", error);
             setCurrElevDatas([]);
             setCurrElevDiffDatas([]);
-            setCurrMapDatas({});
-            //setTrendMetrics({});
+            setCurrBarChartDatas({});
+            setGroundwaterStatusData([]);
         }
     }, []);
 
@@ -423,6 +416,7 @@ export default function DashBoardContents() {
                     }
                 />
                 <div className="dash-contents">
+                    {/* 전국 지하수위 현황 */}
                     <div className="w-full d-group mb-6">
                         <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                             <span className="c-tit03">전국 관측소 지하수위 현황</span>
@@ -450,35 +444,37 @@ export default function DashBoardContents() {
                         </div>
                         <CurrentTable data={sortedTable && sortedTable.length > 0 ? sortedTable : []} dataDiff={sortedDiffTable && sortedDiffTable.length > 0 ? sortedDiffTable : []} columns={tableColumns} emphasis={station} />
                     </div>
-                    <div className="">
-                        <div className="flex flex-col lg:flex-row gap-6 mb-6">
-                            <div className="w-full lg:w-1/2 d-group">
-                                <p className="c-tit03">전국 관측망</p>
-                                <GeoMap mapData={currMapDatas} sensitivityData={sensitivityData} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
+
+                    {/* 중간 섹션 - 지도, 예측 */}
+                    <div className="flex flex-col lg:flex-row gap-6 mb-6">
+                        <div className="w-full lg:w-3/5 d-group">
+                            <p className="c-tit03">전국 관측망</p>
+                            <GeoMap statusData={groundwaterStatusData} sensitivityData={sensitivityData} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
+                        </div>
+                        <div className="w-full lg:w-2/5 flex flex-col gap-6">
+                            <div className="w-full d-group">
+                                <ForecastNext7Days stationCode={station} stationName={stationName}/>
+                                {/* <PerformanceIndicators stationCode={station} /> */}
                             </div>
-                            <div className="w-full lg:w-1/2 flex flex-col gap-6">
-                                <CustomButton handler={handleOpenModal} caption="관측소 정보 및 분석 확인" bType="button" bStyle="btn-style-1"/>
-                                <div className="w-full d-group">
-                                    <ForecastNext7Days stationCode={station} stationName={stationName}/>
-                                    {/* <PerformanceIndicators stationCode={station} /> */}
-                                    {sensitivityData && (
-                                        <div className="flex flex-col lg:flex-row gap-6 mt-6">
-                                            <div className="w-full d-group">
-                                                <HorizontalBarChart title="가뭄 취약 관측소 Top 5" color={"#FFB74D"} data={droughtData} />
-                                            </div>
-                                            <div className="w-full d-group">
-                                                <HorizontalBarChart title="강수 민감 관측소 Top 5" color={"#4A90E2"} data={rainData} />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="w-full d-group">
+                                <StationInfoBox stationCode={station} stationName={stationName} />
+                                <CustomButton handler={handleOpenModal} caption="관측소 AI 분석 리포트 확인" bType="button" bStyle="btn-style-1 w-full my-6"/>
                             </div>
                         </div>
-                        {/* <div className="flex flex-col lg:flex-row gap-6 mb-6">
-                            <div className="w-full d-group">
-                                <TrendPositionCard metric={stationTrend} stationName={stationName} windowDays={TABLE_WINDOW_DAYS} />
-                            </div>
-                        </div> */}
+                    </div>
+
+                    
+                    {/* 민감도 통계 */}
+                    <div className="flex flex-col lg:flex-row gap-6 mt-6">
+                        <div className="w-full d-group">
+                            <HorizontalBarChart title="가뭄 취약 관측소 Top 5" data={droughtData} />
+                        </div>
+                        <div className="w-full d-group">
+                            <HorizontalBarChart title="강수 민감 관측소 Top 5" data={rainData} />
+                        </div>
+                        <div className="w-full d-group">
+                            <HorizontalBarChart title="변동폭 Top 5" data={variationData} />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -506,72 +502,3 @@ export default function DashBoardContents() {
         </>
     );
 }
-
-const DashboardModalContent = ({
-    station,
-    stationId,
-    stationName,
-    longTermUrl,
-    weatherUrl,
-}: DashboardModalContentProps) => {
-    const [activeTab, setActiveTab] = useState<ModalTabKey>('weather');
-    const displayName = stationName || "해당 관측소";
-    const tabs: Array<{ key: ModalTabKey; label: string }> = [
-        { key: 'weather', label: '기상-예측 상관' },
-        { key: 'trend', label: '장기 추세' },
-        { key: 'summary', label: '예측 요약' },
-    ];
-
-    return (
-        <div className="w-full d-group flex flex-col gap-8 lg:flex-row" id="dashboard-station-modal">
-            <div className="w-full lg:w-1/3 space-y-4">
-                <StationInfoBox stationCode={station} stationName={stationName} />
-                <PerformanceIndicators stationCode={station} />
-            </div>
-            <div className="w-full lg:w-2/3 flex flex-col gap-4">
-                <div className="flex flex-wrap gap-2">
-                    {tabs.map(({ key, label }) => {
-                        const isActive = activeTab === key;
-
-                        return (
-                            <button
-                                key={key}
-                                type="button"
-                                onClick={() => setActiveTab(key)}
-                                className={`btn-style-4 font-medium transition-colors ${
-                                    isActive
-                                        ? 'bg-blue-600 text-white shadow-sm'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                {label}
-                            </button>
-                        );
-                    })}
-                </div>
-                {activeTab === 'trend' && (
-                    <div className="w-full d-group space-y-4">
-                        <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
-                            <p className="c-tit03">
-                                <span className="c-txt-point">{displayName}</span> 장기 추세 그래프 (2014 ~ 2023)
-                            </p>
-                            <span className="gray-92 c-txt03">10년간 월별 평균 지하수위 추이(단위: el.m)</span>
-                        </div>
-                        <LineChartShadeZoom baseUrl={longTermUrl} chartTitle="장기 추세 그래프(2014 ~ 2023)" />
-                    </div>
-                )}
-                {activeTab === 'summary' && (
-                    <ForecastSummaryPanel station={`${stationId}`} stationName={stationName} />
-                )}
-                {activeTab === 'weather' && (
-                    <div className="w-full d-group space-y-4">
-                        <p className="c-tit03">
-                            <span className="c-txt-point">{displayName}</span> 기상-예측 수위 상관관계
-                        </p>
-                        <WeatherGroundwaterTrendChart baseUrl={weatherUrl} chartTitle="기상-예측 수위 그래프" />
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};

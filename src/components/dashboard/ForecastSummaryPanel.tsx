@@ -6,7 +6,7 @@ import { toDateUTC, formatDateKST } from '../utils/timeFormatUtils';
 
 type RawSummaryRow = [number, number, number, number, number?];
 
-type SummaryApiResponse = {
+export type SummaryApiResponse = {
   table?: {
     table_data_3y: RawSummaryRow[];
     columns?: string[];
@@ -20,6 +20,19 @@ type ProcessedRow = {
   observed: number;
   predicted: number;
   diff: number;
+};
+
+const toProcessedRows = (rows: RawSummaryRow[]): ProcessedRow[] => {
+  return rows.map((row) => {
+    const [stationNo, yyyymm, observed, predicted, diff] = row;
+    return {
+      station: stationNo,
+      yyyymm,
+      observed,
+      predicted,
+      diff: diff ?? predicted - observed,
+    };
+  });
 };
 
 type SeasonSummary = {
@@ -59,6 +72,7 @@ interface Props {
   station: string;
   stationName?: string;
   onHighlightRange?: (from: number | null, to?: number | null) => void;
+  prefetchedData?: SummaryApiResponse | null;
 }
 
 const SEASON_MAP: { key: string; label: string; months: number[] }[] = [
@@ -270,10 +284,10 @@ const Heatmap = ({ rows }: { rows: HeatmapRow[] }) => {
   );
 };
 
-const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props) => {
+const ForecastSummaryPanel = ({ station, stationName, onHighlightRange, prefetchedData }: Props) => {
   const [view, setView] = useState<ViewMode>('year');
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!prefetchedData);
   const [error, setError] = useState<string | null>(null);
   const [rawRows, setRawRows] = useState<ProcessedRow[]>([]);
   const [metrics, setMetrics] = useState<Record<string, number>>({});
@@ -284,6 +298,15 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props)
   }, [station]);
 
   useEffect(() => {
+    if (prefetchedData) {
+      const rows = prefetchedData.table?.table_data_3y ?? [];
+      setRawRows(toProcessedRows(rows));
+      setMetrics(prefetchedData.metrics ?? {});
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
     const controller = new AbortController();
     const fetchSummary = async () => {
@@ -299,19 +322,9 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props)
 
         const json: SummaryApiResponse = await resp.json();
         const rows = json.table?.table_data_3y ?? [];
-        const processed: ProcessedRow[] = rows.map((row) => {
-          const [stationNo, yyyymm, observed, predicted, diff] = row;
-          return {
-            station: stationNo,
-            yyyymm,
-            observed,
-            predicted,
-            diff: diff ?? predicted - observed,
-          };
-        });
 
         if (mounted) {
-          setRawRows(processed);
+          setRawRows(toProcessedRows(rows));
           setMetrics(json.metrics ?? {});
         }
 
@@ -333,7 +346,7 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange }: Props)
       mounted = false;
       controller.abort();
     };
-  }, [summaryUrl]);
+  }, [prefetchedData, summaryUrl]);
 
   const yearSummaries = useMemo(() => {
     if (!rawRows.length) return [];

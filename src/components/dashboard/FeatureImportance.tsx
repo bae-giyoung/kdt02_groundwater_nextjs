@@ -72,6 +72,7 @@ export default function FeatureImportancePage({
         chart: {
             type: 'pie',
             backgroundColor: 'transparent',
+            height: 400,
             options3d: {
                 enabled: true,
                 alpha: 45,

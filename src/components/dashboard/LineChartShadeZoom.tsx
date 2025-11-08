@@ -42,7 +42,7 @@ interface LineChartSeriesData {
     predicted: SeriesTuple[];
 }
 
-interface BackendSeriesResponse {
+export interface LineChartBackendResponse {
     data: { series: LineChartSeriesData }
 }
 
@@ -50,7 +50,7 @@ interface LineChartZoomProps {
     baseUrl: string;
     chartTitle?: string;
     defaultWindow?: 12 | 60 | 84 | 120;
-    prefetchedData?: BackendSeriesResponse;
+    prefetchedData?: LineChartBackendResponse;
 }
 
 // 상수 선언
@@ -73,7 +73,7 @@ const fetchData = async(url: string, signal: AbortSignal) => {
     });
 
     if(resp.ok){
-        const data: BackendSeriesResponse = await resp.json();
+        const data: LineChartBackendResponse = await resp.json();
         const actual = normalizeTuples(data.data.series.actual);
         const predicted = normalizeTuples(data.data.series.predicted);
         return {actual, predicted};
@@ -403,10 +403,10 @@ export default function LineChartShadeZoom({
         },
     });
 
-    // 로딩중 렌더링
+    // 로딩중 렌더링 - 현재 대시보드 모달에서 로딩 렌더링 중이라 필요없음/ 확장성
     if (loading) {
         return (
-            <div className="chart-box mt-6 w-full">
+            <div className="chart-box w-full">
                 <div className='relative'>
                     <p className='absolute z-10'>
                         불러오는 중.....
@@ -419,7 +419,7 @@ export default function LineChartShadeZoom({
 
     // 렌더링
     return (
-        <div className="chart-box mt-6 w-full">
+        <div className="chart-box w-full">
             <div className='relative'>
                 <p className='absolute z-10'>
                     { error ?  `오류: ${error}` : null }
@@ -428,7 +428,7 @@ export default function LineChartShadeZoom({
                     highcharts={Highcharts}
                     options={options}
                     ref={chartRef}
-                    containerProps={{className: 'line-chart-container', style: {width: '100%', height: 400}}}
+                    containerProps={{className: 'line-chart-container', style: {width: '100%', height: 450}}}
                 />
             </div>
         </div>

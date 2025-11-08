@@ -34,14 +34,14 @@ interface LineChartSeriesData {
     humidity_pct: SeriesTuple[];
 }
 
-interface BackendSeriesResponse {
+export interface WeatherGroundwaterBackendResponse {
     data: { series_raw: LineChartSeriesData }
 }
 
 interface WeatherGroundwaterTrendChartProps {
     baseUrl: string;
     chartTitle?: string;
-    prefetchedData?: BackendSeriesResponse;
+    prefetchedData?: WeatherGroundwaterBackendResponse;
 }
 
 // 함수
@@ -70,7 +70,7 @@ const fetchData = async(url: string, signal: AbortSignal) => {
     });
 
     if(resp.ok){
-        const data: BackendSeriesResponse = await resp.json();
+        const data: WeatherGroundwaterBackendResponse = await resp.json();
         const predicted = normalizeTuples(data.data.series_raw.predicted);
         const rain_mm = normalizeTuples(data.data.series_raw.rain_mm);
         const temp_c = normalizeTuples(data.data.series_raw.temp_c);

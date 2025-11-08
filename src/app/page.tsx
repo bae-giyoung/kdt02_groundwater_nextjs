@@ -12,8 +12,8 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
 export default function Home() {
 
-  // 메인에서만 사용할거지만 일단은 함수로 묶음
-  const scrollSmootherFn = (
+  // 메인에서만 사용할거지만 일단은 함수로 묶음 
+/*   const scrollSmootherFn = (
     {
       wrapper, 
       content, 
@@ -57,7 +57,7 @@ export default function Home() {
     return () => {
       smoother?.kill();
     }
-  }, []);
+  }, []); */
 
   return (
     <main>
@@ -83,10 +83,10 @@ export default function Home() {
               </Link>
             </div>
           </section>
-          <section id="msection-1" className="min-h-96">섹션1</section>
+          {/* <section id="msection-1" className="min-h-96">섹션1</section>
           <section id="msection-2" className="min-h-96">섹션2</section>
           <section id="msection-3" className="min-h-96">섹션3</section>
-          <section id="msection-4" className="min-h-96">섹션4</section>
+          <section id="msection-4" className="min-h-96">섹션4</section> */}
         </div>
       </div>
     </main>

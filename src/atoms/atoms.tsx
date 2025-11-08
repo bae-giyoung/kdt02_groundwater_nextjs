@@ -33,7 +33,7 @@ export const sessionAtom = atom<SessionSnapshot>({
     user: null,
 });
 
-// 인가: 로그인 성공 후 호출 또는 인가 필요 페이지에서 호출, userInfoAtom, sessionAtom 동기화
+// 인증: 로그인 성공 후 호출 또는 인가 필요 페이지에서 호출, userInfoAtom, sessionAtom 동기화
 export const refreshSessionAtom = atom(
     (get) => get(sessionAtom),
     async (_, set) => {
@@ -56,7 +56,7 @@ export const refreshSessionAtom = atom(
                 });
                 return;
             };
-            console.log("호출함");
+
             const user = await response.json();
             set(userInfoAtom, user);
             set(sessionAtom, { status: 'authenticated', user });

@@ -1,55 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { DashboardTableData, DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
+import type { DashboardTableData } from "@/types/uiTypes";
+import thresholds from "@/data/groundwater_monthly_thresholds_2014_2020.json";
+import stationInfo from "@/data/gennumInfo.json";
 
+// =============================================================================
 // 상수 선언
+// ======================================================================
 const API_KEY = process.env.GROUNDWATER_API_KEY;
 const BASE_URL = "https://www.gims.go.kr/api/data/observationStationService/getGroundwaterMonitoringNetwork";
-const GENNUMS = ["5724", "9879", "11746", "11777", "65056", "73515", "73538", "82031", "82049", "84020", "514307", "514310"] as const;
+const GENNUMS = Object.keys(stationInfo);
 const DEFAULT_DAYS = 30;
 const MIN_DAYS = 1;
 const MAX_DAYS = 365;
 
+// =============================================================================
 // 타입 선언
+// ======================================================================
+
+// Open API 원본 데이터 타입
 type UnitFromOpenApiT = {
-    gennum: string,
-    elev: string,
-    wtemp: string,
-    lev: string,
-    ec: string,
-    ymd: string
+    gennum: string, elev: string, wtemp: string, lev: string, ec: string, ymd: string
 }
 
-type TrendMetricT = {
-    position: number | null,
-    latestElev: number | null,
-    latestYmd: string | null,
-    minElev: number | null,
-    maxElev: number | null,
-}
-
+// 최종 응답 데이터 타입
 type ResponseDataT = {
     table: DashboardTableData,
-    geomap: Record<string, Record<string, number | null>>,
-    trend: Record<string, TrendMetricT>
+    barChart: Record<string, Record<string, number | null>>,
+    groundwaterStatus: StatusPoint[]
 }
 
-// 기본 30일, 최소 1일, 최대 365일 제한. 현재 30일만 사용하지만 확장성 고려.
+// groundwaterStatus 타입들
+type StationInfo = { "측정망명": string; lat: string; lon: string; };
+type StationInfoData = Record<string, StationInfo>;
+interface PercentileData { p10: number; p25: number; p75: number; p90: number; n: number; }
+interface MonthlyPercentiles { [key: string]: PercentileData; }
+interface StatusPoint {
+    id: string;
+    name: string;
+    lat: number;
+    lon: number;
+    value: number;
+    status: number;
+    percentiles: PercentileData;
+}
+
+// =============================================================================
+// util 함수
+// ======================================================================
+
 function parseDaysParam(daysParam: string | null) {
     if(!daysParam) return DEFAULT_DAYS;
     const parsed = Number(daysParam);
-
-    if(!Number.isFinite(parsed) || !Number.isInteger(parsed)) {
-        return DEFAULT_DAYS;
-    }
-
-    if(parsed < MIN_DAYS) {
-        return MIN_DAYS;
-    }
-
-    if(parsed > MAX_DAYS) {
-        return MAX_DAYS;
-    }
-
+    if(!Number.isFinite(parsed) || !Number.isInteger(parsed)) return DEFAULT_DAYS;
+    if(parsed < MIN_DAYS) return MIN_DAYS;
+    if(parsed > MAX_DAYS) return MAX_DAYS;
     return parsed;
 }
 
@@ -57,296 +61,671 @@ function formatDateToParam(date: Date) {
     const year = date.getFullYear();
     const month = ("0" + (date.getMonth() + 1)).slice(-2);
     const day = ("0" + date.getDate()).slice(-2);
-
     return `${year}${month}${day}`;
 }
 
-// OPEN API용 Params : 오늘로부터 (days - 1)일전까지
 function getApiParams(request: NextRequest) {
     const params = request.nextUrl.searchParams;
     const days = parseDaysParam(params.get("days"));
     const today = new Date();
-
     const start = new Date(today);
     start.setDate(today.getDate() - (days - 1));
-    const begindate = formatDateToParam(start);
-    const enddate = formatDateToParam(today);
-
-    return { begindate: begindate, enddate: enddate };
+    return { begindate: formatDateToParam(start), enddate: formatDateToParam(today) };
 }
-
 
 // 각 관측소별 fetch 요청
 async function fetchFromEachStation(gennum: string, begindate: string, enddate: string) {
     if(!API_KEY) throw new Error("Missing API_KEY");
-
     const url = `${BASE_URL}?KEY=${API_KEY}&type=JSON&gennum=${gennum}&begindate=${begindate}&enddate=${enddate}`;
-    const resp = await fetch(url, {
-      method: "GET",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        "Cross-Origin-Resource-Policy": "cross-origin",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
+    const resp = await fetch(url);
     if(!resp.ok) throw new Error(`OPEN API 오류: ${resp.status}`);
     const json = await resp.json();
-
-    return (json.response?.resultData ?? []); // UnitFromOpenApiT[];
+    return (json.response?.resultData ?? []);
 }
 
+// groundwaterStatus 상태 계산 함수
+const getStatus = (currentLevel: number, percentiles: PercentileData) => {
+    const { p10, p25, p75, p90 } = percentiles;
+    if (currentLevel < p10 || currentLevel > p90) return 2; // 위험
+    if ((currentLevel >= p10 && currentLevel < p25) || (currentLevel > p75 && currentLevel <= p90)) return 1; // 경고
+    return 0; // 정상
+};
 
-// 테이블용 데이터로 가공
+// =============================================================================
+// 데이터 가공 함수
+// ======================================================================
+
+// 현황 table용 데이터
 function transformToTableData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    // 날짜 Set생성
     const dateSet = new Set<string>();
-    for(const unitRows of Object.values(rawData)) { // unitRows: UnitFromOpenApiT[];
-        unitRows.forEach(unit => dateSet.add(unit.ymd));
-    }
+    Object.values(rawData).forEach(rows => rows.forEach(unit => dateSet.add(unit.ymd)));
     const dates = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
 
-    // 현황 데이터 O(n*n*nlogn) => 나중에 고칠 방법!
     const tableRows = dates.map(date => {
-        const tableRow: Record<string, string | number | null> = { ymd: date };
-
-        // OPEN API에서 순서 보장하고 있다.=>!!!!!!!
+        const row: Record<string, string | number | null> = { ymd: date };
         for(const [gen, unitRows] of Object.entries(rawData)) {
-            const foundRow = unitRows.find(unit => unit.ymd === date);
-            if(foundRow) {
-                tableRow[gen] = Number(foundRow.elev);
-            } else {
-                tableRow[gen] = null; // null이 아니게 되었음 영향받는 것들 생각
-            }
+            const found = unitRows.find(unit => unit.ymd === date);
+            row[gen] = found ? Number(found.elev) : null;
         }
-        return tableRow;
+        return row;
     });
 
-    // Diff 데이터
     const tableRowsByDate = new Map(tableRows.map(row => [row.ymd as string, row]));
-
-    const tableDiffRows = tableRows.map((tableRow, tableIdx) => {
-        const tableDiffRow: Record<string, string | number | null> = { ymd: tableRow.ymd };
-        const currentDateStr = tableRow.ymd as string;
-
-        // 현재 날짜 기준 하루 전 날짜(YYYYMMDD) 문자열 생성
-        const year = parseInt(currentDateStr.slice(0, 4), 10);
-        const month = parseInt(currentDateStr.slice(4, 6), 10) - 1;
-        const day = parseInt(currentDateStr.slice(6, 8), 10);
-
-        const prevDate = new Date(year, month, day);
-        prevDate.setDate(prevDate.getDate() - 1);
-        const prevDateStr = formatDateToParam(prevDate);
-
-        // 하루 전 데이터 조회
+    const tableDiffRows = tableRows.map(row => {
+        const diffRow: Record<string, string | number | null> = { ymd: row.ymd };
+        const currentDate = new Date(parseInt((row.ymd as string).slice(0,4)), parseInt((row.ymd as string).slice(4,6)) - 1, parseInt((row.ymd as string).slice(6,8)));
+        currentDate.setDate(currentDate.getDate() - 1);
+        const prevDateStr = formatDateToParam(currentDate);
         const prevRow = tableRowsByDate.get(prevDateStr);
 
-        GENNUMS.map(gen => {
-            // 전일 데이터가 존재할 경우
-            if(prevRow) {
-                const currentValue = tableRow[gen];
-                const prevValue = prevRow[gen];
-
-                // 현재와 전일 값 모두 유효한 숫자인지 확인 후 계산
-                if(typeof currentValue === "number" && typeof prevValue === "number") {
-                    tableDiffRow[gen] = (currentValue * 1000 - prevValue * 1000) / 1000;
+        if (prevRow) {
+            GENNUMS.forEach(gen => {
+                const currentVal = row[gen];
+                const prevVal = prevRow[gen];
+                if (typeof currentVal === "number" && typeof prevVal === "number") {
+                    diffRow[gen] = (currentVal * 1000 - prevVal * 1000) / 1000;
                 } else {
-                    tableDiffRow[gen] = null;
+                    diffRow[gen] = null;
                 }
-            }
-        });
-        return tableDiffRow;
+            });
+        }
+        return diffRow;
     });
 
-    return { tableRows: tableRows, tableDiffRows: tableDiffRows };
+    return { tableRows, tableDiffRows };
 }
 
-// 최근 N일 평균 지하수위
+//
 function averageLatest(units: number[], windowSize: number): number | null {
     if(units.length === 0) return null;
-    
     const count = Math.min(windowSize, units.length);
     let sum = 0;
-
-    // units는 과거 -> 최신 순서
-    for(let i = units.length - count; i < units.length; i+= 1) {
-        sum += units[i];
-    }
-
+    for(let i = units.length - count; i < units.length; i++) sum += units[i];
     return Number((sum / count).toFixed(3));
 }
 
-// 지도용 데이터 가공
-function transformToGeoMapData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    const geoMapData: Record<string, Record<string, number | null>> = {};
-
+// ChartBar용 데이터로 가공
+function transformToBarChartData(rawData: Record<string, UnitFromOpenApiT[]>) {
+    const barChartData: Record<string, Record<string, number | null>> = {};
     for (const [gen, units] of Object.entries(rawData)) {
-        const allElevs = units.map(unit => Number(unit.elev)).filter(value => Number.isFinite(value));
-        if (allElevs.length === 0) {
-            geoMapData[gen] = {elevMean1: null, elevMean7: null, elevMean14: null, elevMean30: null};
-            continue;
-        }
-
-        geoMapData[gen] = {
+        const allElevs = units.map(unit => Number(unit.elev)).filter(Number.isFinite);
+        barChartData[gen] = {
             elevMean1: averageLatest(allElevs, 1),
             elevMean7: averageLatest(allElevs, 7),
             elevMean14: averageLatest(allElevs, 14),
             elevMean30: averageLatest(allElevs, 30),
         };
     }
-
-    return geoMapData;
+    return barChartData;
 }
 
+// GroundwaterStatus용 데이터로 가공
+function transformToGroundwaterStatus(rawData: Record<string, UnitFromOpenApiT[]>) {
+    const currentMonth = (new Date().getMonth() + 1).toString();
+    const stationCodes = Object.keys(stationInfo);
 
-// 추세용 데이터 가공
-function transformToTrendData(rawData: Record<string, UnitFromOpenApiT[]>) {
-    const trendData: Record<string, TrendMetricT> = {};
+    const statusData = thresholds.stations.map(station => {
+        const stationIndex = parseInt(station.id, 10) - 1;
+        if (stationIndex < 0 || stationIndex >= stationCodes.length) return null;
+        
+        const code = stationCodes[stationIndex];
+        const sInfo = (stationInfo as StationInfoData)[code];
+        const stationData = rawData[code];
 
-    for(const [gen, units] of Object.entries(rawData)) {
-        const validUnits = units.map(unit => {
-            const elevNum = Number(unit.elev);
-            return Number.isFinite(elevNum) ? { ...unit, elevNum } : null;
-        }).filter((unit): unit is UnitFromOpenApiT & { elevNum: number } => {
-            return unit !== null;
-        });
+        if (!sInfo || !stationData || stationData.length === 0) return null;
 
-        if(validUnits.length === 0) {
-            trendData[gen] = {
-                position: null,
-                latestElev: null,
-                latestYmd: null,
-                minElev: null,
-                maxElev: null,
-            };
-            continue; // 매우 중요!
+        const latestData = stationData[stationData.length - 1];
+        const currentLevel = Number(latestData.elev);
+        if (!Number.isFinite(currentLevel)) return null;
+
+        const monthPercentiles = (station.monthly_percentiles as MonthlyPercentiles)[currentMonth];
+        if (!monthPercentiles) return null;
+
+        const status = getStatus(currentLevel, monthPercentiles);
+
+        return {
+            id: code,
+            name: sInfo["측정망명"],
+            lat: parseFloat(sInfo.lat),
+            lon: parseFloat(sInfo.lon),
+            value: currentLevel,
+            status: status,
+            percentiles: monthPercentiles
         };
+    }).filter((p): p is StatusPoint => p !== null);
 
-        const sortedUnits = [...validUnits].sort((a, b) => a.ymd.localeCompare(b.ymd));
-        const latestUnit = sortedUnits[sortedUnits.length - 1];
-        const elevations = sortedUnits.map(unit => unit.elevNum);
-        const minElev = elevations.reduce((acc, cur) => Math.min(acc, cur), elevations[0]);
-        const maxElev = elevations.reduce((acc, cur) => Math.max(acc, cur), elevations[0]);
-
-        let position: number | null = null;
-        if(sortedUnits.length >= 2 && maxElev !== minElev) {
-            const positionRatio = (latestUnit.elevNum - minElev) / (maxElev - minElev);
-            position = Math.max(0, Math.min(1, positionRatio));
-        } else {
-            position = 0.5;
-        }
-
-        trendData[gen] = {
-            position: position,
-            latestElev: latestUnit.elevNum ?? null,
-            latestYmd: latestUnit.ymd ?? null,
-            minElev: minElev,
-            maxElev: maxElev,
-        }
-    }
-    return trendData;
+    return statusData;
 }
 
-export async function GET(
-    request: NextRequest
-) {
-    const {begindate, enddate} = getApiParams(request);
-    const gennumList = GENNUMS;
-    const responseData: ResponseDataT = {table: {}, geomap: {}, trend: {}};
+
+// =============================================================================
+// GET 핸들러
+// ======================================================================
+export async function GET(request: NextRequest) {
+    const { begindate, enddate } = getApiParams(request);
 
     try {
-        // 관측소별 일별 지하수 측정자료 받아오기
-        const entries: (string | UnitFromOpenApiT[])[][] = await Promise.all( // => 시간 되면 allSetteled 고려
-            gennumList.map((gen: string) =>
+        // settledResults => [{ status: 'fulfilled', value: [ '5724', [Array] ] }, ... ]
+        const settledResults = await Promise.allSettled(
+            GENNUMS.map((gen: string) =>
                 fetchFromEachStation(gen, begindate, enddate)
-                .then((units: UnitFromOpenApiT[]) => [gen, units])
+                    .then((units: UnitFromOpenApiT[]) => [gen, units])
             )
         );
-        //console.log("=================== Fetch12번의 결과 entries의 배열로 ================================================");
-        //console.log(entries);
 
-        // 데이터 가공: 관측소별 전체 데이터 묶음 (entries를 객체로)
-        const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entries);
-        //console.log("=================== 관측소별 데이터로 바꾼것 dataByStation ================================================");
-        //console.log(dataByStation);
+        // 성공한 것만 추려서 객체로 변환 => [['5724', [{gennum:'5724', elev:'105.76',..,ymd:'20251010'}, ...], ...], [..], ...]
+        const entriesWithFallbacks = settledResults.flatMap((result, idx) => 
+            result.status === "fulfilled" ? [result.value] : [GENNUMS[idx], []]
+        );
+        // 나중에 fallback 형식으로 전부 보내서 에러 테스트하기 => 반드시
 
-        // 데이블 데이터
-        responseData.table = transformToTableData(dataByStation);
-        //console.log("=================== 테이블데이터 ================================================");
-        //console.log(responseData.table);
+        // 관측소별 데이터로 변환 dataByStation => {'5724': [{gennum:'5724', elev:'105.76',..,ymd:'20251010'}, {}, ...], '514310': [...], ...}
+        const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entriesWithFallbacks);
+        
+        // 실패한 항목 로깅하기
+        settledResults.forEach((result, idx) => {
+            if (result.status === "rejected") {
+                console.log(`Station ${GENNUMS[idx]} 에러: ${result.reason}`);
+            }
+        });
 
-        // 지도 데이터
-        responseData.geomap = transformToGeoMapData(dataByStation);
-        //console.log("=================== 지도데이터 ================================================");
-        //console.log(responseData.geomap);
-
-        // 추세 데이터 - 사용하지 않을 것 현재 DashBoardContentsOld.tsx에서만 사용
-        responseData.trend = transformToTrendData(dataByStation);
-        //console.log("=================== 추세 데이터 ================================================");
-        //console.log(responseData.trend);
+        // 응답 데이터
+        const responseData: ResponseDataT = {
+            table: transformToTableData(dataByStation),
+            barChart: transformToBarChartData(dataByStation),
+            groundwaterStatus: transformToGroundwaterStatus(dataByStation)
+        };
 
         return NextResponse.json(responseData);
 
     } catch(error) {
-        return NextResponse.json({errorCode: 502, message: "OPEN API 오류 또는 네트워크 에러"});
+        console.error("currentElev API 에러:", error);
+        return NextResponse.json({ errorCode: 502, message: "OPEN API 오류 또는 네트워크 에러" }, { status: 500 });
     }   
 }
 
-
-/* ========================== REST API 명세서 작성중 ============================ */
-// [현재 필요 데이터]
-// = 지하수위 현황 테이블
-// 일평균: [{5724: '105.79', 9879: '201.97', 11746: '55.22', ..., ymd: '20250929'}]
-// 1일(일 단위 open api), 7일(일 단위 open api), 14일(일 단위 open api), 30일(일 단위 open api), 1년(년 단위 open api), 7년?(년 단위 open api) => 확장
-// 확장하게 되면: [{5724: '105.79', 9879: '201.97', 11746: '55.22', ...}, {5724: '105.79', 9879: '201.97', 11746: '55.22', ...}, {5724: '105.79', 9879: '201.97', 11746: '55.22', ...}, ...]
-// = 지도용
-// 어떻게 가공할지 고민중
-/* ============================================================================ */
-
-// OPEN API에서 받아오는 데이터 형식
-// json.response.resultData 부분만
-// 관측소1, 1일치 받을때
+// =============================================================================
+// [ 데이터 구조 확인용 기록 ] 
 /* 
-[
-  {
-    gennum: '5724',
-    elev: '105.79',
-    wtemp: '16.05',
-    lev: '2.54',
-    ec: '1220',
-    ymd: '20250929'
-  }
-]
- */
+dataByStation
+'514307': [
+    {
+      gennum: '514307',
+      elev: '3.03',
+      wtemp: '16.06',
+      lev: '5.35',
+      ec: '416',
+      ymd: '20251010'
+    },
+    {
+      gennum: '514307',
+      elev: '3.02',
+      wtemp: '16.07',
+      lev: '5.36',
+      ec: '416',
+      ymd: '20251011'
+    },
+    {
+      gennum: '514307',
+      elev: '3.01',
+      wtemp: '16.07',
+      lev: '5.37',
+      ec: '416',
+      ymd: '20251012'
+    },
+    {
+      gennum: '514307',
+      elev: '3',
+      wtemp: '16.07',
+      lev: '5.38',
+      ec: '416',
+      ymd: '20251013'
+    },
+    {
+      gennum: '514307',
+      elev: '3.07',
+      wtemp: '16.08',
+      lev: '5.31',
+      ec: '415',
+      ymd: '20251014'
+    },
+    {
+      gennum: '514307',
+      elev: '3.07',
+      wtemp: '16.08',
+      lev: '5.31',
+      ec: '415',
+      ymd: '20251015'
+    },
+    {
+      gennum: '514307',
+      elev: '3.28',
+      wtemp: '16.08',
+      lev: '5.1',
+      ec: '415',
+      ymd: '20251016'
+    },
+    {
+      gennum: '514307',
+      elev: '3.24',
+      wtemp: '16.08',
+      lev: '5.14',
+      ec: '415',
+      ymd: '20251017'
+    },
+    {
+      gennum: '514307',
+      elev: '3.19',
+      wtemp: '16.09',
+      lev: '5.19',
+      ec: '415',
+      ymd: '20251018'
+    },
+    {
+      gennum: '514307',
+      elev: '3.16',
+      wtemp: '16.09',
+      lev: '5.22',
+      ec: '415',
+      ymd: '20251019'
+    },
+    {
+      gennum: '514307',
+      elev: '3.13',
+      wtemp: '16.09',
+      lev: '5.25',
+      ec: '415',
+      ymd: '20251020'
+    },
+    {
+      gennum: '514307',
+      elev: '3.1',
+      wtemp: '16.1',
+      lev: '5.28',
+      ec: '415',
+      ymd: '20251021'
+    },
+    {
+      gennum: '514307',
+      elev: '3.08',
+      wtemp: '16.1',
+      lev: '5.3',
+      ec: '415',
+      ymd: '20251022'
+    },
+    {
+      gennum: '514307',
+      elev: '3.06',
+      wtemp: '16.1',
+      lev: '5.32',
+      ec: '415',
+      ymd: '20251023'
+    },
+    {
+      gennum: '514307',
+      elev: '3.04',
+      wtemp: '16.11',
+      lev: '5.34',
+      ec: '415',
+      ymd: '20251024'
+    },
+    {
+      gennum: '514307',
+      elev: '3.03',
+      wtemp: '16.11',
+      lev: '5.35',
+      ec: '416',
+      ymd: '20251025'
+    },
+    {
+      gennum: '514307',
+      elev: '3.02',
+      wtemp: '15.74',
+      lev: '5.36',
+      ec: '419',
+      ymd: '20251026'
+    },
+    {
+      gennum: '514307',
+      elev: '3',
+      wtemp: '16.12',
+      lev: '5.38',
+      ec: '416',
+      ymd: '20251027'
+    },
+    {
+      gennum: '514307',
+      elev: '2.99',
+      wtemp: '16.12',
+      lev: '5.39',
+      ec: '416',
+      ymd: '20251028'
+    },
+    {
+      gennum: '514307',
+      elev: '2.96',
+      wtemp: '16.13',
+      lev: '5.42',
+      ec: '416',
+      ymd: '20251029'
+    },
+    {
+      gennum: '514307',
+      elev: '2.94',
+      wtemp: '16.13',
+      lev: '5.44',
+      ec: '416',
+      ymd: '20251030'
+    },
+    {
+      gennum: '514307',
+      elev: '2.94',
+      wtemp: '16.14',
+      lev: '5.44',
+      ec: '416',
+      ymd: '20251031'
+    },
+    {
+      gennum: '514307',
+      elev: '2.93',
+      wtemp: '15.77',
+      lev: '5.45',
+      ec: '420',
+      ymd: '20251101'
+    },
+    {
+      gennum: '514307',
+      elev: '2.93',
+      wtemp: '16.15',
+      lev: '5.45',
+      ec: '417',
+      ymd: '20251102'
+    },
+    {
+      gennum: '514307',
+      elev: '2.93',
+      wtemp: '16.15',
+      lev: '5.45',
+      ec: '417',
+      ymd: '20251103'
+    },
+    {
+      gennum: '514307',
+      elev: '2.91',
+      wtemp: '16.15',
+      lev: '5.47',
+      ec: '417',
+      ymd: '20251104'
+    },
+    {
+      gennum: '514307',
+      elev: '2.92',
+      wtemp: '16.16',
+      lev: '5.46',
+      ec: '417',
+      ymd: '20251105'
+    },
+    {
+      gennum: '514307',
+      elev: '2.92',
+      wtemp: '16.16',
+      lev: '5.46',
+      ec: '417',
+      ymd: '20251106'
+    },
+    {
+      gennum: '514307',
+      elev: '2.92',
+      wtemp: '16.17',
+      lev: '5.46',
+      ec: '418',
+      ymd: '20251107'
+    },
+    {
+      gennum: '514307',
+      elev: '2.92',
+      wtemp: '16.17',
+      lev: '5.46',
+      ec: '418',
+      ymd: '20251108'
+    }
+  ],
+  '514310': [
+    {
+      gennum: '514310',
+      elev: '113.56',
+      wtemp: '15.32',
+      lev: '3.19',
+      ec: '339',
+      ymd: '20251010'
+    },
+    {
+      gennum: '514310',
+      elev: '113.55',
+      wtemp: '15.34',
+      lev: '3.2',
+      ec: '339',
+      ymd: '20251011'
+    },
+    {
+      gennum: '514310',
+      elev: '113.53',
+      wtemp: '15.36',
+      lev: '3.22',
+      ec: '338',
+      ymd: '20251012'
+    },
+    {
+      gennum: '514310',
+      elev: '113.51',
+      wtemp: '15.33',
+      lev: '3.24',
+      ec: '339',
+      ymd: '20251013'
+    },
+    {
+      gennum: '514310',
+      elev: '113.6',
+      wtemp: '15.3',
+      lev: '3.15',
+      ec: '339',
+      ymd: '20251014'
+    },
+    {
+      gennum: '514310',
+      elev: '113.58',
+      wtemp: '15.33',
+      lev: '3.17',
+      ec: '339',
+      ymd: '20251015'
+    },
+    {
+      gennum: '514310',
+      elev: '113.64',
+      wtemp: '15.29',
+      lev: '3.11',
+      ec: '339',
+      ymd: '20251016'
+    },
+    {
+      gennum: '514310',
+      elev: '113.63',
+      wtemp: '15.32',
+      lev: '3.12',
+      ec: '339',
+      ymd: '20251017'
+    },
+    {
+      gennum: '514310',
+      elev: '113.61',
+      wtemp: '15.33',
+      lev: '3.14',
+      ec: '339',
+      ymd: '20251018'
+    },
+    {
+      gennum: '514310',
+      elev: '113.59',
+      wtemp: '15.32',
+      lev: '3.16',
+      ec: '339',
+      ymd: '20251019'
+    },
+    {
+      gennum: '514310',
+      elev: '113.57',
+      wtemp: '15.34',
+      lev: '3.18',
+      ec: '339',
+      ymd: '20251020'
+    },
+    {
+      gennum: '514310',
+      elev: '113.55',
+      wtemp: '15.3',
+      lev: '3.2',
+      ec: '339',
+      ymd: '20251021'
+    },
+    {
+      gennum: '514310',
+      elev: '113.52',
+      wtemp: '15.32',
+      lev: '3.23',
+      ec: '339',
+      ymd: '20251022'
+    },
+    {
+      gennum: '514310',
+      elev: '113.52',
+      wtemp: '15.34',
+      lev: '3.23',
+      ec: '338',
+      ymd: '20251023'
+    },
+    {
+      gennum: '514310',
+      elev: '113.5',
+      wtemp: '15.33',
+      lev: '3.25',
+      ec: '338',
+      ymd: '20251024'
+    },
+    {
+      gennum: '514310',
+      elev: '113.49',
+      wtemp: '15.34',
+      lev: '3.26',
+      ec: '338',
+      ymd: '20251025'
+    },
+    {
+      gennum: '514310',
+      elev: '113.48',
+      wtemp: '15.34',
+      lev: '3.27',
+      ec: '338',
+      ymd: '20251026'
+    },
+    {
+      gennum: '514310',
+      elev: '113.46',
+      wtemp: '15.34',
+      lev: '3.29',
+      ec: '338',
+      ymd: '20251027'
+    },
+    {
+      gennum: '514310',
+      elev: '113.44',
+      wtemp: '15.3',
+      lev: '3.31',
+      ec: '338',
+      ymd: '20251028'
+    },
+    {
+      gennum: '514310',
+      elev: '113.43',
+      wtemp: '15.28',
+      lev: '3.32',
+      ec: '337',
+      ymd: '20251029'
+    },
+    {
+      gennum: '514310',
+      elev: '113.42',
+      wtemp: '15.33',
+      lev: '3.33',
+      ec: '337',
+      ymd: '20251030'
+    },
+    {
+      gennum: '514310',
+      elev: '113.41',
+      wtemp: '15.33',
+      lev: '3.34',
+      ec: '337',
+      ymd: '20251031'
+    },
+    {
+      gennum: '514310',
+      elev: '113.4',
+      wtemp: '15.33',
+      lev: '3.35',
+      ec: '337',
+      ymd: '20251101'
+    },
+    {
+      gennum: '514310',
+      elev: '113.38',
+      wtemp: '15.31',
+      lev: '3.37',
+      ec: '337',
+      ymd: '20251102'
+    },
+    {
+      gennum: '514310',
+      elev: '113.37',
+      wtemp: '15.33',
+      lev: '3.38',
+      ec: '337',
+      ymd: '20251103'
+    },
+    {
+      gennum: '514310',
+      elev: '113.36',
+      wtemp: '15.32',
+      lev: '3.39',
+      ec: '337',
+      ymd: '20251104'
+    },
+    {
+      gennum: '514310',
+      elev: '113.34',
+      wtemp: '15.35',
+      lev: '3.41',
+      ec: '337',
+      ymd: '20251105'
+    },
+    {
+      gennum: '514310',
+      elev: '113.34',
+      wtemp: '15.32',
+      lev: '3.41',
+      ec: '337',
+      ymd: '20251106'
+    },
+    {
+      gennum: '514310',
+      elev: '113.33',
+      wtemp: '15.32',
+      lev: '3.42',
+      ec: '337',
+      ymd: '20251107'
+    },
+  ]
+}
 
-// 관측소1, 3일치 받을때
-/* 
-[
-  {
-    gennum: '5724',
-    elev: '105.79',
-    wtemp: '16.05',
-    lev: '2.54',
-    ec: '1220',
-    ymd: '20250929'
-  },
-  {
-    gennum: '5724',
-    elev: '105.79',
-    wtemp: '16.05',
-    lev: '2.54',
-    ec: '1220',
-    ymd: '20250929'
-  },
-  {
-    gennum: '5724',
-    elev: '105.79',
-    wtemp: '16.05',
-    lev: '2.54',
-    ec: '1220',
-    ymd: '20250929'
-  }
-]
- */
+*/
+
+// ======================================================================

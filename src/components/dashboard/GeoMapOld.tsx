@@ -7,25 +7,11 @@ import genInfo from "@/data/gennumInfo.json";
 import type { GenInfoKey, SensitivityDataset } from '@/types/uiTypes';
 
 // 타입 선언
-interface StatusPoint {
-    id: string;
-    name: string;
-    lat: number;
-    lon: number;
-    value: number;
-    status: number;
-    percentiles: {
-        p10: number;
-        p25: number;
-        p75: number;
-        p90: number;
-    };
-}
-
 interface GeoMapProps {
-    statusData: StatusPoint[];
+    mapData: Record<string, Record<string, number | null>>;
     sensitivityData: SensitivityDataset | null;
     sensitivityLoading?: boolean;
+    period: string;
     mappointDesc: string;
     handleClick?: (stationCode: GenInfoKey) => void;
 }
@@ -55,7 +41,17 @@ const mapRegions = geoFeatures.map((feature, idx) => ({
     color: pickColor(idx)
 }));
 
-
+// 지하수위 mappoint 정보, 측정소별
+const getGenGeoInfo = (mapData: Record<string, Record<string, number | null>>, period: string) => {
+    const targetZName = "elevMean" + period;
+    return Object.entries(genInfo).map(([gen, info]) => ({
+        code: gen,
+        name: info["측정망명"] || "해당 관측소",
+        lat: Number(info["lat"]),
+        lon: Number(info["lon"]),
+        z: mapData[gen]?.[targetZName] ?? null
+    }));
+};
 
 // 민감도 정보
 const getSensitivityGeoInfo = (sensitivityData: SensitivityDataset | null) => {
@@ -109,9 +105,9 @@ const getSensitivityGeoInfo = (sensitivityData: SensitivityDataset | null) => {
 // 버블 컬러 설정
 const elevationColorAxis: Highcharts.ColorAxisOptions = {
     dataClasses: [
-        { from: 0, to: 0, color: '#4DB6AC', name: '정상' },
-        { from: 1, to: 1, color: '#FFB74D', name: '경고' },
-        { from: 2, to: 2, color: '#E57373', name: '위험' }
+        { to: 99, color: '#FFB74D', name: '경고' },
+        { from: 100, to: 299, color: '#4DB6AC', name: '정상' },
+        { from: 300, color: '#E57373', name: '위험' },
     ]
 };
 
@@ -138,7 +134,7 @@ const sensitivityLegendData = [
     {
       color: "#FFB74D",
       title: "복합형",
-      description: "두 반응의 차이가 작아, 강우가뭄에 모두 유사한 수준으로 반응하는 관측소",
+      description: "두 반응의 차이가 작어, 강우&middot;가뭄에 모두 유사한 수준으로 반응하는 관측소",
     },
   ];
 
@@ -160,39 +156,22 @@ const sensitivityLegendData = [
     },
   ];
 
-export default function GeoMap (
-    {statusData, sensitivityData, sensitivityLoading, mappointDesc, handleClick} 
+export default function GeoMapOld (
+    {mapData, sensitivityData, sensitivityLoading, period, mappointDesc, handleClick} 
     : GeoMapProps
 ) {
   const [ mapType, setMapType ] = useState<'elevation' | 'sensitivity'>('elevation');
   
-  const elevationPoints = useMemo(() => statusData.map(point => ({
-    ...point,
-    code: point.id,
-    z: point.value // 'value'를 'z'로 매핑
-  })), [statusData]);
+  const elevationPoints = useMemo(() => getGenGeoInfo(mapData, period ?? "1"), [mapData, period]);
   const sensitivityPoints = useMemo(() => getSensitivityGeoInfo(sensitivityData), [sensitivityData]);
   
   // 툴팁 설정
   const elevationTooltip = {
-    useHTML: true,
-    headerFormat: '<b>{point.name}</b><br/>',
+    headerFormat: '',
     pointFormatter: function() {
       const p = this as any;
-      const statusText = p.status === 0 ? '<span style="color:#4DB6AC;">정상</span>' 
-                     : p.status === 1 ? '<span style="color:#FFB74D;">경고</span>' 
-                     : '<span style="color:#E57373;">위험</span>';
-
-      if (typeof p.value !== 'number' || !p.percentiles) return '';
-
-      return `
-        <div style="font-size: 12px; margin-top: 5px;">
-          <span>- 현재 수위: <b>${Highcharts.numberFormat(p.value, 2)} m</b></span><br/>
-          <span>- 상태: ${statusText}</span><br/>
-          <span>- 동월 정상 범위: ${Highcharts.numberFormat(p.percentiles.p25, 2)} m ~ ${Highcharts.numberFormat(p.percentiles.p75, 2)} m</span><br/>
-          <small style="color: #666;">(과거 10년 동월 수위 분포 기준)</small>
-        </div>
-      `;
+      return `<b>${p.name}</b>`
+            + (typeof p.z === 'number' ? `<br/>${currentMappointDesc}: ${Highcharts.numberFormat(p.z, 3)}` : '');
     }
   }
 
@@ -201,9 +180,9 @@ export default function GeoMap (
     pointFormat: `
       <b>{point.name}</b><br/>
       유형: {point.sensitive_type}<br/>
-      강수 상승폭: {point.increase_if_rainfall:.4f} el.m<br/>
-      가뭄 하강폭: {point.decrease_if_drought:.4f} el.m<br/>
-      변동폭: {point.range_variation:.4f} el.m
+      강수 상승폭: {point.increase_if_rainfall:.2f} el.m<br/>
+      가뭄 하강폭: {point.decrease_if_drought:.2f} el.m<br/>
+      변동폭: {point.range_variation:.2f} el.m
     `
   }
 
@@ -256,7 +235,7 @@ export default function GeoMap (
         mapbubble: {
             minSize: '4%',
             maxSize: '18%',
-            colorKey: mapType === 'elevation' ? 'status' : 'colorValue', // 'z' -> 'status'로 변경
+            colorKey: mapType === 'elevation' ? 'z' : 'colorValue',
             states: {
                 inactive: {
                     opacity: 0.8,

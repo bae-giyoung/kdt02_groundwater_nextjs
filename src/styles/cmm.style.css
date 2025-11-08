@@ -1641,3 +1641,50 @@ table.summary-skeleton-block {
 #dashboard-station-modal {
     background-color: #ffffffcc;
 }
+
+/* Dashboard modal 탭 버튼 */
+.modal-tab-button {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 0.6rem 1.6rem;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: #000000;
+    background: linear-gradient(180deg, #2563eb33 0%, #1d4ed833 100%);
+    transition: all 0.2s ease;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.modal-tab-button-inactive:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.07);
+    transform: translateY(-1px);
+}
+
+.modal-tab-button-active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 70%);
+    border-color: rgba(37, 99, 235, 0.9);
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.modal-tab-button-active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+}
+
+.modal-tab-button-active:focus-visible,
+.modal-tab-button-inactive:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+}

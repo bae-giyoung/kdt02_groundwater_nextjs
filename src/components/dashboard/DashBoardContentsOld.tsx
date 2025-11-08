@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
 import CurrentTable from "./CurrentTable";
 import genInfo from "@/data/gennumInfo.json";
-import GeoMap from "./GeoMap";
+import GeoMapOld from "./GeoMapOld";
 import StationInfoBox from "../StationInfoBox";
 import FeatureImportancePage from "./FeatureImportance";
 import logoSrc from "../../../public/assets/logo_mulalim.svg";
@@ -80,7 +80,7 @@ const rmseTop5 = [
 
 
 // 컴포넌트
-export default function DashBoardContents() {
+export default function DashBoardContentsOld() {
     const [station, setStation] = useState<GenInfoKey>("84020");
     const [period, setPeriod] = useState<string>("1");
     const [currElevDatas, setCurrElevDatas] = useState<DashboardTableRow[]>([]);
@@ -312,7 +312,7 @@ export default function DashBoardContents() {
     const getCurrFetchDatas = useCallback(async () => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
         try {
-            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev?days=${TABLE_WINDOW_DAYS}`, {
+            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElevOld?days=${TABLE_WINDOW_DAYS}`, {
                 method: "GET",
                 mode: "cors",
                 headers: { "Content-type": "application/json" },
@@ -429,7 +429,7 @@ export default function DashBoardContents() {
                         <div className="w-full lg:w-1/2 d-group">
                             <p className="c-tit03">전국 관측망</p>
                             <p className="c-txt03 mb-4">지도의 각 관측소를 클릭하면 해당 관측소의 정보를 확인하실 수 있습니다.</p>
-                            <GeoMap mapData={currMapDatas} sensitivityData={sensitivityData} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
+                            <GeoMapOld mapData={currMapDatas} sensitivityData={sensitivityData} period={period} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                             <ul className="c-list01 mt-2">
                                 <li>데이터 출처: 국가지하수정보센터, 「국가지하수측정자료조회서비스 (일자료)」</li>
                             </ul>

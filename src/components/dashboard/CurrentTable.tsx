@@ -2,6 +2,7 @@
 import { memo, useMemo } from "react";
 import type { DashboardTableRow, DashboardTableDiffRow } from "@/types/uiTypes";
 
+// 타입 선언
 type Column = {
     key: any; // keyof T
     label: string;
@@ -14,11 +15,12 @@ type TableProps = {
     emphasis?: string;
 }
 
+// 렌더링
 function CurrentTable({data, dataDiff, columns, emphasis}: TableProps) {
     const headers = useMemo(() => columns.map((col) => col.label), [columns]);
 
     return (
-        <div className="table-style01 table-container overflow-x-auto">
+        <div id="current-elev-table" className="table-style01 table-container overflow-x-auto">
             <table className="min-w-full text-sm">
                 <thead>
                     <tr>
@@ -35,7 +37,6 @@ function CurrentTable({data, dataDiff, columns, emphasis}: TableProps) {
                             {columns.map((col, colIdx) => (
                                 <td key={colIdx} className={((emphasis && emphasis[1] && col.key == emphasis) ? " emphasis bg-sky-100 font-bold" : "")}>
                                     <span>{row[col.key]}</span>
-                                    {/* {rowIdx !== 0 && col.key != 'ymd' && getDailyDiffRatio(data, rowIdx, (col.key).toString())} */}
                                     <span key={(rowIdx + colIdx)} className={
                                         (
                                             Number.isFinite(dataDiff[rowIdx]?.[col.key]) && Number(dataDiff[rowIdx][col.key]) > 0 
