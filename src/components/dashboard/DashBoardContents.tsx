@@ -515,7 +515,7 @@ export default function DashBoardContents() {
                                 <p className="flex items-center gap-4">
                                     <span className="c-tit03 inline-block">일별 지하수위 현황</span>
                                     <CustomButton handler={() => setIsAsc(!isAsc)} caption={isAsc ? '최신순' : '과거순'} bType="button" bStyle="btn-style-6" />
-                                    <CustomButton handler={() => handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
+                                    <CustomButton handler={handleDownloadCSV} caption="csv 다운로드" bType="button" bStyle="btn-style-4" />
                                 </p>
                                 <CustomButton handler={() => {setIsModalOpen(false);}} caption="닫기" bStyle="donut-modal-close" bType="button" />
                             </div>
