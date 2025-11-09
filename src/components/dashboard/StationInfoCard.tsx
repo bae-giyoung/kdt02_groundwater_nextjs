@@ -122,7 +122,7 @@ export default function StationInfoCard({
 
     return (
         <section className="d-group station-info-card w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <p className="flex justify-between items-center gap-2 sm:flex-row flex-col">
+            <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                 <span className="c-tit03"><b className="c-txt-point">{displayName}</b> 관측소 정보</span>
                 <div className="flex flex-col items-start gap-2 text-sm text-black/90 md:items-end">
                     {/* <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-sm font-semibold">
@@ -146,7 +146,7 @@ export default function StationInfoCard({
                         )}
                     </div>
                 </div>
-            </p>
+            </div>
 
             <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">

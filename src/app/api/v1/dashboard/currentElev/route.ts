@@ -42,8 +42,8 @@ interface StatusPoint {
     value: number;
     status: number;
     percentiles: PercentileData;
-    minElev: number | null;
-    maxElev: number | null;
+    minElev: number;
+    maxElev: number;
 }
 
 // =============================================================================
@@ -176,28 +176,27 @@ function transformToGroundwaterStatus(rawData: Record<string, UnitFromOpenApiT[]
 
         if (!sInfo || !stationData || stationData.length === 0) return null;
 
-        // 1. Sort data by date to ensure correctness
+        // 1. 날짜순으로 정렬
         const sortedStationData = [...stationData].sort((a, b) => a.ymd.localeCompare(b.ymd));
         
-        // 2. Calculate min/max from all available (30-day) data
+        // 2. 사용가능한 모든 30일 데이터로부터 최소값과 최대값 계산
         const elevations = sortedStationData.map(d => Number(d.elev)).filter(Number.isFinite);
-        if (elevations.length === 0) return null; // No valid data points
+        if (elevations.length === 0) return null;
 
         const minElev = Math.min(...elevations);
         const maxElev = Math.max(...elevations);
 
-        // 3. Get latest data point
+        // 3. 최신값
         const latestData = sortedStationData[sortedStationData.length - 1];
         const currentLevel = Number(latestData.elev);
-        if (!Number.isFinite(currentLevel)) return null; // Should not happen due to above check, but for safety
+        if (!Number.isFinite(currentLevel)) return null;
 
-        // 4. Get percentiles and status
+        // 4. 백분위수와 상태값
         const monthPercentiles = (station.monthly_percentiles as MonthlyPercentiles)[currentMonth];
         if (!monthPercentiles) return null;
 
         const status = getStatus(currentLevel, monthPercentiles);
 
-        // 5. Return full object
         return {
             id: code,
             name: sInfo["측정망명"],
@@ -226,13 +225,13 @@ export async function GET(request: NextRequest) {
         const settledResults = await Promise.allSettled(
             GENNUMS.map((gen: string) =>
                 fetchFromEachStation(gen, begindate, enddate)
-                    .then((units: UnitFromOpenApiT[]) => [gen, units])
+                    .then((units: UnitFromOpenApiT[]): [string, UnitFromOpenApiT[]] => [gen, units])
             )
         );
 
         // 성공한 것만 추려서 객체로 변환 => [['5724', [{gennum:'5724', elev:'105.76',..,ymd:'20251010'}, ...], ...], [..], ...]
-        const entriesWithFallbacks = settledResults.flatMap((result, idx) => 
-            result.status === "fulfilled" ? [result.value] : [GENNUMS[idx], []]
+        const entriesWithFallbacks = settledResults.map((result, idx) => 
+            result.status === "fulfilled" ? result.value : [GENNUMS[idx], []]
         );
         // 나중에 fallback 형식으로 전부 보내서 에러 테스트하기 => 반드시
 
