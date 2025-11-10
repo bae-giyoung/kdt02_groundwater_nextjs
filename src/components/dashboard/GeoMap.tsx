@@ -97,10 +97,10 @@ const getSensitivityGeoInfo = (sensitivityData: SensitivityDataset | null) => {
 
         let colorValue;
         switch(analisys.sensitive_type) {
-            case "강수형":
+            case "강수민감형":
                 colorValue = 0;
                 break;
-            case "가뭄형":
+            case "가뭄취약형":
                 colorValue = 1;
                 break;
             case "복합형":
@@ -136,8 +136,8 @@ const elevationColorAxis: Highcharts.ColorAxisOptions = {
 
 const sensitivityColorAxis: Highcharts.ColorAxisOptions = {
     dataClasses: [
-        { from: 0, to: 0, color: '#4A90E2', name: '강수형' },
-        { from: 1, to: 1, color: '#E94E77', name: '가뭄형' },
+        { from: 0, to: 0, color: '#4A90E2', name: '강수민감형' },
+        { from: 1, to: 1, color: '#E94E77', name: '가뭄취약형' },
         { from: 2, to: 2, color: '#FFB74D', name: '복합형' },
     ]
 };
@@ -146,12 +146,12 @@ const sensitivityColorAxis: Highcharts.ColorAxisOptions = {
 const sensitivityLegendData = [
     {
       color: "#4A90E2",
-      title: "강수형",
+      title: "강수민감형",
       description: "강우 시 수위 상승폭이 크고, 가뭄 시 하강폭이 상대적으로 작은 관측소(함양이 빠른 지역)",
     },
     {
       color: "#E94E77",
-      title: "가뭄형",
+      title: "가뭄취약형",
       description: "가뭄 시 쉬위 하강폭이 크고, 강우 시 상승폭이 상대적으로 작은 관측소(취수가 빠른 지역)",
     },
     {

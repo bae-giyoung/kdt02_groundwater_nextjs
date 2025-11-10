@@ -9,10 +9,10 @@ interface SensitivityInfoCardProps {
 
 type DisplaySensitivityType = '강수민감형' | '가뭄취약형' | '복합형';
 
-// API 데이터('강수형')를 UI 표시용 텍스트('강수민감형')로 변환
+// API 데이터('강수민감형')를 UI 표시용 텍스트('강수민감형')로 변환 => 똑같이 맞춰서 이제 필요없음! 확인 후 삭제하기
 function mapSensitivityType(type: string | undefined): DisplaySensitivityType | undefined {
-    if (type === '강수형') return '강수민감형';
-    if (type === '가뭄형') return '가뭄취약형';
+    if (type === '강수민감형') return '강수민감형';
+    if (type === '가뭄취약형') return '가뭄취약형';
     if (type === '복합형') return '복합형';
     return undefined;
 }

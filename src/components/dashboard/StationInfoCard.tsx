@@ -61,9 +61,10 @@ const getLevelStatus = (value: number, percentiles: StatusPoint['percentiles']):
     return '매우 낮음';
 };
 
+// => 똑같이 맞춰서 이제 필요없음! 확인 후 삭제하기
 const mapSensitivityType = (type?: string): SensitivityDisplayType | undefined => {
-    if (type === '강수형') return '강수 민감형';
-    if (type === '가뭄형') return '가뭄 취약형';
+    if (type === '강수민감형') return '강수 민감형';
+    if (type === '가뭄취약형') return '가뭄 취약형';
     if (type === '복합형') return '복합 민감형';
     return undefined;
 };
@@ -121,7 +122,7 @@ export default function StationInfoCard({
     }, [sensitivityData]);
 
     return (
-        <section className="d-group station-info-card w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <section className="station-info-card w-full overflow-hidden">
             <div className="flex justify-between items-center gap-2 sm:flex-row flex-col">
                 <span className="c-tit03"><b className="c-txt-point">{displayName}</b> 관측소 정보</span>
                 <div className="flex flex-col items-start gap-2 text-sm text-black/90 md:items-end">

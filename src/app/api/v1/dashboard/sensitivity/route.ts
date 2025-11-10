@@ -16,13 +16,13 @@ export async function GET() {
                 const diff = Math.abs((rainfall_val*1000 - drought_val*1000) / 1000);
                 let type: string;
 
-                // 복합형/강수형/가뭄형
+                // 복합형/강수민감형/가뭄취약형
                 if(diff < 0.05) {
                     type = "복합형";
                 } else if(rainfall_val > drought_val) {
-                    type = "강수형";
+                    type = "강수민감형";
                 } else {
-                    type = "가뭄형";
+                    type = "가뭄취약형";
                 }
 
                 return {

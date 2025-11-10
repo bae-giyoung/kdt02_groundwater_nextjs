@@ -3,10 +3,12 @@ import { useMemo, useEffect, useState } from 'react';
 import genInfo from "@/data/gennumInfo.json";
 import type { GenInfoKey } from '@/types/uiTypes';
 import Highcharts from 'highcharts';
+import 'highcharts/highcharts-more';
 import HighchartsReact from 'highcharts-react-official';
 import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { userInfoAtom } from '@/atoms/atoms';
+
 
 //** 상수 선언  */
 const GEN_CODES = Object.keys(genInfo);

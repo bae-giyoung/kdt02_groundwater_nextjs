@@ -476,18 +476,18 @@ export default function DashBoardContents() {
                             <GeoMap statusData={groundwaterStatusData} sensitivityData={sensitivityData} handleClick={setStation} mappointDesc={`최근 ${period}일 평균 지하수위`} />
                         </div>
                         <div className="w-full lg:w-1/2 flex flex-col gap-6">
-                            <div className="w-full d-group">
+                            <div className="w-full d-group flex flex-col gap-6">
+                                <StationInfoCard
+                                    stationCode={station}
+                                    stationName={stationName}
+                                    statusData={selectedStatusData}
+                                    sensitivityData={selectedSensitivityData}
+                                >
+                                    <CustomButton handler={handleOpenModal} caption="관측소 AI 분석 리포트 확인" bType="button" bStyle="btn-style-1 w-full"/>
+                                </StationInfoCard>
                                 <ForecastNext7Days stationCode={station} stationName={stationName}/>
                                 {/* <PerformanceIndicators stationCode={station} /> */}
                             </div>
-                            <StationInfoCard
-                                stationCode={station}
-                                stationName={stationName}
-                                statusData={selectedStatusData}
-                                sensitivityData={selectedSensitivityData}
-                            >
-                                <CustomButton handler={handleOpenModal} caption="관측소 AI 분석 리포트 확인" bType="button" bStyle="btn-style-1 w-full"/>
-                            </StationInfoCard>
                         </div>
                     </div>
 
