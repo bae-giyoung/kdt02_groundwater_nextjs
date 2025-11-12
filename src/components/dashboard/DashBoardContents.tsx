@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSetAtom } from 'jotai';
 import { openModalAtom } from '@/atoms/atoms';
 import CurrentTable from "./CurrentTable";
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 import GeoMap from "./GeoMap";
 import logoSrc from "../../../public/assets/logo_mulalim.svg";
 import Image from "next/image";

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { DashboardTableData } from "@/types/uiTypes";
 import thresholds from "@/data/groundwater_monthly_thresholds_2014_2020.json";
-import stationInfo from "@/data/gennumInfo.json";
+import stationInfo from "@/data/gennum_info.json";
 
 // =============================================================================
 // 상수 선언

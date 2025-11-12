@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useEffect, useState } from 'react';
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 import type { GenInfoKey } from '@/types/uiTypes';
 import Highcharts from 'highcharts';
 import 'highcharts/highcharts-more';
@@ -299,7 +299,7 @@ export default function ForecastNext7Days({
                 {/* 스켈레톤 */}
                 <div className="h-5 w-48 bg-gray-200/60 rounded mb-1 animate-pulse" />
                 <div className="h-5 w-64 bg-gray-200/60 rounded mb-3 animate-pulse" />
-                <div className="h-[240px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
+                <div className="h-[220px] w-full bg-gray-100 rounded mb-3 animate-pulse" />
                 <div className="h-6 w-64 bg-gray-200/60 rounded animate-pulse" />
                 <div className="h-[16px] w-64 bg-gray-200/60 rounded mt-3 animate-pulse" />
             </div>

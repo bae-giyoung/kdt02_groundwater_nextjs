@@ -1,5 +1,5 @@
 'use client';
-import genInfo from "@/data/gennumInfo.json"; // 중복으로 import인데 나중에 생각
+import genInfo from "@/data/gennum_info.json"; // 중복으로 import인데 나중에 생각
 import type { GenInfoKey } from '@/types/uiTypes';
 
 

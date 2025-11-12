@@ -53,15 +53,15 @@ export default function LevelStatusCard({ statusData }: LevelStatusCardProps) {
         <div className='col-span-2'>
             <span className="font-semibold text-slate-600">최신 수위:</span>
             <span className="ml-2 font-bold text-base text-slate-800">{value.toFixed(2)}</span>
-            <span className="text-slate-500"> m</span>
+            <span className="text-slate-500"> el.m</span>
         </div>
         <div>
             <span className="font-semibold text-slate-600">30일 관측:</span>
-            <span className="ml-2 text-slate-800">{minElev?.toFixed(2)} ~ {maxElev?.toFixed(2)} m</span>
+            <span className="ml-2 text-slate-800">{minElev?.toFixed(2)} ~ {maxElev?.toFixed(2)} el.m</span>
         </div>
         <div>
             <span className="font-semibold text-slate-600">동월 정상:</span>
-            <span className="ml-2 text-slate-800">{percentiles.p25.toFixed(2)} ~ {percentiles.p75.toFixed(2)} m</span>
+            <span className="ml-2 text-slate-800">{percentiles.p25.toFixed(2)} ~ {percentiles.p75.toFixed(2)} el.m</span>
         </div>
       </div>
     </div>

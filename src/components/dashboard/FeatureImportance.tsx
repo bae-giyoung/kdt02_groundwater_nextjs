@@ -80,7 +80,8 @@ export default function FeatureImportancePage({
             }
         },
         tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            headerFormat: '{series.name}<br/>',
+            pointFormat: '<b>{point.name}: {point.percentage:.1f}%</b>'
         },
         title: {
             text: chartTitle,
@@ -101,8 +102,14 @@ export default function FeatureImportancePage({
                 cursor: 'pointer',
                 depth: 35,
                 dataLabels: {
-                    enabled: false,
+                    enabled: true,
+                    distance: -5,
                     format: '{point.name}',
+                    filter: {
+                        property: 'percentage',
+                        operator: '>',
+                        value: 5
+                    },
                     state: {
                         hover: {
                             enabled: true

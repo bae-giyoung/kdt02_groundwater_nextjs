@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
 import CurrentTable from "./CurrentTable";
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 import GeoMapOld from "./GeoMapOld";
 import StationInfoBox from "../StationInfoBox";
 import FeatureImportancePage from "./FeatureImportance";

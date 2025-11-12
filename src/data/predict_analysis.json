@@ -1,134 +1,254 @@
 {
-    "num_stations":12,
-    "top5_rainfall_increase":[
-        {"station":"7","start_value":124.9781723022461,"max_value":125.36839294433594,"min_value":124.95602416992188,"increase_if_rainfall":0.39022064208984375,"decrease_if_drought":0.02214813232421875,"range_variation":0.4123687744140625},
-        {"station":"9","start_value":214.23348999023438,"max_value":214.4209747314453,"min_value":214.1807098388672,"increase_if_rainfall":0.1874847412109375,"decrease_if_drought":0.0527801513671875,"range_variation":0.240264892578125},
-        {"station":"2","start_value":201.8914794921875,"max_value":202.04478454589844,"min_value":201.8035430908203,"increase_if_rainfall":0.1533050537109375,"decrease_if_drought":0.0879364013671875,"range_variation":0.241241455078125},
-        {"station":"11","start_value":2.7574191093444824,"max_value":2.8971424102783203,"min_value":2.7542004585266113,"increase_if_rainfall":0.1397233009338379,"decrease_if_drought":0.0032186508178710938,"range_variation":0.14294195175170898},
-        {"station":"8","start_value":224.09548950195312,"max_value":224.1993408203125,"min_value":223.7042236328125,"increase_if_rainfall":0.103851318359375,"decrease_if_drought":0.391265869140625,"range_variation":0.4951171875}
-    ],
-    "top5_drought_decrease":[
-        {"station":"10","start_value":27.535261154174805,"max_value":27.591106414794922,"min_value":26.836332321166992,"increase_if_rainfall":0.05584526062011719,"decrease_if_drought":0.6989288330078125,"range_variation":0.7547740936279297},
-        {"station":"4","start_value":77.56451416015625,"max_value":77.56451416015625,"min_value":77.0258560180664,"increase_if_rainfall":0.0,"decrease_if_drought":0.5386581420898438,"range_variation":0.5386581420898438},
-        {"station":"6","start_value":140.7676544189453,"max_value":140.77992248535156,"min_value":140.3603057861328,"increase_if_rainfall":0.01226806640625,"decrease_if_drought":0.4073486328125,"range_variation":0.41961669921875},
-        {"station":"5","start_value":80.970703125,"max_value":81.00286102294922,"min_value":80.5692138671875,"increase_if_rainfall":0.03215789794921875,"decrease_if_drought":0.4014892578125,"range_variation":0.43364715576171875},
-        {"station":"8","start_value":224.09548950195312,"max_value":224.1993408203125,"min_value":223.7042236328125,"increase_if_rainfall":0.103851318359375,"decrease_if_drought":0.391265869140625,"range_variation":0.4951171875}
-    ],
-    "top5_largest_variation":[
-        {"station":"10","start_value":27.535261154174805,"max_value":27.591106414794922,"min_value":26.836332321166992,"increase_if_rainfall":0.05584526062011719,"decrease_if_drought":0.6989288330078125,"range_variation":0.7547740936279297},
-        {"station":"4","start_value":77.56451416015625,"max_value":77.56451416015625,"min_value":77.0258560180664,"increase_if_rainfall":0.0,"decrease_if_drought":0.5386581420898438,"range_variation":0.5386581420898438},
-        {"station":"8","start_value":224.09548950195312,"max_value":224.1993408203125,"min_value":223.7042236328125,"increase_if_rainfall":0.103851318359375,"decrease_if_drought":0.391265869140625,"range_variation":0.4951171875},
-        {"station":"5","start_value":80.970703125,"max_value":81.00286102294922,"min_value":80.5692138671875,"increase_if_rainfall":0.03215789794921875,"decrease_if_drought":0.4014892578125,"range_variation":0.43364715576171875},
-        {"station":"6","start_value":140.7676544189453,"max_value":140.77992248535156,"min_value":140.3603057861328,"increase_if_rainfall":0.01226806640625,"decrease_if_drought":0.4073486328125,"range_variation":0.41961669921875}
-    ],
-    "stations_analisys": [
-    {
-      "station": "1",
-      "start_value": 105.546730041504,
-      "max_value": 105.568283081055,
-      "min_value": 105.432579040527,
-      "increase_if_rainfall": 0.0215530395507813,
-      "decrease_if_drought": 0.114151000976563,
-      "range_variation": 0.135704040527344
-    },
-    {
-      "station": "12",
-      "start_value": 113.431365966797,
-      "max_value": 113.431365966797,
-      "min_value": 113.213455200195,
-      "increase_if_rainfall": 0,
-      "decrease_if_drought": 0.217910766601563,
-      "range_variation": 0.217910766601563
-    },
-    {
-      "station": "2",
-      "start_value": 201.891067504883,
-      "max_value": 202.074020385742,
-      "min_value": 201.827926635742,
-      "increase_if_rainfall": 0.182952880859375,
-      "decrease_if_drought": 0.063140869140625,
-      "range_variation": 0.24609375
-    },
-    {
-      "station": "3",
-      "start_value": 54.1544761657715,
-      "max_value": 54.1544761657715,
-      "min_value": 53.9785995483398,
-      "increase_if_rainfall": 0,
-      "decrease_if_drought": 0.175876617431641,
-      "range_variation": 0.175876617431641
-    },
-    {
-      "station": "4",
-      "start_value": 77.5655975341797,
-      "max_value": 77.5655975341797,
-      "min_value": 77.0952529907227,
-      "increase_if_rainfall": 0,
-      "decrease_if_drought": 0.470344543457031,
-      "range_variation": 0.470344543457031
-    },
-    {
-      "station": "5",
-      "start_value": 80.9708786010742,
-      "max_value": 81.0015869140625,
-      "min_value": 80.5654983520508,
-      "increase_if_rainfall": 0.0307083129882813,
-      "decrease_if_drought": 0.405380249023438,
-      "range_variation": 0.436088562011719
-    },
-    {
-      "station": "6",
-      "start_value": 140.767272949219,
-      "max_value": 140.784118652344,
-      "min_value": 140.371780395508,
-      "increase_if_rainfall": 0.016845703125,
-      "decrease_if_drought": 0.395492553710938,
-      "range_variation": 0.412338256835938
-    },
+  "num_stations": 12,
+  "top5_rainfall_increase": [
     {
       "station": "7",
-      "start_value": 124.97891998291,
-      "max_value": 125.361808776855,
-      "min_value": 124.860229492188,
-      "increase_if_rainfall": 0.382888793945313,
-      "decrease_if_drought": 0.118690490722656,
-      "range_variation": 0.501579284667969
-    },
-    {
-      "station": "8",
-      "start_value": 224.094543457031,
-      "max_value": 224.208969116211,
-      "min_value": 223.705871582031,
-      "increase_if_rainfall": 0.114425659179688,
-      "decrease_if_drought": 0.388671875,
-      "range_variation": 0.503097534179688
+      "start_value": 124.977897644043,
+      "max_value": 125.315643310547,
+      "min_value": 124.977897644043,
+      "increase_if_rainfall": 0.337745666503906,
+      "decrease_if_drought": 0,
+      "range_variation": 0.337745666503906
     },
     {
       "station": "9",
-      "start_value": 214.233535766602,
-      "max_value": 214.414260864258,
-      "min_value": 214.162017822266,
-      "increase_if_rainfall": 0.18072509765625,
-      "decrease_if_drought": 0.0715179443359375,
-      "range_variation": 0.252243041992188
-    },
-    {
-      "station": "10",
-      "start_value": 27.5390033721924,
-      "max_value": 27.6826591491699,
-      "min_value": 26.6581249237061,
-      "increase_if_rainfall": 0.143655776977539,
-      "decrease_if_drought": 0.880878448486328,
-      "range_variation": 1.02453422546387
+      "start_value": 214.234451293945,
+      "max_value": 214.418762207031,
+      "min_value": 214.179107666016,
+      "increase_if_rainfall": 0.184310913085938,
+      "decrease_if_drought": 0.0553436279296875,
+      "range_variation": 0.239654541015625
     },
     {
       "station": "11",
-      "start_value": 2.75467109680176,
-      "max_value": 2.8832790851593,
-      "min_value": 2.7450795173645,
-      "increase_if_rainfall": 0.128607988357544,
-      "decrease_if_drought": 0.00959157943725586,
-      "range_variation": 0.1381995677948
+      "start_value": 2.75834774971008,
+      "max_value": 2.8906774520874,
+      "min_value": 2.75244665145874,
+      "increase_if_rainfall": 0.132329702377319,
+      "decrease_if_drought": 0.00590109825134277,
+      "range_variation": 0.138230800628662
+    },
+    {
+      "station": "8",
+      "start_value": 224.095260620117,
+      "max_value": 224.200759887695,
+      "min_value": 223.66162109375,
+      "increase_if_rainfall": 0.105499267578125,
+      "decrease_if_drought": 0.433639526367188,
+      "range_variation": 0.539138793945313
+    },
+    {
+      "station": "2",
+      "start_value": 201.89128112793,
+      "max_value": 201.978759765625,
+      "min_value": 201.689743041992,
+      "increase_if_rainfall": 0.0874786376953125,
+      "decrease_if_drought": 0.2015380859375,
+      "range_variation": 0.289016723632813
+    }
+  ],
+  "top5_drought_decrease": [
+    {
+      "station": "10",
+      "start_value": 27.5365257263184,
+      "max_value": 27.5970516204834,
+      "min_value": 26.6954078674316,
+      "increase_if_rainfall": 0.0605258941650391,
+      "decrease_if_drought": 0.841117858886719,
+      "range_variation": 0.901643753051758
+    },
+    {
+      "station": "4",
+      "start_value": 77.5647811889648,
+      "max_value": 77.5647811889648,
+      "min_value": 77.0492248535156,
+      "increase_if_rainfall": 0,
+      "decrease_if_drought": 0.515556335449219,
+      "range_variation": 0.515556335449219
+    },
+    {
+      "station": "6",
+      "start_value": 140.765396118164,
+      "max_value": 140.781967163086,
+      "min_value": 140.292861938477,
+      "increase_if_rainfall": 0.016571044921875,
+      "decrease_if_drought": 0.4725341796875,
+      "range_variation": 0.489105224609375
+    },
+    {
+      "station": "8",
+      "start_value": 224.095260620117,
+      "max_value": 224.200759887695,
+      "min_value": 223.66162109375,
+      "increase_if_rainfall": 0.105499267578125,
+      "decrease_if_drought": 0.433639526367188,
+      "range_variation": 0.539138793945313
+    },
+    {
+      "station": "5",
+      "start_value": 80.9699935913086,
+      "max_value": 80.9953155517578,
+      "min_value": 80.5698089599609,
+      "increase_if_rainfall": 0.0253219604492188,
+      "decrease_if_drought": 0.400184631347656,
+      "range_variation": 0.425506591796875
+    }
+  ],
+  "top5_largest_variation": [
+    {
+      "station": "10",
+      "start_value": 27.5365257263184,
+      "max_value": 27.5970516204834,
+      "min_value": 26.6954078674316,
+      "increase_if_rainfall": 0.0605258941650391,
+      "decrease_if_drought": 0.841117858886719,
+      "range_variation": 0.901643753051758
+    },
+    {
+      "station": "8",
+      "start_value": 224.095260620117,
+      "max_value": 224.200759887695,
+      "min_value": 223.66162109375,
+      "increase_if_rainfall": 0.105499267578125,
+      "decrease_if_drought": 0.433639526367188,
+      "range_variation": 0.539138793945313
+    },
+    {
+      "station": "4",
+      "start_value": 77.5647811889648,
+      "max_value": 77.5647811889648,
+      "min_value": 77.0492248535156,
+      "increase_if_rainfall": 0,
+      "decrease_if_drought": 0.515556335449219,
+      "range_variation": 0.515556335449219
+    },
+    {
+      "station": "6",
+      "start_value": 140.765396118164,
+      "max_value": 140.781967163086,
+      "min_value": 140.292861938477,
+      "increase_if_rainfall": 0.016571044921875,
+      "decrease_if_drought": 0.4725341796875,
+      "range_variation": 0.489105224609375
+    },
+    {
+      "station": "5",
+      "start_value": 80.9699935913086,
+      "max_value": 80.9953155517578,
+      "min_value": 80.5698089599609,
+      "increase_if_rainfall": 0.0253219604492188,
+      "decrease_if_drought": 0.400184631347656,
+      "range_variation": 0.425506591796875
+    }
+  ],
+  "stations_analisys": [
+    {
+      "station": "1",
+      "start_value": 105.544883728027,
+      "max_value": 105.562347412109,
+      "min_value": 105.335205078125,
+      "increase_if_rainfall": 0.0174636840820313,
+      "decrease_if_drought": 0.209678649902344,
+      "range_variation": 0.227142333984375
+    },
+    {
+      "station": "2",
+      "start_value": 201.89128112793,
+      "max_value": 201.978759765625,
+      "min_value": 201.689743041992,
+      "increase_if_rainfall": 0.0874786376953125,
+      "decrease_if_drought": 0.2015380859375,
+      "range_variation": 0.289016723632813
+    },
+    {
+      "station": "3",
+      "start_value": 54.1566963195801,
+      "max_value": 54.1566963195801,
+      "min_value": 53.9617691040039,
+      "increase_if_rainfall": 0,
+      "decrease_if_drought": 0.194927215576172,
+      "range_variation": 0.194927215576172
+    },
+    {
+      "station": "4",
+      "start_value": 77.5647811889648,
+      "max_value": 77.5647811889648,
+      "min_value": 77.0492248535156,
+      "increase_if_rainfall": 0,
+      "decrease_if_drought": 0.515556335449219,
+      "range_variation": 0.515556335449219
+    },
+    {
+      "station": "5",
+      "start_value": 80.9699935913086,
+      "max_value": 80.9953155517578,
+      "min_value": 80.5698089599609,
+      "increase_if_rainfall": 0.0253219604492188,
+      "decrease_if_drought": 0.400184631347656,
+      "range_variation": 0.425506591796875
+    },
+    {
+      "station": "6",
+      "start_value": 140.765396118164,
+      "max_value": 140.781967163086,
+      "min_value": 140.292861938477,
+      "increase_if_rainfall": 0.016571044921875,
+      "decrease_if_drought": 0.4725341796875,
+      "range_variation": 0.489105224609375
+    },
+    {
+      "station": "7",
+      "start_value": 124.977897644043,
+      "max_value": 125.315643310547,
+      "min_value": 124.977897644043,
+      "increase_if_rainfall": 0.337745666503906,
+      "decrease_if_drought": 0,
+      "range_variation": 0.337745666503906
+    },
+    {
+      "station": "8",
+      "start_value": 224.095260620117,
+      "max_value": 224.200759887695,
+      "min_value": 223.66162109375,
+      "increase_if_rainfall": 0.105499267578125,
+      "decrease_if_drought": 0.433639526367188,
+      "range_variation": 0.539138793945313
+    },
+    {
+      "station": "9",
+      "start_value": 214.234451293945,
+      "max_value": 214.418762207031,
+      "min_value": 214.179107666016,
+      "increase_if_rainfall": 0.184310913085938,
+      "decrease_if_drought": 0.0553436279296875,
+      "range_variation": 0.239654541015625
+    },
+    {
+      "station": "10",
+      "start_value": 27.5365257263184,
+      "max_value": 27.5970516204834,
+      "min_value": 26.6954078674316,
+      "increase_if_rainfall": 0.0605258941650391,
+      "decrease_if_drought": 0.841117858886719,
+      "range_variation": 0.901643753051758
+    },
+    {
+      "station": "11",
+      "start_value": 2.75834774971008,
+      "max_value": 2.8906774520874,
+      "min_value": 2.75244665145874,
+      "increase_if_rainfall": 0.132329702377319,
+      "decrease_if_drought": 0.00590109825134277,
+      "range_variation": 0.138230800628662
+    },
+    {
+      "station": "12",
+      "start_value": 113.430839538574,
+      "max_value": 113.430839538574,
+      "min_value": 113.204544067383,
+      "increase_if_rainfall": 0,
+      "decrease_if_drought": 0.226295471191406,
+      "range_variation": 0.226295471191406
     }
   ]
 }

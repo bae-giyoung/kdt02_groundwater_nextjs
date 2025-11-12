@@ -20,7 +20,8 @@ export default function HorizontalBarChart({ title, data }: HorizontalBarChartPr
         const chartColors = isDrought
           ? ['#ff6361', '#ff8278', '#ffa091', '#ffbcae', '#ffd7cc'].reverse()
           : isRainfall ? ['#2196F3', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB'].reverse()
-          : ["#C8E6C9", "#A5D6A7", "#81C784", "#4DB6AC", "#26A69A"]
+          : ["#C8E6C9", "#A5D6A7", "#81C784", "#4DB6AC", "#26A69A"];
+        const tooltipTitle = isDrought ? '가뭄시 하강폭' : isRainfall ? '강수시 상승폭' : '변동폭';
 
         return {
             chart: {
@@ -47,13 +48,15 @@ export default function HorizontalBarChart({ title, data }: HorizontalBarChartPr
             },
             tooltip: {
                 valueDecimals: 2,
+                headerFormat: `<b>${tooltipTitle}</b>: `,
+                pointFormat: '<b>{point.y:.3f}</b>'
             },
             plotOptions: {
                 bar: {
                     colorByPoint: true,
                     dataLabels: {
                       enabled: true,
-                      format: '{point.y:.2f}'
+                      format: '{point.y:.3f}'
                     },
                 },
             },

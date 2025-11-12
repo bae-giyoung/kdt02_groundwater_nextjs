@@ -1,7 +1,7 @@
 'use client';
 import { usePathname } from "next/navigation";
 import SubNavUnit from "./SubNavUnit";
-import pageNamesInfo from "@/data/pageNamesInfo.json";
+import pageNamesInfo from "@/data/page_names_info.json";
 
 type pageNamesKey = keyof typeof pageNamesInfo;
 

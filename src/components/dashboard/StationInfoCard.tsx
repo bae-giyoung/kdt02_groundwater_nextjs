@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useMemo, type ReactNode } from 'react';
-import genInfo from '@/data/gennumInfo.json';
+import genInfo from '@/data/gennum_info.json';
 import type { GenInfoKey, SensitivityRecord, StatusPoint } from '@/types/uiTypes';
 import { FiMapPin, FiCompass, FiDroplet, FiTrendingUp, FiActivity } from 'react-icons/fi';
 
@@ -98,12 +98,12 @@ export default function StationInfoCard({
         return {
             statusLabel,
             badgeClass: LEVEL_STATUS_THEME[statusLabel],
-            latestValue: `${statusData.value.toFixed(2)} m`,
+            latestValue: `${statusData.value.toFixed(2)} el.m`,
             rangeText:
                 statusData.minElev != null && statusData.maxElev != null
-                    ? `${statusData.minElev.toFixed(2)} ~ ${statusData.maxElev.toFixed(2)} m`
+                    ? `${statusData.minElev.toFixed(2)} ~ ${statusData.maxElev.toFixed(2)} el.m`
                     : '-',
-            percentileText: `${statusData.percentiles.p25.toFixed(2)} ~ ${statusData.percentiles.p75.toFixed(2)} m`,
+            percentileText: `${statusData.percentiles.p25.toFixed(2)} ~ ${statusData.percentiles.p75.toFixed(2)} el.m`,
         };
     }, [statusData]);
 
@@ -115,9 +115,9 @@ export default function StationInfoCard({
         return {
             type,
             badgeClass: type ? SENSITIVITY_THEME[type] : undefined,
-            increase: `${sensitivityData.increase_if_rainfall.toFixed(4)} m`,
-            decrease: `${sensitivityData.decrease_if_drought.toFixed(4)} m`,
-            variation: sensitivityData.range_variation?.toFixed(4),
+            increase: `${sensitivityData.increase_if_rainfall.toFixed(4)} el.m`,
+            decrease: `${sensitivityData.decrease_if_drought.toFixed(4)} el.m`,
+            variation: `${sensitivityData.range_variation?.toFixed(4)} el.m`,
         };
     }, [sensitivityData]);
 
@@ -263,7 +263,7 @@ export default function StationInfoCard({
                                 {sensitivitySummary.variation && (
                                     <div className="flex items-center justify-between border-t border-dashed border-slate-200 pt-2">
                                         <span className="text-slate-500">변동 폭</span>
-                                        <span className="font-semibold text-slate-900">{sensitivitySummary.variation} m</span>
+                                        <span className="font-semibold text-slate-900">{sensitivitySummary.variation}</span>
                                     </div>
                                 )}
                             </div>

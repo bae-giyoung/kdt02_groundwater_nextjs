@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import DonutGauge from './DonutGauge';
-import genInfo from '@/data/gennumInfo.json';
+import genInfo from '@/data/gennum_info.json';
 import type { GenInfo, GenInfoKey } from '@/types/uiTypes';
 import PerformanceBadge from './PerformanceBadge';
 

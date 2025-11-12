@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 import type { GenInfoKey, SensitivityDataset, SensitivityRecord } from '@/types/uiTypes';
 
 // 타입 선언
@@ -54,8 +54,6 @@ const mapRegions = geoFeatures.map((feature, idx) => ({
     'hc-key': feature.properties['hc-key'],
     color: pickColor(idx)
 }));
-
-
 
 // 민감도 정보
 const buildSensitivityMap = (sensitivityData: SensitivityDataset | null) => {
@@ -142,43 +140,44 @@ const sensitivityColorAxis: Highcharts.ColorAxisOptions = {
     ]
 };
 
-// 컴포넌트
+// 범례 설정
 const sensitivityLegendData = [
-    {
-      color: "#4A90E2",
-      title: "강수민감형",
-      description: "강우 시 수위 상승폭이 크고, 가뭄 시 하강폭이 상대적으로 작은 관측소(함양이 빠른 지역)",
-    },
-    {
-      color: "#E94E77",
-      title: "가뭄취약형",
-      description: "가뭄 시 쉬위 하강폭이 크고, 강우 시 상승폭이 상대적으로 작은 관측소(취수가 빠른 지역)",
-    },
-    {
-      color: "#FFB74D",
-      title: "복합형",
-      description: "두 반응의 차이가 작아, 강우가뭄에 모두 유사한 수준으로 반응하는 관측소",
-    },
-  ];
+  {
+    color: "#4A90E2",
+    title: "강수민감형",
+    description: "강우 시 수위 상승폭이 크고, 가뭄 시 하강폭이 상대적으로 작은 관측소(함양이 빠른 지역)",
+  },
+  {
+    color: "#E94E77",
+    title: "가뭄취약형",
+    description: "가뭄 시 쉬위 하강폭이 크고, 강우 시 상승폭이 상대적으로 작은 관측소(취수가 빠른 지역)",
+  },
+  {
+    color: "#FFB74D",
+    title: "복합형",
+    description: "두 반응의 차이가 작아, 강우가뭄에 모두 유사한 수준으로 반응하는 관측소",
+  },
+];
 
-  const elevationLegendData = [
-    {
-      color: "#E57373",
-      title: "위험",
-      description: "상위/하위 10% 구간",
-    },
-    {
-      color: "#FFB74D",
-      title: "경고",
-      description: "10~25% 구간",
-    },
-    {
-      color: "#4DB6AC",
-      title: "정상",
-      description: "25~75% 구간",
-    },
-  ];
+const elevationLegendData = [
+  {
+    color: "#E57373",
+    title: "위험",
+    description: "상위/하위 10% 구간",
+  },
+  {
+    color: "#FFB74D",
+    title: "경고",
+    description: "10~25% 구간",
+  },
+  {
+    color: "#4DB6AC",
+    title: "정상",
+    description: "25~75% 구간",
+  },
+];
 
+// 컴포넌트
 export default function GeoMap (
     {statusData, sensitivityData, sensitivityLoading, mappointDesc, handleClick} 
     : GeoMapProps
@@ -218,7 +217,7 @@ export default function GeoMap (
   // 민감도 데이터
   const sensitivityPoints = useMemo(() => getSensitivityGeoInfo(sensitivityData), [sensitivityData]);
   
-  // 툴팁 설정
+  // 툴팁 설정 - 지하수위 현황
   const elevationTooltip = {
     useHTML: true,
     headerFormat: '<b>{point.name}</b><br/>',
@@ -232,24 +231,32 @@ export default function GeoMap (
 
       return `
         <div style="font-size: 12px; margin-top: 5px;">
-          <span>- 현재 수위: <b>${Highcharts.numberFormat(p.value, 2)} m</b></span><br/>
+          <span>- 현재 수위: <b>${Highcharts.numberFormat(p.value, 2)} el.m</b></span><br/>
           <span>- 상태: ${statusText}</span><br/>
-          <span>- 동월 정상 범위: ${Highcharts.numberFormat(p.percentiles.p25, 2)} m ~ ${Highcharts.numberFormat(p.percentiles.p75, 2)} m</span><br/>
+          <span>- 동월 정상 범위: ${Highcharts.numberFormat(p.percentiles.p25, 2)} el.m ~ ${Highcharts.numberFormat(p.percentiles.p75, 2)} el.m</span><br/>
           <small style="color: #666;">(과거 10년 동월 수위 분포 기준)</small>
         </div>
       `;
     }
   }
 
+  // 툴팁 설정 - 민감도 분석
   const sensitivityTooltip = {
-    headerFormat: '',
-    pointFormat: `
-      <b>{point.name}</b><br/>
-      유형: {point.sensitive_type}<br/>
-      강수 상승폭: {point.increase_if_rainfall:.4f} el.m<br/>
-      가뭄 하강폭: {point.decrease_if_drought:.4f} el.m<br/>
-      변동폭: {point.range_variation:.4f} el.m
-    `
+    headerFormat: '<b>{point.name}</b><br/>',
+    pointFormatter: function() {
+      const p = this as any;
+      const sensitiveTypeText = p.colorValue === 0 ? '<span style="color:#4A90E2;">강수민감형</span>' 
+                     : p.colorValue === 1 ? '<span style="color:#E94E77;">가뭄취약형</span>' 
+                     : p.colorValue === 2 ? '<span style="color:#FFB74D;">복합형</span>'
+                     : '<span>민감도 분석 결과 없음</span>';
+
+      return `
+        유형: ${sensitiveTypeText}<br/>
+        강수 상승폭: ${Highcharts.numberFormat(p.increase_if_rainfall, 4)} el.m<br/>
+        가뭄 하강폭: ${Highcharts.numberFormat(p.decrease_if_drought, 4)} el.m<br/>
+        변동폭: ${Highcharts.numberFormat(p.range_variation, 4)} el.m
+      `
+    }
   }
 
   const points = mapType === 'elevation' ? elevationPoints : sensitivityPoints;

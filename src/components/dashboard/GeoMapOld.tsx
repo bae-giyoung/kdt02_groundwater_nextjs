@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import Highcharts from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import krAll from '@highcharts/map-collection/countries/kr/kr-all.topo.json';
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 import type { GenInfoKey, SensitivityDataset } from '@/types/uiTypes';
 
 // 타입 선언

@@ -1,4 +1,4 @@
-import genInfo from "@/data/gennumInfo.json";
+import genInfo from "@/data/gennum_info.json";
 export interface UserType {
   userId: string,
   username: string,
