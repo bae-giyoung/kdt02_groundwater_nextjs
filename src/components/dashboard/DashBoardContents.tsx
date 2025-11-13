@@ -19,6 +19,7 @@ import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
 import StationInfoCard from "./StationInfoCard";
 import apiRoutes from "@/lib/apiRoutes";
+import { downloadDashboardAsPdf, downloadDashboardAsPng } from "./lib/exportDashboard";
 
 /**
  * 설명 적어두자
@@ -248,51 +249,13 @@ export default function DashBoardContents() {
         link.click();
         URL.revokeObjectURL(url); // 반드시 참조 해제!!
     };
-    
-    // 이미지 캡쳐 함수
-    const captureContentImage = useCallback(async () => {
-        const target = contentRef.current;
-
-        if (!target) {
-            throw new Error(CAPTURE_TARGET_NOT_FOUND);
-        }
-
-        const { toPng } = await import('html-to-image');
-        const width = target.scrollWidth;
-        const height = target.scrollHeight;
-
-        const dataUrl = await toPng(target, {
-            cacheBust: true,
-            pixelRatio: 2,
-            backgroundColor: '#ffffff',
-            width,
-            height,
-            style: {
-                margin: '0',
-                width: `${width}px`,
-                height: `${height}px`,
-                transform: 'scale(1)',
-                transformOrigin: 'top left',
-            },
-        });
-
-        return { dataUrl, width, height };
-    }, []);
 
     // 대시보드 이미지로 저장 함수
     const handleSavePng = useCallback(async () => {
-        if (typeof window === 'undefined') {
-            return;
-        }
+        if (typeof window === 'undefined') return;
 
         try {
-            const { dataUrl } = await captureContentImage();
-
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = `dashboard-${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
-            link.click();
-            link.remove();
+            await downloadDashboardAsPng(contentRef.current);
         } catch (error) {
             if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
                 window.alert('저장할 대상을 찾을 수 없습니다.');
@@ -302,29 +265,14 @@ export default function DashBoardContents() {
             console.error('PNG export failed', error);
             window.alert('PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         }
-    }, [captureContentImage]);
+    }, [contentRef]);
 
     // 대시보드 PDF로 저장 함수
     const handleSavePdf = useCallback(async () => {
-        if (typeof window === 'undefined') {
-            return;
-        }
+        if (typeof window === 'undefined') return;
 
         try {
-            const [{ dataUrl, width, height }, { jsPDF }] = await Promise.all([
-                captureContentImage(),
-                import('jspdf'),
-            ]);
-
-            const orientation = width >= height ? 'landscape' : 'portrait';
-            const pdf = new jsPDF({
-                orientation,
-                unit: 'px',
-                format: [width, height],
-            });
-
-            pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
-            pdf.save(`dashboard-${new Date().toISOString().replace(/[:.]/g, '-')}.pdf`);
+            await downloadDashboardAsPdf(contentRef.current);
         } catch (error) {
             if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
                 window.alert('저장할 대상을 찾을 수 없습니다.');
@@ -334,7 +282,7 @@ export default function DashBoardContents() {
             console.error('PDF export failed', error);
             window.alert('PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         }
-    }, [captureContentImage]);
+    }, [contentRef]);
 
     // 관측소 상세 모달창 설정
     const handleOpenModal = () => {
