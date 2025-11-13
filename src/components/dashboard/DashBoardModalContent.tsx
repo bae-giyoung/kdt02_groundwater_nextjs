@@ -1,12 +1,10 @@
 'use client';
 import { useEffect, useMemo, useState } from "react";
 import type { GenInfoKey } from "@/types/uiTypes";
-import StationInfoBox from "../StationInfoBox";
-import PerformanceIndicators from "./PerformanceIndicators";
 import LineChartShadeZoom, { LineChartBackendResponse } from "./LineChartShadeZoom";
 import ForecastSummaryPanel, { SummaryApiResponse } from "./ForecastSummaryPanel";
 import WeatherGroundwaterTrendChart, { WeatherGroundwaterBackendResponse } from "./WeatherGroundwaterTrendChart";
-import FeatureImportancePage from "./FeatureImportance";
+import FeatureImportance from "./FeatureImportance";
 
 // 타입 선언
 type ModalTabKey = 'trend' | 'summary' | 'weather';
@@ -202,7 +200,7 @@ export default function DashboardModalContent ({
                     />
                 </div>
                 <div className="w-full lg:w-1/3 d-group">
-                    <FeatureImportancePage stationCode={station} />
+                    <FeatureImportance stationCode={station} prefetchedData={null} />
                 </div>
             </div>
         );
