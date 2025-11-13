@@ -67,15 +67,17 @@ export default function DashBoardContents() {
     const openModal = useSetAtom(openModalAtom);
     const contentRef = useRef<HTMLDivElement | null>(null);
     
-    // 현재 관측소명, 현재 관측소의 경향성 지표
+    // 현재 관측소명
     const stationName = genInfo[station]?.["측정망명"];
     const stationId = `${GEN_CODES.indexOf(station) + 1}`;
 
+    // 현재 관측소의 지하수위 경향성 지표
     const selectedStatusData = useMemo(() => {
         if (!groundwaterStatusData || !station) return null;
         return groundwaterStatusData.find(d => d.id === station) || null;
     }, [groundwaterStatusData, station]);
 
+    // 현재 관측소의 민감도
     const sensitivityRecordMap = useMemo(() => {
         if (!sensitivityData?.stations_analisys) return null;
         const map = new Map<GenInfoKey, SensitivityRecord>();

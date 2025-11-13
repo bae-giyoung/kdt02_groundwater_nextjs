@@ -228,10 +228,6 @@ export default function DashboardModalContent ({
 
     return (
         <div className="w-full d-group flex flex-col gap-8 lg:flex-row" id="dashboard-station-modal">
-            {/* <div className="w-full lg:w-1/3 space-y-4">
-                <StationInfoBox stationCode={station} stationName={stationName} />
-                <PerformanceIndicators stationCode={station} />
-            </div> */}
             <div className="w-full flex flex-col gap-4">
                 <div className="flex flex-wrap gap-2">
                     {tabs.map(({ key, label }) => {
