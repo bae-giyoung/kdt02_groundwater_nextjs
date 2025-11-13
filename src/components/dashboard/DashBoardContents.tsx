@@ -18,10 +18,10 @@ import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
 import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
 import StationInfoCard from "./StationInfoCard";
-
+import apiRoutes from "@/lib/apiRoutes";
 
 /**
- * 변수 설명 적어두자
+ * 설명 적어두자
  * *********************************************************************************************************************
  * @ 
  * @ 
@@ -96,12 +96,11 @@ export default function DashBoardContents() {
         return sensitivityRecordMap.get(station) ?? null;
     }, [sensitivityRecordMap, station]);
 
-    // URLS - 숨기기!!!!!
-    // 장기 추세, 기상-수위
-    const longTermUrl = `/java/api/v1/rawdata/longterm?station=${stationId}&timestep=monthly&horizons=120`;
-    const weatherUrl = `/java/api/v1/rawdata/summary/weather?station=${stationId}`;
+    // API URL 모음
+    const longTermUrl = apiRoutes.longTerm(stationId);
+    const weatherUrl = apiRoutes.weather(stationId);
 
-    // 가뭄 취약/ 강수 민감 통계 Top-5 데이터
+    // 가뭄 취약 통계 Top-5 데이터
     const droughtData = useMemo(() => {
         if(!sensitivityData) return [];
         return sensitivityData.top5_drought_decrease.map(d => ({
@@ -110,6 +109,7 @@ export default function DashBoardContents() {
         }));
     }, [sensitivityData]);
 
+    // 강수 민감 통계 Top-5 데이터
     const rainData = useMemo(() => {
         if(!sensitivityData) return [];
         return sensitivityData?.top5_rainfall_increase.map(d => ({
@@ -118,6 +118,7 @@ export default function DashBoardContents() {
         }));
     }, [sensitivityData]);
 
+    // 변동폭 통계 Top-5 데이터
     const variationData = useMemo(() => {
         if(!sensitivityData) return [];
         return sensitivityData?.top5_largest_variation.map(d => ({
@@ -126,14 +127,14 @@ export default function DashBoardContents() {
         }));
     }, [sensitivityData]);
     
-    // 현황 바 차트
+    // 지하수위 현황 Bar 차트
     const displayedBarChartData = useMemo(() => {
         return options.map(({ key, label }) => {
             return { name: label, y: currBarChartDatas[key]?.["elevMean" + period] ?? null }
         });
     }, [currBarChartDatas, period]);
 
-    // 현황 테이블
+    // 지하수위 현황 테이블
     const tableColumns = useMemo(() => [{ key: "ymd", label: "기준일" }, ...options], []);
 
     const displayedTable = useMemo(() => {
@@ -214,6 +215,7 @@ export default function DashBoardContents() {
         });
         return copied;
     }, [displayedDiffTable, isAsc]);
+    /////////////////////////////////////////////////
 
     // 현황 테이블 csv로 다운로드
     const handleDownloadCSV = () => {
@@ -351,9 +353,8 @@ export default function DashBoardContents() {
     
     // OPEN API: 일별 지하수위 데이터
     const getCurrFetchDatas = useCallback(async () => {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
         try {
-            const resp = await fetch(`${baseUrl}/api/v1/dashboard/currentElev?days=${TABLE_WINDOW_DAYS}`);
+            const resp = await fetch(apiRoutes.currentElev(TABLE_WINDOW_DAYS));
 
             if (!resp.ok) {
                 throw new Error(`failed to fetch dashboard data: ${resp.status}`);
@@ -379,6 +380,7 @@ export default function DashBoardContents() {
         getCurrFetchDatas();
     }, [getCurrFetchDatas]);
 
+    // 렌더링
     return (
         <>
             <div ref={contentRef} id="dashboard" className="section d-section flex flex-col lg:flex-row gap-6 mb-6">

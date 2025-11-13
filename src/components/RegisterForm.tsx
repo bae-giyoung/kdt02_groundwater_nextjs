@@ -10,7 +10,7 @@ import safeParseResponseToJson from "./utils/safeParseResponseToJson";
 import { UserErrorType } from "@/types/uiTypes";
 import PrivacyText from "./legal/PrivacyText";
 import UseOfTermsText from "./legal/UseOfTermsText";
-import { toast } from "react-toastify";
+import showToast from "./utils/showToast";
 
 type RegisterPayload = {
     username: string;
@@ -62,10 +62,7 @@ export default function RegisterForm() {
 
     // 성공시 핸들러
     const handleSuccess = (message: string) => {
-        toast.success(message, {
-            position: "top-center",
-            autoClose: 2000,
-        });
+        showToast(message, "success", 2000);
         setTimeout(() => {
             router.push("/login");
         }, 2000);
@@ -73,10 +70,7 @@ export default function RegisterForm() {
 
     // 실패시 핸들러
     const handleFailure = (message: string) => {
-        toast.error(message, {
-            position: "top-center",
-            autoClose: 2000,
-        });
+        showToast(message, "error", 2000);
     };
 
     // Submit 핸들러
@@ -90,28 +84,19 @@ export default function RegisterForm() {
 
         // 공백문자 입력의 경우 required를 통과하므로, 추가 검증
         if(!formValues.username.trim()) {
-            toast.info("아이디를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("아이디를 입력하세요", "info", 1000);
             username?.focus();
             return;
         }
 
         if(!formValues.email.trim()) {
-            toast.info("이메일을 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("이메일을 입력하세요", "info", 1000);
             email?.focus();
             return;
         }
 
         if(!formValues.password.trim()) {
-            toast.info("비밀번호를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("비밀번호를 입력하세요", "info", 1000);
             password?.focus();
             return;
         }

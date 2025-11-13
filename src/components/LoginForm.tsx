@@ -1,119 +1,46 @@
 'use client';
 import type { FormEvent } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
-import { refreshSessionAtom, sessionAtom } from "@/atoms/atoms";
+import { loginAtom, sessionAtom } from "@/atoms/atoms";
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "./CustomInput";
 import FormField from "./FormField";
 import Link from "next/link";
-import safeParseResponseToJson from "./utils/safeParseResponseToJson";
 import { useRouter } from "next/navigation";
-import { UserType, UserErrorType } from "@/types/uiTypes";
-import { toast } from "react-toastify";
-
-type LoginSuccessResponse = {
-    user: UserType,
-    sessionExpiresIn: number
-}
+import showToast from "./utils/showToast";
 
 export default function LoginForm() {
     const router = useRouter();
-    const refreshSession = useSetAtom(refreshSessionAtom);
+    const login = useSetAtom(loginAtom);
     const session = useAtomValue(sessionAtom);
-
-    // 성공시 핸들러
-    const handleSuccess = async (message: string) => {
-        const duration = 1500;
-        toast.success(message, {
-            position: "top-center",
-            autoClose: duration,
-        });
-
-        // 로그인 직후 /api/v1/auth/me 호출 로직
-        await refreshSession();
-    };
-
-    // 실패시 핸들러
-    const handleFailure = (message: string) => {
-        toast.error(message, {
-            position: "top-center",
-            autoClose: 2000,
-        });
-    };
 
     const handleLogin = async (e : FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
 
-        const usernameValue = (formData.get("username") ?? "").toString().trim();
-        const passwordValue = (formData.get("password") ?? "").toString().trim();
+        const username = (formData.get("username") ?? "").toString().trim();
+        const password = (formData.get("password") ?? "").toString().trim();
 
-        const username = form.elements.namedItem("username") as HTMLInputElement | null;
-        const password = form.elements.namedItem("password") as HTMLInputElement | null;
-
-        if(!usernameValue) {
-            toast.info("아이디를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
-            username?.focus();
-            username?.reportValidity(); // 호환성 체크!!!!!
+        if(!username) {
+            showToast("아이디를 입력하세요", 'info', 1000);
+            (form.elements.namedItem("username") as HTMLInputElement | null)?.focus();
             return;
         }
 
-        if(!passwordValue) {
-            toast.info("비밀번호를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
-            password?.focus();
-            password?.reportValidity();
+        if(!password) {
+            showToast("비밀번호를 입력하세요", 'info', 1000);
+            (form.elements.namedItem("password") as HTMLInputElement | null)?.focus();
             return;
         }
 
-        // 로그인 요청
+        // 로그인 요청 (loginAtom 사용)
         try {
-            const response = await fetch('/java/api/v1/auth/login', {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-type" : "application/json",
-                },
-                body: JSON.stringify({
-                    "username": usernameValue, 
-                    "password": passwordValue
-                })
-            });
-
-            const result = await safeParseResponseToJson<LoginSuccessResponse | UserErrorType>(response);
-
-            switch (response.status) {
-                case 200: {
-                    let message = "로그인 성공";
-                    handleSuccess(message);
-                    break;
-                }
-                case 401: {
-                    let message = result && "message" in result
-                    ? result.message
-                    : "로그인에 실패했습니다. 입력 정보를 다시 확인해주세요."
-                    handleFailure(message); // result.message: 이메일이나 비밀번호가 올바르지 않습니다.
-                    break;
-                }
-                default: {
-                    let message = result && "message" in result
-                    ? result.message
-                    : "로그인에 실패했습니다. 관리자에게 문의하세요.";
-                    handleFailure(message); // result.message: 내부 서버 오류
-                    console.log(response.status);
-                    break;
-                }
-            }
-
+            await login({ username, password });
+            // 성공 시 atom 내부에서 toast와 상태 변경 처리
         } catch (error) {
-            console.error("로그인 시도 중 오류 발생: ", error);
-            handleFailure("로그인 시도 중 오류 발생");
+            // 실패 시 atom 내부에서 toast와 상태 변경 처리
+            console.log("로그인 에러: ", error);
         }
     }
 

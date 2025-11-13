@@ -4,7 +4,7 @@ import { useState } from "react";
 import FormField from "@/components/FormField";
 import CustomInput from "@/components/CustomInput";
 import CustomButton from "../CustomButton";
-import { toast } from "react-toastify";
+import showToast from "@/components/utils/showToast";
 import safeParseResponseToJson from "@/components/utils/safeParseResponseToJson";
 import { UserErrorType } from "@/types/uiTypes";
 import { useSetAtom } from "jotai";
@@ -39,11 +39,7 @@ export default function UserDeleteBox() {
 
     // 성공시 핸들러
     const handleSuccess = async (message: string) => {
-        const duration = 1500;
-        toast.success(message, {
-            position: "top-center",
-            autoClose: duration,
-        });
+        showToast(message, "success", 1500);
 
         setSession({ status: "unauthenticated", user: null });
         router.push("/login");
@@ -51,10 +47,7 @@ export default function UserDeleteBox() {
 
     // 실패시 핸들러
     const handleFailure = (message: string) => {
-        toast.error(message, {
-            position: "top-center",
-            autoClose: 2000,
-        });
+        showToast(message, "error", 2000);
     };
 
     // 회원탈퇴 핸들러
@@ -65,10 +58,7 @@ export default function UserDeleteBox() {
         const currentPasswordValue = (formData.get("currentPassword") ?? "").toString().trim();
         
         if(!currentPasswordValue) {
-            toast.info("비밀번호를 입력해주세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("비밀번호를 입력해주세요", "info", 1000);
             return;
         }
 

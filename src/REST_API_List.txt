@@ -35,6 +35,7 @@ Accept: application/json
 {
   "user": {
     "username": "a@naver.com",
+    "email": "bgy233@example.com",
     "roles": "USER"         // 복수 권한이면 "USER,ADMIN" (문자열)
   },
   "sessionExpiresIn": 1800   // 초(30분)

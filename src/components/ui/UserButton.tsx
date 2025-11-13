@@ -1,41 +1,18 @@
 'use client';
 import { useSetAtom, useAtom } from "jotai";
-import { sessionAtom, userInfoAtom } from "@/atoms/atoms";
+import { logoutAtom, userInfoAtom } from "@/atoms/atoms";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "react-toastify";
 
 export default function UserButton() {
-  const setSession = useSetAtom(sessionAtom);
-  const [userInfo, setUserInfo] = useAtom(userInfoAtom);
+  const [userInfo] = useAtom(userInfoAtom);
+  const logout = useSetAtom(logoutAtom);
   
   const handleLogout = async () => {
     try {
-      const response = await fetch('/java/api/v1/auth/logout', {
-        method: "POST",
-        credentials: "include",
-      });
-
-      switch(response.status) {
-        case 200: {
-          toast("로그아웃 성공", {
-            position: "top-center",
-            autoClose: 1000,
-          });
-          setUserInfo(null);
-          setSession({ status: "unauthenticated", user: null });
-          break;
-        }
-        default: {
-          toast("로그아웃에 실패했습니다. 관리자에게 문의하세요.", {
-            position: "top-center",
-            autoClose: 2000,
-          });
-          break;
-        }
-      }
+      await logout();
     } catch(error) {
-      console.error("로그아웃 시도 중 오류 발생: ", error);
+      console.log("로그아웃 시도 중 오류 발생: ", error);
     }
   }
 

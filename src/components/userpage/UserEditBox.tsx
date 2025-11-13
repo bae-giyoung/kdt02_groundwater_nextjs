@@ -4,7 +4,7 @@ import { useState } from "react";
 import FormField from "@/components/FormField";
 import CustomInput from "@/components/CustomInput";
 import CustomButton from "../CustomButton";
-import { toast } from "react-toastify";
+import showToast from "@/components/utils/showToast";
 import safeParseResponseToJson from "@/components/utils/safeParseResponseToJson";
 import { UserErrorType } from "@/types/uiTypes";
 import { useSetAtom } from "jotai";
@@ -45,21 +45,14 @@ export default function UserEditBox(
 
     // 성공시 핸들러
     const handleSuccess = async (message: string) => {
-        const duration = 1500;
-        toast.success(message, {
-            position: "top-center",
-            autoClose: duration,
-        });
+        showToast(message, "success", 1500);
         
         await refreshSession();
     };
 
     // 실패시 핸들러
     const handleFailure = (message: string) => {
-        toast.error(message, {
-            position: "top-center",
-            autoClose: 2000,
-        });
+        showToast(message, "error", 2000);
     };
 
     // 회원정보 수정 핸들러
@@ -73,18 +66,12 @@ export default function UserEditBox(
         const newPasswordValue = (formData.get("newPassword") ?? "").toString().trim();
 
         if(!currentPasswordValue) {
-            toast.info("현재 비밀번호를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("현재 비밀번호를 입력하세요", "info", 1000);
             return;
         }
 
         if(changePassword && !newPasswordValue) {
-            toast.info("새 비밀번호를 입력하세요", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("새 비밀번호를 입력하세요", "info", 1000);
             return;
         }
 
@@ -93,18 +80,12 @@ export default function UserEditBox(
         if(changePassword) payload.newPassword = newPasswordValue;
 
         if(!payload.email && !payload.newPassword) {
-            toast.info("변경된 내용이 없습니다.", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("변경된 내용이 없습니다.", "info", 1000);
             return;
         }
 
         if(newPasswordValue === currentPasswordValue) {
-            toast.info("입력한 현재 비밀번호와 변경 비밀번호가 동일합니다.", {
-                position: "top-center",
-                autoClose: 1000,
-            });
+            showToast("입력한 현재 비밀번호와 변경 비밀번호가 동일합니다.", "info", 1000);
             return;
         }
 
