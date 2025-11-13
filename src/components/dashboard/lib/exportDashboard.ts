@@ -15,6 +15,7 @@ type ExportOptions = {
 
 type FileExtension = 'png' | 'pdf' | 'csv';
 
+// export 파일명 설정
 const DEFAULT_PREFIX = 'dashboard';
 
 const buildFileName = (extension: FileExtension, options?: ExportOptions) => {
@@ -27,6 +28,7 @@ const buildFileName = (extension: FileExtension, options?: ExportOptions) => {
     return `${prefix}-${timestamp}.${extension}`;
 };
 
+// 대시보드 캡쳐
 export const captureDashboardImage = async (target: HTMLElement | null): Promise<CaptureResult> => {
     if (!target) {
         throw new Error(CAPTURE_TARGET_NOT_FOUND);
@@ -54,6 +56,7 @@ export const captureDashboardImage = async (target: HTMLElement | null): Promise
     return { dataUrl, width, height };
 };
 
+// 다운로드 PNG
 export const downloadDashboardAsPng = async (target: HTMLElement | null, options?: ExportOptions) => {
     const { dataUrl } = await captureDashboardImage(target);
 
@@ -64,6 +67,7 @@ export const downloadDashboardAsPng = async (target: HTMLElement | null, options
     link.remove();
 };
 
+// 다운로드 PDF
 export const downloadDashboardAsPdf = async (target: HTMLElement | null, options?: ExportOptions) => {
     const [{ dataUrl, width, height }, { jsPDF }] = await Promise.all([
         captureDashboardImage(target),
@@ -81,6 +85,7 @@ export const downloadDashboardAsPdf = async (target: HTMLElement | null, options
     pdf.save(buildFileName('pdf', options));
 };
 
+// 다운로드 CSV - 타입과 유틸
 type CsvColumn<Row extends Record<string, unknown>> = {
     key: keyof Row | string;
     label: string;
@@ -105,6 +110,7 @@ type CsvExportOptions = ExportOptions & {
     includeBom?: boolean;
 };
 
+// 다운로드 CSV
 export const downloadDashboardTableCsv = <Row extends Record<string, unknown>>(
     rows: Row[],
     columns: CsvColumn<Row>[],
@@ -134,4 +140,36 @@ export const downloadDashboardTableCsv = <Row extends Record<string, unknown>>(
     link.download = buildFileName('csv', options);
     link.click();
     URL.revokeObjectURL(url);
+};
+
+// export 헬퍼: export 실행과 공통 에러 처리
+type ExportErrorOptions = {
+    missingTargetMessage?: string;
+    genericErrorMessage?: string;
+    logLabel?: string;
+};
+
+export const runDashboardExport = async (
+    task: () => Promise<void>,
+    {
+        missingTargetMessage = '저장할 대상을 찾을 수 없습니다.',
+        genericErrorMessage = '저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        logLabel = 'Dashboard export failed',
+    }: ExportErrorOptions = {},
+) => {
+    try {
+        await task();
+    } catch (error) {
+        if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
+            if (typeof window !== 'undefined') {
+                window.alert(missingTargetMessage);
+            }
+            return;
+        }
+
+        console.error(logLabel, error);
+        if (typeof window !== 'undefined') {
+            window.alert(genericErrorMessage);
+        }
+    }
 };

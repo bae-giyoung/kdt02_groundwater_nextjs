@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSetAtom } from 'jotai';
 import { openModalAtom } from '@/atoms/atoms';
@@ -19,7 +19,7 @@ import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
 import StationInfoCard from "./StationInfoCard";
 import apiRoutes from "@/lib/apiRoutes";
-import { CAPTURE_TARGET_NOT_FOUND, downloadDashboardAsPdf, downloadDashboardAsPng, downloadDashboardTableCsv } from "./lib/exportDashboard";
+import { downloadDashboardAsPdf, downloadDashboardAsPng, downloadDashboardTableCsv, runDashboardExport } from "./lib/exportDashboard";
 
 /**
  * 설명 적어두자
@@ -232,35 +232,29 @@ export default function DashBoardContents() {
     }, [displayedTable, tableColumns]);
 
     // 대시보드 이미지로 저장 함수
-    const handleSavePng = useCallback(async () => {
+    const handleSavePng = useCallback(() => {
         if (typeof window === 'undefined') return;
 
-        try {
-            await downloadDashboardAsPng(contentRef.current);
-        } catch (error) {
-            if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
-                window.alert('저장할 대상을 찾을 수 없습니다.');
-                return;
-            }
-
-            console.log('PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요. ', error);
-        }
+        return runDashboardExport(
+            () => downloadDashboardAsPng(contentRef.current),
+            {
+                logLabel: 'PNG export failed',
+                genericErrorMessage: 'PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            },
+        );
     }, [contentRef]);
 
     // 대시보드 PDF로 저장 함수
-    const handleSavePdf = useCallback(async () => {
+    const handleSavePdf = useCallback(() => {
         if (typeof window === 'undefined') return;
 
-        try {
-            await downloadDashboardAsPdf(contentRef.current);
-        } catch (error) {
-            if (error instanceof Error && error.message === CAPTURE_TARGET_NOT_FOUND) {
-                window.alert('저장할 대상을 찾을 수 없습니다.');
-                return;
-            }
-
-            console.log('PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요. ', error);
-        }
+        return runDashboardExport(
+            () => downloadDashboardAsPdf(contentRef.current),
+            {
+                logLabel: 'PDF export failed',
+                genericErrorMessage: 'PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            },
+        );
     }, [contentRef]);
 
     // 관측소 상세 모달창 설정
