@@ -238,6 +238,16 @@ export default function ForecastNext7Days({
                     }
                 }
             },
+            lang: {
+                viewFullscreen: '크게 보기',
+                downloadPNG: 'PNG 이미지로 다운로드',
+                downloadJPEG: 'JPEG 이미지로 다운로드',
+                downloadPDF: 'PDF 파일로 다운로드',
+                downloadSVG: 'SVG 이미지로 다운로드',
+                downloadCSV: 'CSV 파일로 다운로드',
+                downloadXLS: 'XLS 파일로 다운로드',
+                contextButtonTitle: '메뉴'
+            },
             series: [
                 {
                     type: 'arearange',
