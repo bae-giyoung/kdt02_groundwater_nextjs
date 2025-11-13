@@ -36,39 +36,45 @@ export const sessionAtom = atom<SessionSnapshot>({
 // 인증: 로그인 성공 후 호출 또는 인가 필요 페이지에서 호출, userInfoAtom, sessionAtom 동기화
 export const refreshSessionAtom = atom(
     (get) => get(sessionAtom),
-    async (_, set) => {
+    (_, set) => {
         set(sessionAtom, { status: 'checking', user: null });
-        try {
-            const response = await fetch('/java/api/v1/auth/me', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                },
-                cache: 'no-store',
-            });
 
-            if(!response.ok) {
-                set(userInfoAtom, null);
-                set(sessionAtom, { 
-                    status: 'unauthenticated', 
-                    user: null,
-                });
-                return;
-            };
+        fetch('/java/api/v1/auth/me', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+            },
+            cache: 'no-store',
+        })
+        .then(response => {
+            // 성공시
+            if(response.ok) {
+                return response.json();
+            }
 
-            const user = await response.json();
+            // 실패시
+            return Promise.reject(response);
+        })
+        .then(user => {
             set(userInfoAtom, user);
             set(sessionAtom, { status: 'authenticated', user });
+        })
+        .catch(error => {
+            if(error && error.status === 401) {
+                console.log('401 미인증 상태입니다.');
+            } else {
+                console.error('세션 갱신 중 에러 발생: ', error);
+            }
 
-        } catch(error) {
+            // 실패 공통 처리
             set(userInfoAtom, null);
             set(sessionAtom, { 
                 status: 'unauthenticated', 
                 user: null,
-                error: (error as Error).message,
+                error: (error as Error).message || '인증 시도 중 에러 발생',
             });
-        };
+        });
     }
 );
 
