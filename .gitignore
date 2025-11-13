@@ -42,3 +42,11 @@ env.local
 next-env.d.ts
 
 herovideo_ori.mov
+
+# project idea files
+/docs/internal
+
+# temporary developing works
+/src/experiments
+/src/app/monitoring
+/src/customcodes

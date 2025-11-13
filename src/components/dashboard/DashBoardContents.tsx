@@ -19,7 +19,7 @@ import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
 import StationInfoCard from "./StationInfoCard";
 import apiRoutes from "@/lib/apiRoutes";
-import { downloadDashboardAsPdf, downloadDashboardAsPng } from "./lib/exportDashboard";
+import { CAPTURE_TARGET_NOT_FOUND, downloadDashboardAsPdf, downloadDashboardAsPng, downloadDashboardTableCsv } from "./lib/exportDashboard";
 
 /**
  * 설명 적어두자
@@ -34,7 +34,6 @@ import { downloadDashboardAsPdf, downloadDashboardAsPng } from "./lib/exportDash
 const options = Object.entries(genInfo).map(([gen, { ["측정망명"]: name }]) => ({ key: gen, label: name }));
 const GEN_CODES = Object.keys(genInfo);
 const GEN_NAMES = Object.values(genInfo).map(({ ["측정망명"]: name }) => name);
-const CAPTURE_TARGET_NOT_FOUND = 'CAPTURE_TARGET_NOT_FOUND';
 const TABLE_WINDOW_DAYS = 30;
 
 // 타입 선언
@@ -221,34 +220,16 @@ export default function DashBoardContents() {
     /////////////////////////////////////////////////
 
     // 현황 테이블 csv로 다운로드
-    const handleDownloadCSV = () => {
-        if(!displayedTable) return;
+    const handleDownloadCSV = useCallback(() => {
+        if (typeof window === 'undefined' || !displayedTable || displayedTable.length === 0) {
+            return;
+        }
 
-        const headers = [...tableColumns].map(({ key, label}) => label);
-        const rows = [...displayedTable].map((row) => {
-            return [
-                row.ymd,
-                ...options.map(({ key }) => row[key])
-            ]
-        });
-
-        const tableRows = [
-            headers,
-            ...rows
-        ];
-
-        const BOM = '\uFEFF';
-        const csv = BOM + tableRows.map((row) => row.join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
         const today = new Date().toISOString().slice(0, 10);
-         link.download = '일평균_지하수위_현황_'+today+'.csv';
-        link.click();
-        URL.revokeObjectURL(url); // 반드시 참조 해제!!
-    };
+        downloadDashboardTableCsv(displayedTable, tableColumns, {
+            filename: `일평균_지하수위_현황_${today}.csv`,
+        });
+    }, [displayedTable, tableColumns]);
 
     // 대시보드 이미지로 저장 함수
     const handleSavePng = useCallback(async () => {
@@ -262,8 +243,7 @@ export default function DashBoardContents() {
                 return;
             }
 
-            console.error('PNG export failed', error);
-            window.alert('PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            console.log('PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요. ', error);
         }
     }, [contentRef]);
 
@@ -279,8 +259,7 @@ export default function DashBoardContents() {
                 return;
             }
 
-            console.error('PDF export failed', error);
-            window.alert('PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            console.log('PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요. ', error);
         }
     }, [contentRef]);
 

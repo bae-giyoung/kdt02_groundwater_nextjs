@@ -13,9 +13,11 @@ type ExportOptions = {
     filenamePrefix?: string;
 };
 
+type FileExtension = 'png' | 'pdf' | 'csv';
+
 const DEFAULT_PREFIX = 'dashboard';
 
-const buildFileName = (extension: 'png' | 'pdf', options?: ExportOptions) => {
+const buildFileName = (extension: FileExtension, options?: ExportOptions) => {
     if (options?.filename) {
         return options.filename;
     }
@@ -77,4 +79,59 @@ export const downloadDashboardAsPdf = async (target: HTMLElement | null, options
 
     pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
     pdf.save(buildFileName('pdf', options));
+};
+
+type CsvColumn<Row extends Record<string, unknown>> = {
+    key: keyof Row | string;
+    label: string;
+};
+
+const stringifyCell = (value: unknown) => {
+    if (value === null || typeof value === 'undefined') {
+        return '';
+    }
+
+    const stringValue = String(value);
+    const needsEscaping = /[",\n]/.test(stringValue);
+
+    if (!needsEscaping) {
+        return stringValue;
+    }
+
+    return `"${stringValue.replace(/"/g, '""')}"`;
+};
+
+type CsvExportOptions = ExportOptions & {
+    includeBom?: boolean;
+};
+
+export const downloadDashboardTableCsv = <Row extends Record<string, unknown>>(
+    rows: Row[],
+    columns: CsvColumn<Row>[],
+    options?: CsvExportOptions,
+) => {
+    if (typeof document === 'undefined' || !columns.length) {
+        return;
+    }
+
+    const header = columns.map(({ label }) => stringifyCell(label));
+    const body = rows.map((row) =>
+        columns.map(({ key }) => {
+            const value = (row as Record<string, unknown>)[key as string];
+            return stringifyCell(value);
+        }),
+    );
+
+    const tableRows = [header, ...body];
+    const csvContent = tableRows.map((row) => row.join(',')).join('\n');
+    const content = (options?.includeBom === false ? '' : '\uFEFF') + csvContent;
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = buildFileName('csv', options);
+    link.click();
+    URL.revokeObjectURL(url);
 };
