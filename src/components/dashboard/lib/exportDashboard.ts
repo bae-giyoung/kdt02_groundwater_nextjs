@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 export const CAPTURE_TARGET_NOT_FOUND = 'CAPTURE_TARGET_NOT_FOUND';
 
@@ -6,6 +6,12 @@ type CaptureResult = {
     dataUrl: string;
     width: number;
     height: number;
+};
+
+type CaptureOptions = {
+    pixelRatio?: number;
+    backgroundColor?: string;
+    style?: Partial<CSSStyleDeclaration>;
 };
 
 type ExportOptions = {
@@ -28,8 +34,17 @@ const buildFileName = (extension: FileExtension, options?: ExportOptions) => {
     return `${prefix}-${timestamp}.${extension}`;
 };
 
+// 다운로드 trigger
+const triggerDownload = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    link.remove();
+};
+
 // 대시보드 캡쳐
-export const captureDashboardImage = async (target: HTMLElement | null): Promise<CaptureResult> => {
+export const captureDashboardImage = async (target: HTMLElement | null, options?: CaptureOptions): Promise<CaptureResult> => {
     if (!target) {
         throw new Error(CAPTURE_TARGET_NOT_FOUND);
     }
@@ -38,18 +53,25 @@ export const captureDashboardImage = async (target: HTMLElement | null): Promise
 
     const width = target.scrollWidth;
     const height = target.scrollHeight;
+    const {
+        pixelRatio = 2,
+        backgroundColor = '#ffffff',
+        style,
+    } = options ?? {};
 
     const dataUrl = await toPng(target, {
         cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
+        pixelRatio,
+        backgroundColor,
         width,
         height,
         style: {
+            margin: '0',
             width: `${width}px`,
             height: `${height}px`,
             transform: 'scale(1)',
             transformOrigin: 'top left',
+            ...style,
         },
     });
 
@@ -57,20 +79,20 @@ export const captureDashboardImage = async (target: HTMLElement | null): Promise
 };
 
 // 다운로드 PNG
-export const downloadDashboardAsPng = async (target: HTMLElement | null, options?: ExportOptions) => {
-    const { dataUrl } = await captureDashboardImage(target);
+type VisualExportOptions = ExportOptions & {
+    captureOptions?: CaptureOptions;
+};
 
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = buildFileName('png', options);
-    link.click();
-    link.remove();
+export const downloadDashboardAsPng = async (target: HTMLElement | null, options?: VisualExportOptions) => {
+    const { dataUrl } = await captureDashboardImage(target, options?.captureOptions);
+
+    triggerDownload(dataUrl, buildFileName('png', options));
 };
 
 // 다운로드 PDF
-export const downloadDashboardAsPdf = async (target: HTMLElement | null, options?: ExportOptions) => {
+export const downloadDashboardAsPdf = async (target: HTMLElement | null, options?: VisualExportOptions) => {
     const [{ dataUrl, width, height }, { jsPDF }] = await Promise.all([
-        captureDashboardImage(target),
+        captureDashboardImage(target, options?.captureOptions),
         import('jspdf'),
     ]);
 
@@ -87,8 +109,9 @@ export const downloadDashboardAsPdf = async (target: HTMLElement | null, options
 
 // 다운로드 CSV - 타입과 유틸
 type CsvColumn<Row extends Record<string, unknown>> = {
-    key: keyof Row | string;
+    key?: keyof Row | string;
     label: string;
+    accessor?: (row: Row) => unknown;
 };
 
 const stringifyCell = (value: unknown) => {
@@ -122,9 +145,17 @@ export const downloadDashboardTableCsv = <Row extends Record<string, unknown>>(
 
     const header = columns.map(({ label }) => stringifyCell(label));
     const body = rows.map((row) =>
-        columns.map(({ key }) => {
-            const value = (row as Record<string, unknown>)[key as string];
-            return stringifyCell(value);
+        columns.map(({ key, accessor }) => {
+            if (typeof accessor === 'function') {
+                return stringifyCell(accessor(row));
+            }
+
+            if (key) {
+                const value = (row as Record<string, unknown>)[key as string];
+                return stringifyCell(value);
+            }
+
+            return '';
         }),
     );
 
@@ -134,12 +165,11 @@ export const downloadDashboardTableCsv = <Row extends Record<string, unknown>>(
 
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = buildFileName('csv', options);
-    link.click();
-    URL.revokeObjectURL(url);
+    try {
+        triggerDownload(url, buildFileName('csv', options));
+    } finally {
+        URL.revokeObjectURL(url);
+    }
 };
 
 // export 헬퍼: export 실행과 공통 에러 처리
@@ -157,6 +187,10 @@ export const runDashboardExport = async (
         logLabel = 'Dashboard export failed',
     }: ExportErrorOptions = {},
 ) => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
     try {
         await task();
     } catch (error) {

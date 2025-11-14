@@ -50,15 +50,19 @@ export default function DashboardModalContent ({
         weather: createRequestState<WeatherGroundwaterBackendResponse>(),
         summary: createRequestState<SummaryApiResponse>(),
     }));
+
     const summaryUrl = useMemo(() => (
         `/java/api/v1/rawdata/summary/predict?station=${stationId}&timestep=monthly&horizons=36`
     ), [stationId]);
+    
     const displayName = stationName || "해당 관측소";
+    
     const tabs: Array<{ key: ModalTabKey; label: string }> = [
         { key: 'trend', label: '장기 추세' },
         { key: 'weather', label: '기상-예측 상관' },
         { key: 'summary', label: '예측 요약' },
     ];
+    
     const handleReloadPrefetch = () => {
         setReloadKey((prev) => prev + 1);
     };

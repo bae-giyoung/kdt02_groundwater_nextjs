@@ -233,8 +233,6 @@ export default function DashBoardContents() {
 
     // 대시보드 이미지로 저장 함수
     const handleSavePng = useCallback(() => {
-        if (typeof window === 'undefined') return;
-
         return runDashboardExport(
             () => downloadDashboardAsPng(contentRef.current),
             {
@@ -246,8 +244,6 @@ export default function DashBoardContents() {
 
     // 대시보드 PDF로 저장 함수
     const handleSavePdf = useCallback(() => {
-        if (typeof window === 'undefined') return;
-
         return runDashboardExport(
             () => downloadDashboardAsPdf(contentRef.current),
             {

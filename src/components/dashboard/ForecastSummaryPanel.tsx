@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import CustomButton from '@/components/CustomButton';
+import { downloadDashboardTableCsv } from './lib/exportDashboard';
 import { toDateUTC, formatDateKST } from '../utils/timeFormatUtils';
 
 type RawSummaryRow = [number, number, number, number, number?];
@@ -91,10 +92,34 @@ const VIEW_TABS: { id: ViewMode; label: string }[] = [
 const MONTH_LABELS = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
 const KPI_DESCRIPTIONS: Record<string, string> = {
-  KGE: 'Kling-Gupta efficiency (closer to 1 indicates better agreement).',
-  NSE: 'Nash-Sutcliffe efficiency (closer to 1 indicates stronger performance).',
-  RMSE: 'Root mean square error of groundwater level in meters.',
-  R2: 'R-squared goodness-of-fit (closer to 1 indicates better alignment).',
+  KGE: 'Kling-Gupta efficiency (1에 가까울 수록 예측값이 관측값과 매우 유사함).',
+  NSE: 'Nash-Sutcliffe efficiency (1에 가까울 수록 우수함).',
+  RMSE: 'Root Mean Square Error (오차의 평균적인 크기를 나타내며, 값이 작을 수록 예측 정확도가 높음)',
+  R2: 'R-squared(결정계수) (1에 가까울 수록 관측값과 예측값의 적합도가 높음).',
+};
+
+const SUMMARY_EXPORT_COLUMNS = [
+  { key: 'period', label: '기간 또는 라벨' },
+  { key: 'meanPred', label: '예측 평균' },
+  { key: 'meanObs', label: '실측 평균' },
+  { key: 'rmse', label: 'RMSE' },
+  { key: 'nse', label: 'NSE' },
+  { key: 'kge', label: 'KGE' },
+  { key: 'bias', label: 'Bias' },
+  { key: 'range', label: 'Range' },
+  { key: 'mae', label: 'MAE' },
+];
+
+type SummaryExportRow = {
+  period: string;
+  meanPred: string;
+  meanObs: string;
+  rmse: string;
+  nse: string;
+  kge: string;
+  bias: string;
+  range: string;
+  mae: string;
 };
 
 const mean = (values: number[]) => (values.length ? values.reduce((acc, cur) => acc + cur, 0) / values.length : 0);
@@ -294,7 +319,6 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange, prefetch
 
   const summaryUrl = useMemo(() => {
     return `/java/api/v1/rawdata/summary/predict?station=${station}&timestep=monthly&horizons=36`;
-    //return `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/mockdata/summary?station=${station}&timestep=monthly&horizons=36`;
   }, [station]);
 
   useEffect(() => {
@@ -395,58 +419,58 @@ const ForecastSummaryPanel = ({ station, stationName, onHighlightRange, prefetch
   }, [metrics, yearSummaries]);
 
   const handleExport = useCallback(() => {
-    const BOM = '\uFEFF';
-    const headers = ['연도별 또는 계절별', '예측 평균', '실측 평균', 'RMSE', 'NSE', 'KGE', 'Bias', 'Range', 'MAE'];
-    const rows =
+    const rows: SummaryExportRow[] =
       view === 'year'
-        ? yearSummaries.map((summary) => [
-            summary.year,
-            summary.meanPred.toFixed(3),
-            summary.meanObs.toFixed(3),
-            summary.rmse.toFixed(3),
-            formatMetric(summary.nse, 3),
-            formatMetric(summary.kge, 3),
-            summary.bias.toFixed(3),
-            summary.range.toFixed(3),
-            summary.mae.toFixed(3),
-          ])
+        ? yearSummaries.map((summary) => ({
+            period: `${summary.year}`,
+            meanPred: summary.meanPred.toFixed(3),
+            meanObs: summary.meanObs.toFixed(3),
+            rmse: summary.rmse.toFixed(3),
+            nse: `${formatMetric(summary.nse, 3)}`,
+            kge: `${formatMetric(summary.kge, 3)}`,
+            bias: summary.bias.toFixed(3),
+            range: summary.range.toFixed(3),
+            mae: summary.mae.toFixed(3),
+          }))
         : view === 'season'
         ? yearSummaries.flatMap((summary) =>
-            summary.seasons.map((season) => [
-              `${summary.year} ${season.label}`,
-              '',
-              '',
-              season.rmse.toFixed(3),
-              '',
-              '',
-              season.bias.toFixed(3),
-              season.range.toFixed(3),
-              '',
-            ])
+            summary.seasons.map((season) => ({
+              period: `${summary.year} ${season.label}`,
+              meanPred: '',
+              meanObs: '',
+              rmse: season.rmse.toFixed(3),
+              nse: '',
+              kge: '',
+              bias: season.bias.toFixed(3),
+              range: season.range.toFixed(3),
+              mae: '',
+            })),
           )
         : heatmapRows.flatMap((row) =>
-            row.values.map((val, idx) => [
-              `${row.year} ${MONTH_LABELS[idx]}`,
-              '',
-              '',
-              '',
-              '',
-              '',
-              val == null ? '' : val.toFixed(3),
-              '',
-              '',
-            ])
+            row.values.map((val, idx) => ({
+              period: `${row.year} ${MONTH_LABELS[idx]}`,
+              meanPred: '',
+              meanObs: '',
+              rmse: '',
+              nse: '',
+              kge: '',
+              bias: val == null ? '' : val.toFixed(3),
+              range: '',
+              mae: '',
+            })),
           );
 
-    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
-    const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const date = lastUpdated ? formatDateKST(lastUpdated).replace(/\s|:/g, '-') : new Date().toISOString().slice(0, 10);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `요약데이터_${station}_${date}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    if (!rows.length) {
+      return;
+    }
+
+    const date = lastUpdated
+      ? formatDateKST(lastUpdated).replace(/\s|:/g, '-')
+      : new Date().toISOString().slice(0, 10);
+
+    downloadDashboardTableCsv(rows, SUMMARY_EXPORT_COLUMNS, {
+      filename: `요약데이터_${station}_${date}.csv`,
+    });
   }, [heatmapRows, lastUpdated, station, view, yearSummaries]);
 
   const handleRowHover = (summary: YearSummary | null, season?: SeasonSummary) => {
