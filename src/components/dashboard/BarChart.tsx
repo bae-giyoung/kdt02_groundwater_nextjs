@@ -2,7 +2,6 @@
 import { useMemo } from "react";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-// 내보내기 기능 나중에 추가
 
 // 타입 선언
 type SeriesPoint = {
@@ -43,15 +42,16 @@ export default function BarChart({
         xAxis: {
             categories,
             title: {
-                text: yLabel,
+                text: xLabel,
             },
             lineColor: '#ccc',
             tickColor: '#ccc',
         },
         yAxis: {
             min: 0,
+            max: (data && data.length > 0) ? undefined : 100,
             title: {
-                text: xLabel,
+                text: yLabel,
             },
             gridLineColor: '#eee',
         },
@@ -113,7 +113,7 @@ export default function BarChart({
         series: [
             {
                 type: 'column',
-                name: xLabel,
+                name: yLabel,
                 data,
                 colorByPoint: true,
                 colors: [
@@ -121,7 +121,7 @@ export default function BarChart({
                 ]
             }
         ],
-    }), [categories, data]);
+    }), [categories, data, title, xLabel, yLabel]);
 
     return (
         <HighchartsReact

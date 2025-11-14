@@ -17,9 +17,10 @@ import ForecastNext7Days from "./ForecastNext7Days";
 import { useFetchSensitivityData } from "@/hooks/useFetchSensitivityData";
 import HorizontalBarChart from "./HorizontalBarChart";
 import DashboardModalContent from "./DashBoardModalContent";
+import DashboardExportButtons from "./DashboardExportButtons";
 import StationInfoCard from "./StationInfoCard";
 import apiRoutes from "@/lib/apiRoutes";
-import { downloadDashboardAsPdf, downloadDashboardAsPng, downloadDashboardTableCsv, runDashboardExport } from "./lib/exportDashboard";
+import { downloadDashboardTableCsv } from "./lib/exportDashboard";
 
 /**
  * 설명 적어두자
@@ -28,6 +29,11 @@ import { downloadDashboardAsPdf, downloadDashboardAsPng, downloadDashboardTableC
  * @ 
  * @ 
  * @
+ * ************************************************************************************************************
+ * TODO
+ * 1. 데이터 로직 분리: Custom Hook 사용
+ * 2. 번들 최소화 방향 고민
+ * 3. 상태 과다 분석
 */
 
 // 상수 선언
@@ -231,28 +237,6 @@ export default function DashBoardContents() {
         });
     }, [displayedTable, tableColumns]);
 
-    // 대시보드 이미지로 저장 함수
-    const handleSavePng = useCallback(() => {
-        return runDashboardExport(
-            () => downloadDashboardAsPng(contentRef.current),
-            {
-                logLabel: 'PNG export failed',
-                genericErrorMessage: 'PNG 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            },
-        );
-    }, [contentRef]);
-
-    // 대시보드 PDF로 저장 함수
-    const handleSavePdf = useCallback(() => {
-        return runDashboardExport(
-            () => downloadDashboardAsPdf(contentRef.current),
-            {
-                logLabel: 'PDF export failed',
-                genericErrorMessage: 'PDF 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            },
-        );
-    }, [contentRef]);
-
     // 관측소 상세 모달창 설정
     const handleOpenModal = () => {
         openModal(
@@ -270,7 +254,7 @@ export default function DashBoardContents() {
         );
     };
     
-    // OPEN API: 일별 지하수위 데이터
+    // 데이터 fetch : OPEN API 지하수위 현황
     const getCurrFetchDatas = useCallback(async () => {
         try {
             const resp = await fetch(apiRoutes.currentElev(TABLE_WINDOW_DAYS));
@@ -347,11 +331,7 @@ export default function DashBoardContents() {
                                 </div>
                             </div>
 
-                            <div className="btn-box max-w-1/5 sm:max-w-none shrink-0 flex items-center lg:items-start gap-1 lg:gap-4 flex-col sm:flex-row lg:flex-col">
-                                <p className="c-stit01 hidden lg:block">다운로드</p>
-                                <CustomButton caption="PNG저장" bType="button" bStyle="btn-style-3 h-full max-h-12 w-full" handler={handleSavePng} />
-                                <CustomButton caption="PDF저장" bType="button" bStyle="btn-style-3 h-full max-h-12 w-full" handler={handleSavePdf} />
-                            </div>
+                            <DashboardExportButtons contentRef={contentRef} />
                         </div>
                     }
                     footer={
