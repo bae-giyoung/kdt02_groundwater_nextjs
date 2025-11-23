@@ -5,26 +5,31 @@
 
 ---
 
+## 📌 Notes
+
+- 이 레포지토리는 **Frontend** 전용입니다. 백엔드/AI 서버는 별도 레포지토리에서 관리됩니다.
+- 일부 실험적인 기능(`src/experiments`, `src/app/monitoring` 등)은 프로덕션 빌드에 포함되지 않으며, 문서에서도 제외했습니다.
+
+---
+
 ## 📖 Table of Contents
 
 > 목차의 항목을 클릭하면 해당 섹션으로 바로 이동할 수 있습니다.
 
-## 📖 Table of Contents
-
-- [개요](#-overview)
-- [기술 스택](#-tech-stack)
-- [프로젝트 구조](#-project-structure)
+- [개요](#-개요-overview)
+- [기술 스택](#-기술-스택-tech-stack)
+- [프로젝트 구조](#-프로젝트-구조-project-structure)
 - [Setup & Run](#-getting-started)
-- [환경변수 설정](#-environment-variables)
-- [프리뷰 및 웹 시연 동영상](#-preview)
-- [시스템 아키텍쳐](#-system-architecture)
-- [기술적 문제 해결](#-troubleshooting--key-decisions)
-- [문서 모음](#-docs)
+- [환경변수 설정](#-환경변수-설정-environment-variables)
+- [프리뷰 및 웹 시연 동영상](#-프리뷰-preview)
+- [시스템 아키텍쳐](#-시스템-아키텍쳐-system-architecture)
+- [기술적 문제 해결 과정](#-기술적-문제-해결-과정-troubleshooting--key-decisions)
+- [문서 모음](#-문서-모음-docs)
 - [Release Notes](#-release-notes)
 
 ---
 
-## 🧩 Overview
+## 🧩 개요 (Overview)
 
 - **역할**: 분리형 3계층 아키텍처에서 **프론트엔드(View + BFF 역할)** 담당
 - **백엔드 연동**: Spring Boot API 서버, FastAPI AI 서버와 연동
@@ -53,7 +58,7 @@
 
 ---
 
-## 📁 Project Structure
+## 📁 프로젝트 구조 (Project Structure)
 
 ```text
 c:.
@@ -100,7 +105,7 @@ http://localhost:3000
 
 ---
 
-## 🔐 Environment Variables
+## 🔐 환경변수 설정 (Environment Variables)
 
 #### .env.local
 
@@ -113,14 +118,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-## 📌 Notes
-
-- 이 레포지토리는 **Frontend** 전용입니다. 백엔드/AI 서버는 별도 레포지토리에서 관리됩니다.
-- 일부 실험적인 기능(`src/experiments`, `src/app/monitoring` 등)은 프로덕션 빌드에 포함되지 않으며, 문서에서도 제외했습니다.
-
----
-
-## 🖼 Preview
+## 🖼 프리뷰 (Preview)
 
 <p align="center">
   <img src="./docs/presentation/dashboard_preview.png" width="80%" alt="Dashboard Preview" />
@@ -128,7 +126,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-### 🎥 Demo Video
+### 🎥 시연 동영상 (Demo Video)
 
 <a href="https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5" target="_blank" rel="noopener noreferrer">
   🔗 https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5
@@ -136,7 +134,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-### 🏗 System Architecture(개요)
+### 🏗 시스템 아키텍쳐 (System Architecture)
 
 <p align="center">
   <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
@@ -144,7 +142,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-## 🤔 Troubleshooting & Key Decisions
+## 🤔 기술적 문제 해결 과정 (Troubleshooting & Key Decisions)
 
 이 프로젝트를 진행하며 마주했던 주요 기술적 고민과 해결 과정을 공유합니다.
 
@@ -181,7 +179,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-## 📚 Docs
+## 📚 문서 모음 (Docs)
 
 > *문서들은 프로젝트 진행 및 개선에 따라 업데이트됩니다.*
 
