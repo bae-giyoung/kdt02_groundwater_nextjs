@@ -18,13 +18,19 @@
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 기술 스택 (Tech Stack)
 
-- **Framework**: Next.js (App Router) + React
-- **Styling**: Tailwind CSS, PostCSS, CSS
-- **Charts & Map**: Highcharts.js
-- **State Management**: Jotai
-- **Build & Tooling**: TypeScript, ESLint, Prettier
+| 구분 | 기술 | 선택 이유 |
+| :--- | :--- | :--- |
+| **코어 프레임워크** | [Next.js] (v15) | SEO 최적화와 초기 로딩 속도 개선을 위해 서버 사이드 렌더링(SSR)과 정적 사이트 생성(SSG)을 활용합니다. App Router는 라우팅 및 레이아웃 관리를 위한 강력한 기반을 제공합니다. |
+| **UI 라이브러리** | [React] (v19) | 선언적이고 컴포넌트 기반의 접근 방식을 통해 복잡한 사용자 인터페이스를 효율적으로 구축합니다. |
+| **언어** | [TypeScript] | JavaScript에 정적 타이핑을 추가하여 코드 품질, 개발자 생산성, 장기적인 유지보수성을 향상시킵니다. |
+| **스타일링** | [Tailwind CSS] | 유틸리티 우선 CSS 프레임워크로, HTML을 벗어나지 않고도 빠르고 일관된 UI 개발이 가능합니다. `clsx`와 `tailwind-merge`를 함께 사용하여 조건부 클래스를 깔끔하게 관리합니다. |
+| **상태 관리** | [Jotai] | React를 위한 원자적(atomic)이고 유연한 상태 관리 라이브러리입니다. 불필요한 리렌더링을 최소화하고 애플리케이션 전반의 상태 로직을 단순화합니다. |
+| **차트 & 지도** | [Highcharts] | Highcharts는 다양한 종류의 인터랙티브 차트를 위해 사용했습니다. |
+| **애니메이션** | [Framer Motion], [GSAP] | 부드럽고 복잡한 애니메이션을 구현하여 대시보드의 사용자 경험과 시각적 매력을 향상시킵니다. |
+| **데이터 핸들링** | [Papa Parse], [jsPDF], [html-to-image] | Papa Parse는 클라이언트 측 CSV 파싱을 담당합니다. jsPDF와 html-to-image는 데이터 및 시각화 결과(PDF, 이미지 등)를 내보내는 기능을 제공합니다. |
+| **린팅 & 포맷팅**| [ESLint] | 일관된 코드 스타일을 강제하고 잠재적 오류를 식별하여 프로젝트 전반의 코드 품질과 유지보수성을 보장합니다. |
 
 ---
 
@@ -32,7 +38,7 @@
 
 ```text
 c:.
-├───public/                     # 정적 에셋 (이미지, 폰트 등)
+├───public/                     # 정적 에셋 (이미지, 동영상 등)
 │   └───assets/
 └───src/
     ├───app/                    # 페이지 및 라우팅 (App Router)
@@ -116,5 +122,33 @@ GROUNDWATER_API_KEY=
 <p align="center">
   <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
 </p>
+
+---
+
+## 🤔 Troubleshooting & Key Decisions
+
+이 프로젝트를 진행하며 마주했던 주요 기술적 고민과 해결 과정을 공유합니다.
+
+### 1. 다중서버 CORS 문제: 세션 로그인
+
+- **문제점**: 
+  Next.js, Spring Boot, FastAPI가 서로 다른 Origin에서 동작하면서 브라우저가 Cross-Origin으로 판단 → **CORS 에러 발생 + 세션 쿠키 전달 실패(JSESSIONID)**
+- **검토한 방법**:
+  | 검토한 방법 | 결과 | 비고 |
+  |------------|------|------|
+  | SameSite=None + Secure + HTTPS | 부분 해결 | Chrome의 3rd-Party Cookie 정책으로 인증 안정성 부족 |
+  | Nginx Reverse Proxy 구성 | 가능 | 운영 환경에 가장 적합하다고 판단되어 이후 **배포 시 작업 예정** |
+  | **Next.js `rewrites` 프록시 활용** | 최종 선택 | 개발 환경 즉시 대응 가능 + 구조 단순 |
+- **해결 과정**:
+  Next.js rewrites 설정으로 프론트 서버를 중계 서버로 사용하여, 모든 요청 경로가 동일 Origin으로 처리되도록 구성
+- **결과**
+  - CORS 문제 해결
+  - JSESSIONID HttpOnly 쿠키의 경우 프론트 서버의 도메인으로 저장 & 이후 인증 시, 쿠키가 백엔드 서버로 정상적으로 전달
+
+### 2. 프론트 측의 Login 세션 유지 및 페이지 로딩 시 UI 깜빡임 해결
+
+
+### 3. Open API 일부 실패 시 전체 요청 실패
+
 
 ---
