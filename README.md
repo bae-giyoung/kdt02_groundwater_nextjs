@@ -2,7 +2,6 @@
 
 > 지하수 수위 예측 결과를 시각화하는 **대시보드 Frontend** 레포입니다.  
 > Next.js + React 기반으로 지도, 차트, 카드형 위젯 등을 구현했습니다.
-> 웹 시연 동영상 URL: https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5
 
 ---
 
