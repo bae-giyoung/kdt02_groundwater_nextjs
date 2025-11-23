@@ -5,6 +5,25 @@
 
 ---
 
+## 📖 Table of Contents
+
+> 목차의 항목을 클릭하면 해당 섹션으로 바로 이동할 수 있습니다.
+
+## 📖 Table of Contents
+
+- [개요](#-overview)
+- [기술 스택](#-tech-stack)
+- [프로젝트 구조](#-project-structure)
+- [Setup & Run](#-getting-started)
+- [환경변수 설정](#-environment-variables)
+- [프리뷰 및 웹 시연 동영상](#-preview)
+- [시스템 아키텍쳐](#-system-architecture)
+- [기술적 문제 해결](#-troubleshooting--key-decisions)
+- [문서 모음](#-docs)
+- [Release Notes](#-release-notes)
+
+---
+
 ## 🧩 Overview
 
 - **역할**: 분리형 3계층 아키텍처에서 **프론트엔드(View + BFF 역할)** 담당
@@ -117,7 +136,7 @@ GROUNDWATER_API_KEY=
 
 ---
 
-### 🏗 System Architecture
+### 🏗 System Architecture(개요)
 
 <p align="center">
   <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
@@ -133,22 +152,48 @@ GROUNDWATER_API_KEY=
 
 - **문제점**: 
   Next.js, Spring Boot, FastAPI가 서로 다른 Origin에서 동작하면서 브라우저가 Cross-Origin으로 판단 → **CORS 에러 발생 + 세션 쿠키 전달 실패(JSESSIONID)**
+
 - **검토한 방법**:
   | 검토한 방법 | 결과 | 비고 |
   |------------|------|------|
-  | SameSite=None + Secure + HTTPS | 부분 해결 | Chrome의 3rd-Party Cookie 정책으로 인증 안정성 부족 |
+  | SameSite=None + Secure + HTTPS | 해결 but 향후 문제발생 가능 | Chrome의 3rd-Party Cookie 정책으로 인증 안정성 부족 |
   | Nginx Reverse Proxy 구성 | 가능 | 운영 환경에 가장 적합하다고 판단되어 이후 **배포 시 작업 예정** |
   | **Next.js `rewrites` 프록시 활용** | 최종 선택 | 개발 환경 즉시 대응 가능 + 구조 단순 |
+
 - **해결 과정**:
   Next.js rewrites 설정으로 프론트 서버를 중계 서버로 사용하여, 모든 요청 경로가 동일 Origin으로 처리되도록 구성
+
 - **결과**
   - CORS 문제 해결
   - JSESSIONID HttpOnly 쿠키의 경우 프론트 서버의 도메인으로 저장 & 이후 인증 시, 쿠키가 백엔드 서버로 정상적으로 전달
 
 ### 2. 프론트 측의 Login 세션 유지 및 페이지 로딩 시 UI 깜빡임 해결
 
+- **문제점**: 
+- **검토한 방법**: 
+- **해결 과정**:
 
 ### 3. Open API 일부 실패 시 전체 요청 실패
 
+- **문제점**: 
+- **검토한 방법**: 
+- **해결 과정**:
 
 ---
+
+## 📚 Docs
+
+> *문서들은 프로젝트 진행 및 개선에 따라 업데이트됩니다.*
+
+[![프로젝트 보고서](https://img.shields.io/badge/Project_Report-.docx-blue?style=flat&logo=microsoftword)](./docs/project-report-v1.docx)
+[![프로젝트 발표용 자료](https://img.shields.io/badge/Presentation-PDF-red?style=flat&logo=adobeacrobatreader)](./docs/presentation/presentation.pdf)
+
+---
+
+## 📝 Release Notes
+
+| 버전 | 날짜 | 주요 변경 내용 |
+|-------|------|----------------|
+| v1.0.0 | 2025-11-09 | 로컬 통합 |
+| v1.1.0 | 예정 | UX 개선, 에러 핸들링 강화 |
+| v2.0.0 | 예정 | 운영 환경 배포 (Nginx + HTTPS) |
