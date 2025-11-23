@@ -160,7 +160,6 @@ c:.
 아래 기능과 구조 개선은 **v2.0.0 Release**에서 적용될 예정이며,  
 운영 환경에서 안정성과 데이터 흐름의 일관성을 확보하는 것을 목표로 합니다.
 
----
 
 ### 1️⃣ 운영 아키텍처 전환 (Architecture Refactoring)
 
@@ -185,7 +184,6 @@ Client → Nginx → Spring Boot(API Gateway) → FastAPI / MySQL / Next.js
 | 유지보수성 | 책임 분리 → 프론트/UI와 백엔드/로직 독립 |
 | 확장성 | 서버 추가 및 로드밸런싱 구조로 확장 가능 |
 
----
 
 ### 2️⃣ End-to-End 데이터 파이프라인 구축
 
@@ -212,12 +210,12 @@ Client → Nginx → Spring Boot(API Gateway) → FastAPI / MySQL / Next.js
 | 응답 속도 | Next.js가 ‘직접 모델 호출’이 아닌 ‘데이터 조회’로 변경 → 성능 개선 |
 | 재현성 | 동일 데이터 기준으로 모델 재실행·검증 가능 |
 
----
 
 ### 3️⃣ 운영 안정성 (Observability)
 
 - Nginx + HTTPS + 도메인 통합
 - 장애 시 fallback 전략 추가
+
 
 > v2.0.0은 단순 기능 추가가 아닌, “개발 환경 → 운영 서비스”로의 전환을 목표로 합니다.
 
