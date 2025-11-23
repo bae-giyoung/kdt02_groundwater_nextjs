@@ -5,6 +5,7 @@ const apiRoutes = {
 
   // 내부 Next.js API routes
   currentElev: (days: number) => `/api/v1/dashboard/currentElev?days=${days}`,
+  featureImportance: () => `/api/v1/dashboard/featureImportance`,
 };
 
 export default apiRoutes;

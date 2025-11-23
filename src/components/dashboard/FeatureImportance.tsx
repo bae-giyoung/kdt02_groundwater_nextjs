@@ -5,6 +5,7 @@ import HighchartsReact from 'highcharts-react-official';
 import ExportingModule from 'highcharts/modules/exporting';
 import ExportDataModule from 'highcharts/modules/export-data';
 import OfflineExportingModule from 'highcharts/modules/offline-exporting';
+import apiRoutes from "@/lib/apiRoutes";
 
 // Highcharts Exporting 모듈 임포트: 클라이언트에서 한번만 실행
 if (typeof window !== 'undefined') {
@@ -26,9 +27,6 @@ type FeatureT = [
     importance: number
 ]
 
-// 상수
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 // 컬러
 const mutedPalette = [
   '#87d4cc', '#FFE082', '#1976D2', '#A5D6A7', '#80DEEA',
@@ -41,10 +39,9 @@ const mutedPalette = [
 
 // 데이터 가져오기 : 이제 안 쓸거임! -> 쓰는 게 나을지도
 const fetchData = async() => {
-    const resp = await fetch(`${BASE_URL}/api/v1/dashboard/featureImportance`, {
+    const resp = await fetch(apiRoutes.featureImportance(), {
         headers: { "Content-type" : "application/json" },
         method: "GET",
-        mode: "cors"
     });
     if(resp.ok) {
         const data = await resp.json();
