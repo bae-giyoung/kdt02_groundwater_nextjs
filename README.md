@@ -17,14 +17,14 @@
 > 목차의 항목을 클릭하면 해당 섹션으로 바로 이동할 수 있습니다.
 
 - [개요](#-개요-overview)
+- [시스템 아키텍쳐](#-시스템-아키텍쳐-system-architecture)
 - [기술 스택](#-기술-스택-tech-stack)
 - [프로젝트 구조](#-프로젝트-구조-project-structure)
-- [Setup & Run](#-getting-started)
-- [환경변수 설정](#-환경변수-설정-environment-variables)
 - [프리뷰 및 웹 시연 동영상](#-프리뷰-preview)
-- [시스템 아키텍쳐](#-시스템-아키텍쳐-system-architecture)
 - [기술적 문제 해결 과정](#-기술적-문제-해결-과정-troubleshooting--key-decisions)
+- [향후 개선 로드맵](#-향후-개선-로드맵-roadmap--future-improvements)
 - [문서 모음](#-문서-모음-docs)
+- [Setup & Run](#-getting-started)
 - [Release Notes](#-release-notes)
 
 ---
@@ -34,11 +34,22 @@
 - **역할**: 분리형 3계층 아키텍처에서 **프론트엔드(View + BFF 역할)** 담당
 - **백엔드 연동**: Spring Boot API 서버, FastAPI AI 서버와 연동
 - **주요 기능**
-  - 전국 관측소 GeoMap + 버블 시각화
-  - 관측소 상세 모달 (실측 vs 예측)
-  - 경고/위험/정상 구간 시각화
-  - 로그인/회원가입/사용자 정보 수정
+  - 전국 관측소 현황: 
+    - 전국 관측소 GeoMap + 버블 시각화: 
+      - 지하수위 현황(경고/위험/정상), 관측소별 기상 민감도(강수민감형·가뭄취약형·복합형) 시각화
+    - 전일대비 증감량 표시 테이블
+  - 관측소 상세 모달 (관측소별 AI 분석 리포트)
+  - 관측소 지하수위 향후 7일 예측 시각화 - FastAPI 연동
   - 대시보드 데이터 Export (CSV, XLSX)
+  - 로그인/회원가입/사용자 정보 수정 및 탈퇴
+
+---
+
+### 🏗 시스템 아키텍쳐 (System Architecture)
+
+<p align="center">
+  <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
+</p>
 
 ---
 
@@ -90,34 +101,6 @@ c:.
 
 ---
 
-## 🚀 Getting Started
-
-```bash
-# 1. 의존성 설치
-npm install
-
-# 2. 개발 서버 실행
-npm run dev
-
-# 3. 브라우저에서 열기
-http://localhost:3000
-```
-
----
-
-## 🔐 환경변수 설정 (Environment Variables)
-
-#### .env.local
-
-`.env.local` 파일을 프로젝트 루트에 생성하고 아래 환경변수를 설정해야 합니다.
-
-```text
-# Open API 서버와 통신하기 위한 키
-GROUNDWATER_API_KEY=
-```
-
----
-
 ## 🖼 프리뷰 (Preview)
 
 <p align="center">
@@ -132,13 +115,6 @@ GROUNDWATER_API_KEY=
   🔗 https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5
 </a>
 
----
-
-### 🏗 시스템 아키텍쳐 (System Architecture)
-
-<p align="center">
-  <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
-</p>
 
 ---
 
@@ -179,6 +155,74 @@ GROUNDWATER_API_KEY=
 
 ---
 
+## 🚀 향후 개선 로드맵 (Roadmap & Future Improvements)
+
+아래 기능과 구조 개선은 **v2.0.0 Release**에서 적용될 예정이며,  
+운영 환경에서 안정성과 데이터 흐름의 일관성을 확보하는 것을 목표로 합니다.
+
+---
+
+### 1️⃣ 운영 아키텍처 전환 (Architecture Refactoring)
+
+현재 개발 환경에서는 Next.js가 Proxy 역할을 수행하고 있으나,  
+운영 단계에서는 다음과 같은 구성으로 전환합니다:
+
+```text
+Client → Nginx → Spring Boot(API Gateway) → FastAPI / MySQL / Next.js
+```
+
+- **Spring Boot를 API Gateway로 승격**
+- 인증·인가, CORS, Rate-Limit, 요청 로깅을 **중앙 집중화**
+- Next.js는 UI/Presentation 전담
+- FastAPI는 **AI 추론 전담 서비스**로 고립
+- 서비스 간 통신은 REST 기반(추후 gRPC 고려)
+
+**Expected Benefits**
+
+| 항목 | 개선 효과 |
+|------|-----------|
+| 보안 | 쿠키·세션 관리 단일화, SameSite 정책 충돌 방지 |
+| 유지보수성 | 책임 분리 → 프론트/UI와 백엔드/로직 독립 |
+| 확장성 | 서버 추가 및 로드밸런싱 구조로 확장 가능 |
+
+---
+
+### 2️⃣ End-to-End 데이터 파이프라인 구축
+
+현재 데이터 흐름은 단방향 fetch 중심이지만,  
+운영 단계에서는 **자동 수집 → 저장 → 추론 → 제공** 흐름을 정식 파이프라인화합니다.
+
+```text
+(1) Open API → (2) Spring Boot → (3) MySQL 저장
+↓
+(4) FastAPI → (5) AI 예측 → (6) 결과 저장(MySQL)
+↓
+(7) Next.js → 실시간 대시보드 제공
+```
+
+- Spring Boot → 웹 크론(Web Cron) 기반 실시간 수집
+- FastAPI → 모델 실행 및 예측 결과 저장
+- Next.js → 저장된 데이터를 읽기만 하는 구조로 변경
+
+**기대 효과 (Expected Benefits)**
+
+| 항목 | 효과 |
+|------|------|
+| 데이터 신뢰성 | API 장애가 있어도 DB 기반 업데이트 가능 |
+| 응답 속도 | Next.js가 ‘직접 모델 호출’이 아닌 ‘데이터 조회’로 변경 → 성능 개선 |
+| 재현성 | 동일 데이터 기준으로 모델 재실행·검증 가능 |
+
+---
+
+### 3️⃣ 운영 안정성 (Observability)
+
+- Nginx + HTTPS + 도메인 통합
+- 장애 시 fallback 전략 추가
+
+> v2.0.0은 단순 기능 추가가 아닌, “개발 환경 → 운영 서비스”로의 전환을 목표로 합니다.
+
+---
+
 ## 📚 문서 모음 (Docs)
 
 > *문서들은 프로젝트 진행 및 개선에 따라 업데이트됩니다.*
@@ -188,10 +232,37 @@ GROUNDWATER_API_KEY=
 
 ---
 
+## 🚀 Getting Started
+
+```bash
+# 1. 의존성 설치
+npm install
+
+# 2. 개발 서버 실행
+npm run dev
+
+# 3. 브라우저에서 열기
+http://localhost:3000
+```
+
+---
+
+## 🔐 환경변수 설정 (Environment Variables)
+
+#### .env.local
+
+`.env.local` 파일을 프로젝트 루트에 생성하고 아래 환경변수를 설정해야 합니다.
+
+```text
+# Open API 서버와 통신하기 위한 키
+GROUNDWATER_API_KEY=
+```
+
+---
+
 ## 📝 Release Notes
 
 | 버전 | 날짜 | 주요 변경 내용 |
 |-------|------|----------------|
 | v1.0.0 | 2025-11-09 | 로컬 통합 |
-| v1.1.0 | 예정 | UX 개선, 에러 핸들링 강화 |
-| v2.0.0 | 예정 | 운영 환경 배포 (Nginx + HTTPS) |
+| v2.0.0 | 예정 | 운영 환경 아키텍처 확립 + End-to-End 파이프라인 구축 |
