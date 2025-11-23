@@ -93,3 +93,29 @@ GROUNDWATER_API_KEY=
 
 - 이 레포지토리는 **Frontend** 전용입니다. 백엔드/AI 서버는 별도 레포지토리에서 관리됩니다.
 - 일부 실험적인 기능(`src/experiments`, `src/app/monitoring` 등)은 프로덕션 빌드에 포함되지 않으며, 문서에서도 제외했습니다.
+
+---
+
+## 🖼 Preview
+
+<p align="center">
+  <img src="./docs/presentation/dashboard_preview.png" width="80%" alt="Dashboard Preview" />
+</p>
+
+---
+
+### 🎥 Demo Video
+
+<a href="https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5" target="_blank" rel="noopener noreferrer">
+  🔗 https://www.awesomescreenshot.com/video/46379582?key=841a26872d250d5c3c5fcddca08a67d5
+</a>
+
+---
+
+### 🏗 System Architecture
+
+<p align="center">
+  <img src="./docs/presentation/architecture.png" width="80%" alt="System Architecture Diagram" />
+</p>
+
+---
