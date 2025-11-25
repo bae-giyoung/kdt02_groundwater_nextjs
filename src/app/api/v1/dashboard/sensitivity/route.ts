@@ -2,14 +2,25 @@ import { NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import path from "path";
 
+// 타입 정의
+interface StationAnalysis {
+    increase_if_rainfall: string;
+    decrease_if_drought: string;
+    [key: string]: any; // 아직 정의되지 않은 다른 속성들 허용
+}
+
+interface PredictionAnalysisData {
+    stations_analisys: StationAnalysis[];
+}
+
 export async function GET() {
     try {
         const filePath = path.join(process.cwd(), "src/data/predict_analysis.json");
         const json = readFileSync(filePath, "utf8");
-        const data = JSON.parse(json);
+        const data: PredictionAnalysisData = JSON.parse(json);
 
         if(data && data.stations_analisys) {
-            const recordWithType = data.stations_analisys.map((record: any) => {
+            const recordWithType = data.stations_analisys.map((record: StationAnalysis) => {
                 const rainfall_val = parseFloat(record.increase_if_rainfall) ?? 0;
                 const drought_val = parseFloat(record.decrease_if_drought) ?? 0;
 

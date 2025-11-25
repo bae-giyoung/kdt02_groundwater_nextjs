@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 const desktopBreakpoint = 1000;
 
 export default function SetHeaderStyle() {
-    let pathname = usePathname();
+    const pathname = usePathname();
 
     const handleResize = () => {
         if(window.innerWidth >= desktopBreakpoint) {

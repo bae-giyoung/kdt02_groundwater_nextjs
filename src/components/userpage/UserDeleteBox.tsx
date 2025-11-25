@@ -81,20 +81,20 @@ export default function UserDeleteBox() {
 
             switch (response.status) {
                 case 200: {
-                    let message = "회원탈퇴 성공";
+                    const message = "회원탈퇴 성공";
                     handleSuccess(message);
                     break;
                 }
                 case 401:
                 case 422: {
-                    let message = result && "message" in result
+                    const message = result && "message" in result
                     ? result.message
                     : "회원탈퇴에 실패했습니다. 입력 정보를 다시 확인해주세요."
                     handleFailure(message); // result.message: 이메일이나 비밀번호가 올바르지 않습니다.
                     break;
                 }
                 default: {
-                    let message = result && "message" in result
+                    const message = result && "message" in result
                     ? result.message
                     : "회원탈퇴에 실패했습니다. 관리자에게 문의하세요.";
                     handleFailure(message); // result.message: 내부 서버 오류

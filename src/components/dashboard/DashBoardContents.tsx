@@ -42,21 +42,6 @@ const GEN_CODES = Object.keys(genInfo);
 const GEN_NAMES = Object.values(genInfo).map(({ ["측정망명"]: name }) => name);
 const TABLE_WINDOW_DAYS = 30;
 
-// 타입 선언
-type TrendMetricT = {
-    position: number | null;
-    latestElev: number | null;
-    latestYmd: string | null;
-    minElev: number | null;
-    maxElev: number | null;
-};
-
-type DashboardApiResponse = {
-    table?: DashboardTableData;
-    barChart?: Record<string, Record<string, number | null>>; 
-    groundwaterStatus?: StatusPoint[];
-};
-
 
 // 컴포넌트
 export default function DashBoardContents() {
@@ -67,7 +52,7 @@ export default function DashBoardContents() {
     const [currBarChartDatas, setCurrBarChartDatas] = useState<Record<string, Record<string, number | null>>>({});
     const [groundwaterStatusData, setGroundwaterStatusData] = useState<StatusPoint[]>([]); // 지도 상태
 
-    const { data: sensitivityData, loading: sensitivityLoading } = useFetchSensitivityData();
+    const { data: sensitivityData } = useFetchSensitivityData();
     const [isAsc, setIsAsc] = useState<boolean>(true);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const openModal = useSetAtom(openModalAtom);

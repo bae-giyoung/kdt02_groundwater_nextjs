@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
         // 성공한 것만 추려서 객체로 변환 => [['5724', [{gennum:'5724', elev:'105.76',..,ymd:'20251010'}, ...], ...], [..], ...]
         const entriesWithFallbacks = settledResults.map((result, idx) => 
             result.status === "fulfilled" ? result.value : [GENNUMS[idx], []]
-        ); // 나중에 fallback 형식으로 전부 보내서 에러 테스트하기 => 반드시
+        );
 
         // 관측소별 데이터로 변환 dataByStation => {'5724': [{gennum:'5724', elev:'105.76',..,ymd:'20251010'}, {}, ...], '514310': [...], ...}
         const dataByStation: Record<string, UnitFromOpenApiT[]> = Object.fromEntries(entriesWithFallbacks);

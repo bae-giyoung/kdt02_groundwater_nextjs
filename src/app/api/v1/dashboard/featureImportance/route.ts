@@ -11,9 +11,7 @@ interface FeatureImportanceUnitT {
 }
 
 // POST: csv를 json파일로 만들기 위한 임시 endpoint
-export async function POST(
-    request: NextRequest
-) {
+export async function POST() {
     try{
 
       const csvFilePath = path.join(process.cwd(), `src/data/feature_importances_12.csv`);
@@ -40,6 +38,7 @@ export async function GET(
   const params = request.nextUrl.searchParams;
   const stationCode = params.get("stationCode");
 
+  // stationCode 없으면 return
   if (!stationCode) {
     return NextResponse.json(
       { message: "stationCode is required" },
@@ -49,7 +48,7 @@ export async function GET(
 
   const stationId = getStationId(stationCode);
 
-  // stationId 없으면 return
+  // 매핑되는 stationId 없으면 return
   if (stationId === null) {
     return NextResponse.json(
       { message: "Invalid stationCode" },
@@ -74,10 +73,11 @@ export async function GET(
 
     return NextResponse.json(resp);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in featureImportance GET route:", error);
     
-    if (error.code === 'ENOENT') {
+    // error가 code 속성을 가진 객체인지 확인하는 타입 가드
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT') {
         return NextResponse.json({ message: `해당하는 파일을 찾을 수 없습니다. stationCode: ${stationCode ?? 'Unknown'}` }, { status: 404 });
     }
 

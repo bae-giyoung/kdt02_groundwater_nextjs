@@ -103,7 +103,7 @@ export default function UserEditBox(
 
             switch (response.status) {
                 case 200: {
-                    let message = "회원정보 변경 성공";
+                    const message = "회원정보 변경 성공";
                     handleSuccess(message);
                     break;
                 }
@@ -111,14 +111,14 @@ export default function UserEditBox(
                 case 401:
                 case 409:
                 case 422: {
-                    let message = result && "message" in result
+                    const message = result && "message" in result
                     ? result.message
                     : "회원정보 변경에 실패했습니다. 입력 정보를 다시 확인해주세요."
                     handleFailure(message);
                     break;
                 }
                 default: {
-                    let message = result && "message" in result
+                    const message = result && "message" in result
                     ? result.message
                     : "회원정보 변경에 실패했습니다. 관리자에게 문의하세요.";
                     handleFailure(message); // result.message: 내부 서버 오류

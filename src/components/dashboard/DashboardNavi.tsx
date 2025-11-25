@@ -1,6 +1,6 @@
 'use client';
 import { ReactElement, ReactNode, cloneElement, useLayoutEffect, useMemo, useRef } from 'react';
-import { gsap} from 'gsap';
+import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 let scrollTriggerRegistered = false;
@@ -19,7 +19,6 @@ interface DashboardNaviProps {
 }
 
 const DEFAULT_BREAKPOINT = 1024;
-const DEFAULT_Z_INDEX = 1000;
 
 export default function DashboardNavi({
   className,

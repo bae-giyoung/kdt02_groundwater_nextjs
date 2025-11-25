@@ -1,63 +1,10 @@
 "use client";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
 import MainVideo from "@/components/MainVideo";
-import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import arrowWh from "../../public/assets/arrow_link_wh.png";
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-
 export default function Home() {
-
-  // 메인에서만 사용할거지만 일단은 함수로 묶음 
-/*   const scrollSmootherFn = (
-    {
-      wrapper, 
-      content, 
-      smooth, 
-      effects, 
-      smoothTouch
-    }
-    : {
-      wrapper: string, 
-      content: string, 
-      smooth: number, 
-      effects: boolean, 
-      smoothTouch: number
-    }
-  ) => {
-    const isReduceMode = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if(isReduceMode) return;
-
-    ScrollSmoother.get()?.kill();
-
-    const smoother = ScrollSmoother.create({
-      wrapper: wrapper,
-      content: content,
-      smooth: smooth,
-      effects: effects,
-      smoothTouch: smoothTouch
-    });
-
-    return smoother;
-  };
-
-  useEffect(()=>{
-    const smoother = scrollSmootherFn({
-      wrapper: "#smooth-wrapper", 
-      content: "#smooth-content", 
-      smooth: 1.3, 
-      effects: true, 
-      smoothTouch: 0.1
-    });
-
-    return () => {
-      smoother?.kill();
-    }
-  }, []); */
 
   return (
     <main>
@@ -83,10 +30,6 @@ export default function Home() {
               </Link>
             </div>
           </section>
-          {/* <section id="msection-1" className="min-h-96">섹션1</section>
-          <section id="msection-2" className="min-h-96">섹션2</section>
-          <section id="msection-3" className="min-h-96">섹션3</section>
-          <section id="msection-4" className="min-h-96">섹션4</section> */}
         </div>
       </div>
     </main>
