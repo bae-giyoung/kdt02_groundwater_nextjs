@@ -195,7 +195,7 @@ export default function DashboardModalContent ({
             return renderInfoBlock('표시할 데이터가 없습니다.');
         }
         return (
-            <div className="flex gap-6">
+            <div className="flex gap-6 lg:flex-row flex-col">
                 <div className="w-full lg:w-2/3">
                     <WeatherGroundwaterTrendChart
                         baseUrl={weatherUrl}
@@ -204,7 +204,7 @@ export default function DashboardModalContent ({
                     />
                 </div>
                 <div className="w-full lg:w-1/3 d-group">
-                    <FeatureImportance stationCode={station} prefetchedData={null} />
+                    <FeatureImportance stationCode={station} />
                 </div>
             </div>
         );

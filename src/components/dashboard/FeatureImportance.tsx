@@ -37,32 +37,30 @@ const mutedPalette = [
   '#7E57C2', '#D81B60', '#607D8B',
 ]
 
-// 데이터 가져오기 : 이제 안 쓸거임! -> 쓰는 게 나을지도
-const fetchData = async() => {
-    const resp = await fetch(apiRoutes.featureImportance(), {
+// 데이터 가져오기 :
+const fetchData = async(stationCode: string) => {
+    const resp = await fetch(`${apiRoutes.featureImportance()}?stationCode=${stationCode}`, {
         headers: { "Content-type" : "application/json" },
         method: "GET",
     });
     if(resp.ok) {
         const data = await resp.json();
         return data;
-    } else return resp.body; // 정확한 구조 확인
+    } else return resp.body;
 }
 
 // 컴포넌트
 export default function FeatureImportance({
     chartTitle = '주요 영향 변수 분석',
     stationCode = '84020',
-    prefetchedData = null, // 그냥 안에서 fetch할까? 밖에서 데이터를 받을까?
 } : {
     chartTitle?: string,
     stationCode: string,
-    prefetchedData: Record<string, FeatureT[]> | null,
 }) {
     const [allData, setAllData] = useState<Record<string, FeatureT[]>>({}); // Record<"stationCode", [["name", 0.05], .....]>
 
     useEffect(() => {
-        fetchData().then(res => {
+        fetchData(stationCode).then(res => {
             if(res.stateCode !== 200) return;
             setAllData(res.data);
         });
