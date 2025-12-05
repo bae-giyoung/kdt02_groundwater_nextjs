@@ -12,7 +12,7 @@ export default function Home() {
         <div id="smooth-content" className="pb-[250px]">
           <section id="hero-visual" className="relative min-h-svh overflow-hidden">
             <div className="absolute h-full w-full left-1/2 top-1/2 -translate-1/2">
-              <MainVideo vidSrc="assets/main/herovideo.mp4" />
+              <MainVideo videoSources={[{src: "/assets/main/herovideo.webm", type: "video/webm"}, {src: "/assets/main/herovideo.mp4", type: "video/mp4"}]} />
             </div>
             <div className="absolute w-full px-8 left-1/2 top-1/2 -translate-1/2 text-center text-white text-shadow-(--text-main-shadow)">
               <span className="block leading-none font-bold text-xl mb-5 lg:text-3xl lg:mb-8">
