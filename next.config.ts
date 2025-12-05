@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   async rewrites() {
     return [
-      { source: '/java/:path*', destination: 'http://10.125.121.211:8080/:path*' },
-      { source: '/ml/:path*', destination: 'http://10.125.121.216:8000/:path*' },
+      { source: '/java/:path*', destination: 'http://localhost:8080/:path*' },
+      { source: '/ml/:path*', destination: 'http://localhost:8000/:path*' },
     ]
   }
 };
